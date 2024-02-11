@@ -1,4 +1,4 @@
-export const formatSeconds = (seconds) => {
+export const formatSeconds = (seconds: number) => {
   if (Number.isNaN(seconds)) return '';
   const date = new Date(1_970, 0, 1);
   date.setSeconds(seconds);
@@ -9,22 +9,36 @@ export const formatSeconds = (seconds) => {
   return date.toTimeString().replace(/.*(\d{2}:\d{2}).*/u, '$1');
 };
 
-export const formatBytesAsUnit = (bytes, unit, decimals = 2) => {
+const UnitSizes = {
+  EB: 6,
+  GB: 3,
+  KB: 1,
+  MB: 2,
+  PB: 5,
+  TB: 4,
+  YB: 8,
+  ZB: 7,
+} as const;
+
+export const formatBytesAsUnit = (
+  bytes: number,
+  unit: keyof typeof UnitSizes | 'B',
+  decimals = 2,
+) => {
   if (unit === 'B') return bytes + ' ' + unit;
 
   const k = 1_024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = { EB: 6, GB: 3, KB: 1, MB: 2, PB: 5, TB: 4, YB: 8, ZB: 7 };
 
-  return Number.parseFloat((bytes / k ** sizes[unit]).toFixed(dm));
+  return Number.parseFloat((bytes / k ** UnitSizes[unit]).toFixed(dm));
 };
 
-export const formatBytes = (bytes, decimals = 2) => {
+export const formatBytes = (bytes: number, decimals = 2) => {
   if (bytes === 0) return '0 B';
 
   const k = 1_024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] as const;
 
   const index = Math.floor(Math.log(bytes) / Math.log(k));
 
@@ -33,15 +47,15 @@ export const formatBytes = (bytes, decimals = 2) => {
   );
 };
 
-export const formatDate = (date) => {
+export const formatDate = (date: string | number | Date) => {
   return new Date(date).toLocaleString();
 };
 
-export const getFileName = (fullPath) => {
-  return fullPath.split('\\').pop().split('/').pop();
+export const getFileName = (fullPath: string) => {
+  return fullPath.split('\\').pop()?.split('/').pop();
 };
 
-export const getDirectoryName = (fullPath) => {
+export const getDirectoryName = (fullPath: string) => {
   let path = fullPath;
 
   if (path.lastIndexOf('\\') > 0) {
@@ -60,6 +74,11 @@ export const formatAttributes = ({
   isVariableBitRate,
   bitDepth,
   sampleRate,
+}: {
+  bitDepth: number;
+  bitRate: number;
+  isVariableBitRate: boolean;
+  sampleRate: number;
 }) => {
   const isLossless = Boolean(sampleRate) && Boolean(bitDepth);
 
@@ -74,8 +93,8 @@ export const formatAttributes = ({
   return bitRate ? `${bitRate} Kbps` : '';
 };
 
-export const sleep = (milliseconds) => {
-  return new Promise((resolve) => {
+export const sleep = async (milliseconds: number) => {
+  return await new Promise((resolve) => {
     setTimeout(resolve, milliseconds);
   });
 };
@@ -98,15 +117,20 @@ export const sleep = (milliseconds) => {
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE
  */
-export const downloadFile = (data, filename, mime) => {
+export const downloadFile = (
+  data: BlobPart,
+  filename: string,
+  mime: string,
+) => {
   const blob = new Blob([data], { type: mime || 'application/octet-stream' });
-  // eslint-disable-next-line no-negated-condition
-  if (typeof window.navigator.msSaveBlob !== 'undefined') {
+  // eslint-disable-next-line no-negated-condition, @typescript-eslint/no-explicit-any
+  if (typeof (window.navigator as any).msSaveBlob !== 'undefined') {
     // IE workaround for "HTML7007: One or more blob URLs were
     // revoked by closing the blob for which they were created.
     // These URLs will no longer resolve as the data backing
     // the URL has been freed."
-    window.navigator.msSaveBlob(blob, filename);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window.navigator as any).msSaveBlob(blob, filename);
   } else {
     const blobURL = window.URL.createObjectURL(blob);
     const temporaryLink = document.createElement('a');

@@ -22,7 +22,7 @@ module.exports = {
         'canonical/react',
         'canonical/prettier',
       ],
-      files: ['*.jsx', '*.tsx'],
+      files: ['*.jsx'],
       parserOptions: {
         babelOptions: {
           parserOpts: {
@@ -33,6 +33,14 @@ module.exports = {
       rules: {
         ...overrides,
         'react/no-set-state': 'off', // only useful when using state libs
+      },
+    },
+    {
+      extends: ['canonical/typescript-type-checking'],
+      files: '*.{ts,tsx}',
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        project: ['./tsconfig.node.json'],
       },
     },
     {
