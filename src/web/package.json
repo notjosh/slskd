@@ -35,6 +35,9 @@
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.0",
     "@semantic-ui-react/css-patch": "^1.0.0",
+    "@types/lodash": "^4.14.202",
+    "@types/react": "^16.14.56",
+    "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react": "^4.2.1",

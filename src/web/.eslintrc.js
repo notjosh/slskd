@@ -42,6 +42,10 @@ module.exports = {
       parserOptions: {
         project: ['./tsconfig.node.json'],
       },
+      rules: {
+        ...overrides,
+        'react/no-set-state': 'off', // only useful when using state libs
+      },
     },
     {
       extends: ['canonical/vitest'],
