@@ -1,6 +1,6 @@
 import { browse } from '../../../lib/shares';
 import { CodeEditor, LoaderSegment, Switch } from '../../Shared';
-import { orderBy } from 'lodash';
+import orderBy from 'lodash/orderBy';
 import React, { useEffect, useState } from 'react';
 import { Button, Icon, Modal } from 'semantic-ui-react';
 

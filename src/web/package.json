@@ -33,6 +33,7 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
+    "@rollup/plugin-alias": "^5.1.0",
     "@semantic-ui-react/css-patch": "^1.0.0",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.56.0",
