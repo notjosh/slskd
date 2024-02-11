@@ -39,6 +39,7 @@
     "eslint": "^8.56.0",
     "eslint-config-canonical": "^42.8.1",
     "jsdom": "^24.0.0",
+    "typescript": "^5.3.3",
     "vite": "^5.1.1",
     "vitest": "^1.2.2"
   },
@@ -46,7 +47,7 @@
   "name": "web",
   "private": true,
   "scripts": {
-    "build": "vite build",
+    "build": "tsc && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "start": "vite",

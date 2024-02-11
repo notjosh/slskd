@@ -22,7 +22,7 @@ module.exports = {
         'canonical/react',
         'canonical/prettier',
       ],
-      files: ['*.jsx'],
+      files: ['*.jsx', '*.tsx'],
       parserOptions: {
         babelOptions: {
           parserOpts: {
@@ -36,8 +36,26 @@ module.exports = {
       },
     },
     {
-      extends: ['canonical/jest'],
-      files: '*.test.{js,jsx}',
+      extends: ['canonical/vitest'],
+      files: '*.test.{js,jsx,ts,tsx}',
+      globals: {
+        afterAll: true,
+        afterEach: true,
+        assert: true,
+        beforeAll: true,
+        beforeEach: true,
+        describe: true,
+        expect: true,
+        it: true,
+        suite: true,
+        test: true,
+        vi: true,
+        vitest: true,
+      },
+      rules: {
+        'vitest/no-disabled-tests': 'error',
+        'vitest/no-skipped-tests': 'off', // renamed: https://github.com/veritem/eslint-plugin-vitest/issues/131
+      },
     },
   ],
   root: true,
