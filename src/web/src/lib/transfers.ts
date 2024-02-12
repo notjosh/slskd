@@ -5,7 +5,7 @@ export enum TransferDirection {
   Upload = 'upload',
 }
 
-enum TransferState {
+export enum TransferState {
   CompletedCancelled = 'Completed, Cancelled',
   CompletedErrored = 'Completed, Errored',
   CompletedRejected = 'Completed, Rejected',
