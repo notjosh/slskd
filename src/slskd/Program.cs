@@ -75,6 +75,43 @@ namespace slskd
     using IOFile = System.IO.File;
     using Swashbuckle.AspNetCore.SwaggerGen;
 
+// strip `/api/vX` from the path prefix, since it lives in the `servers` section by convention
+class StripPrefixDocumentFilter : IDocumentFilter
+{
+    public void Apply(OpenApiDocument document, DocumentFilterContext context)
+    {
+        var Log = Serilog.Log.ForContext(typeof(StripPrefixDocumentFilter));
+
+        var changes = new Dictionary<string, string>();
+
+        foreach (var key in document.Paths.Keys)
+        {
+            if (key.StartsWith("/api/v0"))
+            {
+                var newKey = key.Remove(0, "/api/v0".Length);
+
+                if (document.Paths.ContainsKey(newKey)) {
+                    Log.Information($"Path '{newKey}' already exists, skipping rename.");
+                    continue;
+                }
+
+                changes.Add(key, newKey);
+            }
+        }
+
+        foreach (var change in changes)
+        {
+            var oldKey = change.Key;
+            var newKey = change.Value;
+
+            var value = document.Paths[oldKey];
+
+            document.Paths.Remove(oldKey);
+            document.Paths.Add(newKey, value);
+        }
+    }
+}
+
 // cobbled together from comments on https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2036
 class RequiredNotNullableSchemaFilter : ISchemaFilter
 {
@@ -861,6 +898,7 @@ class RequiredNotNullableSchemaFilter : ISchemaFilter
                 services.AddSwaggerGen(options =>
                 {
                     options.DescribeAllParametersInCamelCase();
+                    options.DocumentFilter<StripPrefixDocumentFilter>();
                     options.SchemaFilter<RequiredNotNullableSchemaFilter>();
                     options.SwaggerDoc(
                         "v0",
@@ -1001,7 +1039,17 @@ class RequiredNotNullableSchemaFilter : ISchemaFilter
 
             if (OptionsAtStartup.Feature.Swagger)
             {
-                app.UseSwagger();
+                app.UseSwagger(c =>
+                {
+                    c.PreSerializeFilters.Add((swagger, httpReq) =>
+                    {
+                        swagger.Servers = new List<OpenApiServer> {
+                            new OpenApiServer {
+                                Url = $"{httpReq.Scheme}://{httpReq.Host.Value}{(urlBase == "/" ? string.Empty : urlBase)}/v0/api"
+                            }
+                        };
+                    });
+                });
                 app.UseSwaggerUI(options => app.Services.GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions.ToList()
                     .ForEach(description => options.SwaggerEndpoint($"{(urlBase == "/" ? string.Empty : urlBase)}/swagger/{description.GroupName}/swagger.json", description.GroupName)));
 
