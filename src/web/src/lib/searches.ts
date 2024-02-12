@@ -1,4 +1,12 @@
 import api from './api';
+import {
+  type ApiResponsesDetailData,
+  type ApiSearchesCreateData,
+  type ApiSearchesDeleteData,
+  type ApiSearchesDetailData,
+  type ApiSearchesListData,
+  type ApiSearchesUpdateData,
+} from './generated/types';
 
 export enum SearchState {
   CompletedCancelled = 'Completed, Cancelled',
@@ -12,15 +20,19 @@ export enum SearchState {
 }
 
 export const getAll = async () => {
-  return (await api.get<unknown>('/searches')).data;
+  return (await api.get<ApiSearchesListData>('/searches')).data;
 };
 
 export const stop = async ({ id }: { id: string }) => {
-  return await api.put<unknown>(`/searches/${encodeURIComponent(id)}`);
+  return await api.put<ApiSearchesUpdateData>(
+    `/searches/${encodeURIComponent(id)}`,
+  );
 };
 
 export const remove = async ({ id }: { id: string }) => {
-  return await api.delete<unknown>(`/searches/${encodeURIComponent(id)}`);
+  return await api.delete<ApiSearchesDeleteData>(
+    `/searches/${encodeURIComponent(id)}`,
+  );
 };
 
 export const create = async ({
@@ -30,7 +42,7 @@ export const create = async ({
   id: string;
   searchText: string;
 }) => {
-  return await api.post<unknown>('/searches', { id, searchText });
+  return await api.post<ApiSearchesCreateData>('/searches', { id, searchText });
 };
 
 export const getStatus = async ({
@@ -41,7 +53,7 @@ export const getStatus = async ({
   includeResponses: boolean;
 }) => {
   return (
-    await api.get<unknown>(
+    await api.get<ApiSearchesDetailData>(
       `/searches/${encodeURIComponent(id)}?includeResponses=${includeResponses}`,
     )
   ).data;
@@ -49,7 +61,9 @@ export const getStatus = async ({
 
 export const getResponses = async ({ id }: { id: string }) => {
   const response = (
-    await api.get<unknown>(`/searches/${encodeURIComponent(id)}/responses`)
+    await api.get<ApiResponsesDetailData>(
+      `/searches/${encodeURIComponent(id)}/responses`,
+    )
   ).data;
 
   if (!Array.isArray(response)) {

@@ -31,7 +31,7 @@ type Props = {
 };
 
 const LoginForm: React.FC<Props> = ({ error, loading, onLoginAttempt }) => {
-  const usernameInput = useRef<Input>();
+  const usernameInput = useRef<Input>(null);
   const [state, setState] = useState(initialState);
   const [ready, setReady] = useState(false);
   const logo = useMemo(

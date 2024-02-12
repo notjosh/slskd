@@ -1,65 +1,26 @@
 import api from './api';
-
-type StateModel = {
-  distributedNetwork: unknown; // TODO: Add distributed network state model
-  pendingReconnect: boolean;
-  pendingRestart: boolean;
-  relay: unknown; // TODO: Add relay state model
-  rooms: string[];
-  server: ServerStateModel;
-  shares: unknown; // TODO: Add shares state model
-  user: UserStateModel;
-  users: string[];
-  version: VersionStateModel;
-};
-
-type UserStateModel = {
-  privileges: {
-    isPrivileged: boolean;
-    privilegesRemaining: number;
-  };
-  statistics: {
-    averageSpeed: number;
-    directoryCount: number;
-    fileCount: number;
-    uploadCount: number;
-  };
-  username: string;
-};
-
-type ServerStateModel = {
-  address: string;
-  ipEndPoint: string;
-  isConnected: boolean;
-  isLoggedIn: boolean;
-  isTransitioning: boolean;
-  state: string;
-};
-
-type VersionStateModel = {
-  current: string;
-  full: string;
-  isCanary: boolean;
-  isDevelopment: boolean;
-  isUpdateAvailable?: boolean;
-  latest?: string;
-};
+import {
+  type ApiApplicationDeleteData,
+  type ApiApplicationListData,
+  type ApiApplicationUpdateData,
+  type ApiVersionLatestListData,
+} from './generated/types';
 
 export const getState = async () => {
-  return (await api.get<StateModel>('/application')).data;
+  return (await api.get<ApiApplicationListData>('/application')).data;
 };
 
 export const restart = async () => {
-  return await api.put<never>('/application');
+  return await api.put<ApiApplicationUpdateData>('/application');
 };
 
 export const shutdown = async () => {
-  return await api.delete<never>('/application');
+  return await api.delete<ApiApplicationDeleteData>('/application');
 };
 
 export const getVersion = async ({ forceCheck = false }) => {
   return (
-    await api.get<VersionStateModel>(
+    await api.get<ApiVersionLatestListData>(
       `/application/version/latest?forceCheck=${forceCheck}`,
     )
   ).data;

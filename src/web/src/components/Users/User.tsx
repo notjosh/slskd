@@ -1,9 +1,10 @@
+import {
+  type ApiInfo,
+  type ApiIPEndPoint,
+  type ApiStatus,
+  type ApiUserPresence,
+} from '../../lib/generated/types';
 import { Icon, Item } from 'semantic-ui-react';
-
-enum PresenceState {
-  Away = 'Away',
-  Online = 'Online',
-}
 
 const ImagePlaceholder = () => (
   <div className="users-picture-placeholder ui small image">
@@ -14,9 +15,10 @@ const ImagePlaceholder = () => (
   </div>
 );
 
-const Presence = ({ presence }: { readonly presence: PresenceState }) => {
+const Presence = ({ presence }: { readonly presence: ApiUserPresence }) => {
   const colors = {
     Away: 'yellow',
+    Offline: 'grey',
     Online: 'green',
   } as const;
 
@@ -39,17 +41,22 @@ const FreeUploadSlot = ({
   />
 );
 
-type Props = {
-  readonly address: string;
-  readonly description: string;
-  readonly hasPicture: boolean;
-  readonly picture: string;
-  readonly port: number;
-  readonly presence: PresenceState;
-  readonly queueLength: number;
-  readonly uploadSlots: number;
-  readonly username: string;
-};
+type Props = Pick<
+  ApiInfo,
+  'description' | 'hasPicture' | 'picture' | 'queueLength' | 'uploadSlots'
+> &
+  Pick<ApiStatus, 'presence'> &
+  Pick<ApiIPEndPoint, 'address' | 'port'> & {
+    // readonly address: string;
+    // readonly description: string;
+    // readonly hasPicture: boolean;
+    // readonly picture: string;
+    // readonly port: number;
+    // readonly presence: PresenceState;
+    // readonly queueLength: number;
+    // readonly uploadSlots: number;
+    readonly username: string;
+  };
 
 const User: React.FC<Props> = ({
   address,
@@ -82,7 +89,7 @@ const User: React.FC<Props> = ({
         Slots: {uploadSlots}, Queue Length: {queueLength}, IP Address: {address}
         , Port: {port}
       </Item.Meta>
-      <Item.Description>{description || 'No user info.'}</Item.Description>
+      <Item.Description>{description ?? 'No user info.'}</Item.Description>
     </Item.Content>
   </Item>
 );

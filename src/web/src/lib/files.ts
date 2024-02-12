@@ -1,35 +1,25 @@
 import api from './api';
+import {
+  type ApiDownloadsDirectoriesDeleteData,
+  type ApiDownloadsDirectoriesDetailData,
+  type ApiDownloadsFilesDeleteData,
+  type ApiIncompleteDirectoriesDeleteData,
+  type ApiIncompleteDirectoriesDetailData,
+} from './generated/types';
 
-type FilesystemFileModel = {
-  attributes: string;
-  createdAt: string; // iso date
-  fullName: string;
-  length: number;
-  modifiedAt: string; // iso date
-  name: string;
-};
-
-type FilesystemDirectoryModel = {
-  attributes: string;
-  createdAt: string; // iso date
-  directories: FilesystemDirectoryModel[];
-  files: FilesystemFileModel[];
-  fullName: string;
-  modifiedAt: string; // iso date
-  name: string;
-};
+type Root = 'downloads' | 'incomplete';
 
 export const list = async ({
   root,
   subdirectory = '',
 }: {
-  root: string;
+  root: Root;
   subdirectory: string;
 }) => {
   const response = (
-    await api.get<FilesystemDirectoryModel>(
-      `/files/${root}/directories/${btoa(subdirectory)}`,
-    )
+    await api.get<
+      ApiDownloadsDirectoriesDetailData | ApiIncompleteDirectoriesDetailData
+    >(`/files/${root}/directories/${btoa(subdirectory)}`)
   ).data;
 
   return response;
@@ -40,11 +30,11 @@ export const deleteDirectory = async ({
   path,
 }: {
   path: string;
-  root: string;
+  root: Root;
 }) => {
-  const response = await api.delete<never>(
-    `/files/${root}/directories/${btoa(path)}`,
-  );
+  const response = await api.delete<
+    ApiDownloadsDirectoriesDeleteData | ApiIncompleteDirectoriesDeleteData
+  >(`/files/${root}/directories/${btoa(path)}`);
 
   return response;
 };
@@ -54,9 +44,9 @@ export const deleteFile = async ({
   path,
 }: {
   path: string;
-  root: string;
+  root: Root;
 }) => {
-  const response = await api.delete<never>(
+  const response = await api.delete<ApiDownloadsFilesDeleteData>(
     `/files/${root}/files/${btoa(path)}`,
   );
 

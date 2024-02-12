@@ -1,20 +1,15 @@
 import { tokenPassthroughValue } from '../config';
 import api from './api';
+import {
+  type ApiEnabledListData,
+  type ApiSessionCreateData,
+  type ApiSessionListData,
+} from './generated/types';
 import { clearToken, getToken, setToken } from './token';
 import { isAxiosError } from 'axios';
 
-// TODO: generate me, via src/slskd/Core/API/DTO/TokenResponse.cs
-type TokenResponse = {
-  expires: number;
-  issued: number;
-  name: string;
-  notBefore: number;
-  token: string;
-  tokenType: string;
-};
-
 export const getSecurityEnabled = async () => {
-  return (await api.get<boolean>('/session/enabled')).data;
+  return (await api.get<ApiEnabledListData>('/session/enabled')).data;
 };
 
 export const enablePassthrough = () => {
@@ -39,7 +34,7 @@ export const login = async ({
   username: string;
 }) => {
   const { token } = (
-    await api.post<TokenResponse>('/session', { password, username })
+    await api.post<ApiSessionCreateData>('/session', { password, username })
   ).data;
   setToken(rememberMe ? localStorage : sessionStorage, token);
   return token;
@@ -52,7 +47,7 @@ export const logout = () => {
 
 export const check = async () => {
   try {
-    await api.get<never>('/session');
+    await api.get<ApiSessionListData>('/session');
     return true;
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 401) {

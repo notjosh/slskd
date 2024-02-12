@@ -1,21 +1,20 @@
 import api from './api';
+import {
+  type ApiDownloadsAllCompletedDeleteData,
+  type ApiDownloadsCreateData,
+  type ApiDownloadsDeleteData,
+  type ApiDownloadsListData,
+  type ApiDownloadsPositionDetailData,
+  type ApiQueueDownloadRequest,
+  type ApiTransferStates,
+  type ApiUploadsAllCompletedDeleteData,
+  type ApiUploadsDeleteData,
+  type ApiUploadsListData,
+} from './generated/types';
 
 export enum TransferDirection {
   Download = 'download',
   Upload = 'upload',
-}
-
-export enum TransferState {
-  CompletedCancelled = 'Completed, Cancelled',
-  CompletedErrored = 'Completed, Errored',
-  CompletedRejected = 'Completed, Rejected',
-  CompletedSucceeded = 'Completed, Succeeded',
-  CompletedTimedOut = 'Completed, TimedOut',
-  InProgress = 'InProgress',
-  Initializing = 'Initializing',
-  QueuedLocally = 'Queued, Locally',
-  QueuedRemotely = 'Queued, Remotely',
-  Requested = 'Requested',
 }
 
 export const getAll = async ({
@@ -24,7 +23,9 @@ export const getAll = async ({
   direction: TransferDirection;
 }) => {
   const response = (
-    await api.get<unknown[]>(`/transfers/${encodeURIComponent(direction)}s`)
+    await api.get<ApiDownloadsListData | ApiUploadsListData>(
+      `/transfers/${encodeURIComponent(direction)}s`,
+    )
   ).data;
 
   if (!Array.isArray(response)) {
@@ -39,10 +40,10 @@ export const download = async ({
   username,
   files = [],
 }: {
-  files: unknown[];
+  files: ApiQueueDownloadRequest[];
   username: string;
 }) => {
-  return await api.post<unknown>(
+  return await api.post<ApiDownloadsCreateData>(
     `/transfers/downloads/${encodeURIComponent(username)}`,
     files,
   );
@@ -59,7 +60,7 @@ export const cancel = async ({
   remove?: boolean;
   username: string;
 }) => {
-  return await api.delete<never>(
+  return await api.delete<ApiDownloadsDeleteData | ApiUploadsDeleteData>(
     `/transfers/${direction}s/${encodeURIComponent(username)}/${encodeURIComponent(id)}?remove=${remove}`,
   );
 };
@@ -69,7 +70,9 @@ export const clearCompleted = async ({
 }: {
   direction: TransferDirection;
 }) => {
-  return await api.delete<never>(`/transfers/${direction}s/all/completed`);
+  return await api.delete<
+    ApiDownloadsAllCompletedDeleteData | ApiUploadsAllCompletedDeleteData
+  >(`/transfers/${direction}s/all/completed`);
 };
 
 // 'Requested'
@@ -83,6 +86,8 @@ export const clearCompleted = async ({
 // 'Completed, Errored'
 // 'Completed, Rejected'
 
+// TODO: `ApiTransferStates` doesn't have the reason suffix, only the first word. Is this legacy, or do we need to handle it?
+
 export const getPlaceInQueue = async ({
   username,
   id,
@@ -90,15 +95,15 @@ export const getPlaceInQueue = async ({
   id: string;
   username: string;
 }) => {
-  return await api.get<unknown>(
+  return await api.get<ApiDownloadsPositionDetailData>(
     `/transfers/downloads/${encodeURIComponent(username)}/${encodeURIComponent(id)}/position`,
   );
 };
 
-export const isStateRetryable = (state: TransferState) =>
+export const isStateRetryable = (state: ApiTransferStates) =>
   state.includes('Completed') && state !== 'Completed, Succeeded';
 
-export const isStateCancellable = (state: TransferState) =>
+export const isStateCancellable = (state: ApiTransferStates) =>
   [
     'InProgress',
     'Requested',
@@ -108,5 +113,5 @@ export const isStateCancellable = (state: TransferState) =>
     'Initializing',
   ].find((s) => s === state);
 
-export const isStateRemovable = (state: TransferState) =>
+export const isStateRemovable = (state: ApiTransferStates) =>
   state.includes('Completed');

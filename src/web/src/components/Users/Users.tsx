@@ -7,18 +7,25 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon, Input, Item, Loader, Segment } from 'semantic-ui-react';
 
 const Users = () => {
-  const inputRef = useRef<Input>();
-  const [user, setUser] = useState();
+  const inputRef = useRef<Input>(null);
+  const [user, setUser] = useState<
+    Awaited<ReturnType<typeof users.getInfo>>['data'] &
+      Awaited<ReturnType<typeof users.getStatus>>['data'] &
+      Awaited<ReturnType<typeof users.getEndpoint>>['data']
+  >();
   const [usernameInput, setUsernameInput] = useState<string>();
   const [selectedUsername, setSelectedUsername] = useState<string>();
   // eslint-disable-next-line react/hook-use-state
-  const [{ error, fetching }, setStatus] = useState({
+  const [{ error, fetching }, setStatus] = useState<{
+    error: Error | undefined;
+    fetching: boolean;
+  }>({
     error: undefined,
     fetching: false,
   });
 
   const setInputText = (text: string) => {
-    inputRef.current.inputRef.current.value = text;
+    inputRef.current?.inputRef.current.value = text;
   };
 
   const setInputFocus = () => {
@@ -70,6 +77,10 @@ const Users = () => {
         setUser({ ...info.data, ...status.data, ...endpoint.data });
         setStatus({ error: undefined, fetching: false });
       } catch (fetchError) {
+        if (!(fetchError instanceof Error)) {
+          throw fetchError;
+        }
+
         setStatus({ error: fetchError, fetching: false });
       }
     };
