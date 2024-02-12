@@ -161,7 +161,7 @@ class RequiredNotNullableSchemaFilter : ISchemaFilter
                         _ => throw new NotSupportedException(),
                     };
 
-                    property.Value.Nullable = !property.Value.Nullable || 
+                    property.Value.Nullable = property.Value.Nullable ||
                         fieldType.IsValueType
                             ? Nullable.GetUnderlyingType(fieldType) != null
                             : !field.IsNonNullableReferenceType();
@@ -898,6 +898,7 @@ class RequiredNotNullableSchemaFilter : ISchemaFilter
                 services.AddSwaggerGen(options =>
                 {
                     options.DescribeAllParametersInCamelCase();
+                    options.SupportNonNullableReferenceTypes();
                     options.DocumentFilter<StripPrefixDocumentFilter>();
                     options.SchemaFilter<RequiredNotNullableSchemaFilter>();
                     options.SwaggerDoc(
