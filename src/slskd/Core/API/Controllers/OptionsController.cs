@@ -106,6 +106,7 @@ namespace slskd.Core.API
         [HttpGet]
         [Authorize(Policy = AuthPolicy.JwtOnly, Roles = AuthRole.AdministratorOnly)]
         [Route("yaml/location")]
+        [ProducesResponseType(typeof(string), 200)]
         public IActionResult GetYamlFileLocation()
         {
             if (!OptionsSnapshot.Value.RemoteConfiguration)
@@ -119,6 +120,7 @@ namespace slskd.Core.API
         [HttpGet]
         [Authorize(Policy = AuthPolicy.JwtOnly, Roles = AuthRole.AdministratorOnly)]
         [Route("yaml")]
+        [ProducesResponseType(typeof(string), 200)]
         public IActionResult GetYamlFile()
         {
             if (!OptionsSnapshot.Value.RemoteConfiguration)

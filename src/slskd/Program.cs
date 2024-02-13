@@ -901,6 +901,7 @@ class RequiredNotNullableSchemaFilter : ISchemaFilter
                     options.SupportNonNullableReferenceTypes();
                     options.DocumentFilter<StripPrefixDocumentFilter>();
                     options.SchemaFilter<RequiredNotNullableSchemaFilter>();
+                    options.CustomSchemaIds(type => type.FullName);
                     options.SwaggerDoc(
                         "v0",
                         new OpenApiInfo
