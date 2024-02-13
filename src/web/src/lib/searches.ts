@@ -6,18 +6,10 @@ import {
   type ApiSearchesDetailData,
   type ApiSearchesListData,
   type ApiSearchesUpdateData,
+  type ApiSlskdSearchFile,
+  type ApiSlskdSearchResponse,
+  type ApiSlskdSearchSearch,
 } from './generated/types';
-
-export enum SearchState {
-  CompletedCancelled = 'Completed, Cancelled',
-  CompletedErrored = 'Completed, Errored',
-  CompletedFileLimitReached = 'Completed, FileLimitReached',
-  CompletedResponseLimitReached = 'Completed, ResponseLimitReached',
-  CompletedTimedOut = 'Completed, TimedOut',
-  InProgress = 'InProgress',
-  None = 'None',
-  Requested = 'Requested',
-}
 
 export const getAll = async () => {
   return (await api.get<ApiSearchesListData>('/searches')).data;
@@ -41,9 +33,7 @@ export const create = async ({
 }: {
   id: string;
   searchText: string;
-}) => {
-  return await api.post<ApiSearchesCreateData>('/searches', { id, searchText });
-};
+}) => await api.post<ApiSearchesCreateData>('/searches', { id, searchText });
 
 export const getStatus = async ({
   id,
@@ -51,28 +41,19 @@ export const getStatus = async ({
 }: {
   id: string;
   includeResponses: boolean;
-}) => {
-  return (
+}) =>
+  (
     await api.get<ApiSearchesDetailData>(
       `/searches/${encodeURIComponent(id)}?includeResponses=${includeResponses}`,
     )
   ).data;
-};
 
-export const getResponses = async ({ id }: { id: string }) => {
-  const response = (
+export const getResponses = async ({ id }: Pick<ApiSlskdSearchSearch, 'id'>) =>
+  (
     await api.get<ApiResponsesDetailData>(
       `/searches/${encodeURIComponent(id)}/responses`,
     )
   ).data;
-
-  if (!Array.isArray(response)) {
-    console.warn('got non-array response from searches API', response);
-    return undefined;
-  }
-
-  return response;
-};
 
 const getNthMatch = (string: string, regex: RegExp, n: number) => {
   const match = string.match(regex);
@@ -85,7 +66,46 @@ const getNthMatch = (string: string, regex: RegExp, n: number) => {
   return undefined;
 };
 
-export const parseFiltersFromString = (string: string) => {
+type SearchFilterFile = Pick<
+  ApiSlskdSearchFile,
+  | 'bitRate'
+  | 'size'
+  | 'length'
+  | 'filename'
+  | 'sampleRate'
+  | 'bitDepth'
+  | 'isVariableBitRate'
+>;
+
+type SearchFilters = {
+  exclude: string[];
+  include: string[];
+  isCBR: boolean;
+  isLossless: boolean;
+  isLossy: boolean;
+  isVBR: boolean;
+  minBitDepth: number;
+  minBitRate: number;
+  minFileSize: number;
+  minFilesInFolder: number;
+  minLength: number;
+};
+
+const defaultFilters: SearchFilters = {
+  exclude: [],
+  include: [],
+  isCBR: false,
+  isLossless: false,
+  isLossy: false,
+  isVBR: false,
+  minBitDepth: 0,
+  minBitRate: 0,
+  minFilesInFolder: 0,
+  minFileSize: 0,
+  minLength: 0,
+};
+
+export const parseFiltersFromString = (string: string): SearchFilters => {
   const filters = {
     exclude: [] as string[],
     include: [] as string[],
@@ -139,34 +159,35 @@ export const parseFiltersFromString = (string: string) => {
   return filters;
 };
 
-export const filterResponse = ({
-  filters = {
-    exclude: [] as string[],
-    include: [] as string[],
-    isCBR: false,
-    isLossless: false,
-    isLossy: false,
-    isVBR: false,
-    minBitDepth: 0,
-    minBitRate: 0,
-    minFileSize: 0,
-    minLength: 0,
-  },
-  response = {
-    files: [] as unknown[],
-    lockedFiles: [] as unknown[],
-  },
-}) => {
-  const { files = [], lockedFiles = [] } = response;
+export const filterResponse = <
+  TResponse extends Partial<
+    Pick<ApiSlskdSearchResponse, 'fileCount' | 'lockedFileCount'> & {
+      files: SearchFilterFile[];
+      lockedFiles: SearchFilterFile[];
+    }
+  >,
+>({
+  filters: filtersInput,
+  response,
+}: {
+  filters: Partial<SearchFilters>;
+  response: TResponse;
+}): TResponse => {
+  const {
+    files = [],
+    lockedFiles = [],
+    fileCount = 0,
+    lockedFileCount = 0,
+  } = response;
 
-  if (
-    response.fileCount + response.lockedFileCount <
-    filters.minFilesInFolder
-  ) {
+  const filters = { ...defaultFilters, ...filtersInput };
+
+  if (fileCount + lockedFileCount < filters.minFilesInFolder) {
     return { ...response, files: [] };
   }
 
-  const filterFiles = (filesToFilter: unknown[]) =>
+  const filterFiles = (filesToFilter: SearchFilterFile[]) =>
+    // eslint-disable-next-line complexity
     filesToFilter.filter((file) => {
       const {
         bitRate,
@@ -196,10 +217,10 @@ export const filterResponse = ({
         return false;
       if (isLossless && (!sampleRate || !bitDepth)) return false;
       if (isLossy && (sampleRate || bitDepth)) return false;
-      if (bitRate < minBitRate) return false;
-      if (bitDepth < minBitDepth) return false;
+      if (bitRate && bitRate < minBitRate) return false;
+      if (bitDepth && bitDepth < minBitDepth) return false;
       if (size < minFileSize) return false;
-      if (length < minLength) return false;
+      if (length && length < minLength) return false;
 
       if (
         include.length > 0 &&

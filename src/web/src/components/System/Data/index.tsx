@@ -1,4 +1,5 @@
-import { clearCompleted, TransferDirection } from '../../../lib/transfers';
+import { ApiSoulseekTransferDirection } from '../../../lib/generated/types';
+import { clearCompleted } from '../../../lib/transfers';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button, Divider, Header, Icon } from 'semantic-ui-react';
@@ -7,7 +8,7 @@ const clear = async ({
   direction,
   setState,
 }: {
-  direction: TransferDirection;
+  direction: ApiSoulseekTransferDirection;
   setState: (state: boolean) => void;
 }) => {
   setState(true);
@@ -39,7 +40,10 @@ const Data = () => {
       <Button
         loading={up}
         onClick={async () =>
-          await clear({ direction: TransferDirection.Upload, setState: setUp })
+          await clear({
+            direction: ApiSoulseekTransferDirection.Upload,
+            setState: setUp,
+          })
         }
         primary
       >
@@ -50,7 +54,7 @@ const Data = () => {
         loading={down}
         onClick={async () =>
           await clear({
-            direction: TransferDirection.Download,
+            direction: ApiSoulseekTransferDirection.Download,
             setState: setDown,
           })
         }

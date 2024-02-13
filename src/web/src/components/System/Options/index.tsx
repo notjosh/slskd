@@ -1,3 +1,4 @@
+import { type ApiSlskdOptions } from '../../../lib/generated/types';
 import {
   CodeEditor,
   LoaderSegment,
@@ -10,9 +11,10 @@ import { useEffect, useState } from 'react';
 import { Divider } from 'semantic-ui-react';
 import YAML from 'yaml';
 
-type DebugButtonProps = {
-  debug: boolean;
-  remoteConfiguration: boolean;
+type DebugButtonProps = Pick<
+  ApiSlskdOptions,
+  'debug' | 'remoteConfiguration'
+> & {
   setDebugModal: (value: boolean) => void;
 } & Omit<React.ComponentProps<typeof ShrinkableButton>, 'icon'>;
 
@@ -36,8 +38,7 @@ const DebugButton: React.FC<DebugButtonProps> = ({
   );
 };
 
-type EditButtonProps = {
-  remoteConfiguration: boolean;
+type EditButtonProps = Pick<ApiSlskdOptions, 'remoteConfiguration'> & {
   setEditModal: (value: boolean) => void;
 } & Omit<React.ComponentProps<typeof ShrinkableButton>, 'icon'>;
 
@@ -72,10 +73,7 @@ const EditButton: React.FC<EditButtonProps> = ({
 };
 
 type Props = {
-  options: {
-    debug: boolean;
-    remoteConfiguration: boolean;
-  } & Record<string, unknown>;
+  options: ApiSlskdOptions;
   theme: React.ComponentProps<typeof CodeEditor>['theme'];
 };
 
@@ -112,12 +110,14 @@ const Options: React.FC<Props> = ({ options, theme }) => {
       </div>
       <Divider />
       <Switch loading={!contents && <LoaderSegment />}>
-        <CodeEditor
-          basicSetup={false}
-          editable={false}
-          theme={theme}
-          value={contents}
-        />
+        {contents && (
+          <CodeEditor
+            basicSetup={false}
+            editable={false}
+            value={contents}
+            {...(theme ? { theme } : {})}
+          />
+        )}
       </Switch>
       <DebugModal
         onClose={() => setDebugModal(false)}

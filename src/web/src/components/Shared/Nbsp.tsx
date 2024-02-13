@@ -1,5 +1,5 @@
-const Nbsp = () => {
-  return ' ';
+const Nbsp: React.FC = () => {
+  return <> </>;
 };
 
 export default Nbsp;

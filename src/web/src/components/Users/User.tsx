@@ -1,8 +1,8 @@
 import {
-  type ApiInfo,
-  type ApiIPEndPoint,
-  type ApiStatus,
-  type ApiUserPresence,
+  type ApiSlskdUsersInfo,
+  type ApiSlskdUsersStatus,
+  type ApiSoulseekUserPresence,
+  type ApiSystemNetIPEndPoint,
 } from '../../lib/generated/types';
 import { Icon, Item } from 'semantic-ui-react';
 
@@ -15,7 +15,11 @@ const ImagePlaceholder = () => (
   </div>
 );
 
-const Presence = ({ presence }: { readonly presence: ApiUserPresence }) => {
+const Presence = ({
+  presence,
+}: {
+  readonly presence: ApiSoulseekUserPresence;
+}) => {
   const colors = {
     Away: 'yellow',
     Offline: 'grey',
@@ -42,19 +46,11 @@ const FreeUploadSlot = ({
 );
 
 type Props = Pick<
-  ApiInfo,
+  ApiSlskdUsersInfo,
   'description' | 'hasPicture' | 'picture' | 'queueLength' | 'uploadSlots'
 > &
-  Pick<ApiStatus, 'presence'> &
-  Pick<ApiIPEndPoint, 'address' | 'port'> & {
-    // readonly address: string;
-    // readonly description: string;
-    // readonly hasPicture: boolean;
-    // readonly picture: string;
-    // readonly port: number;
-    // readonly presence: PresenceState;
-    // readonly queueLength: number;
-    // readonly uploadSlots: number;
+  Pick<ApiSlskdUsersStatus, 'presence'> &
+  Pick<ApiSystemNetIPEndPoint, 'address' | 'port'> & {
     readonly username: string;
   };
 

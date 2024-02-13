@@ -1,7 +1,7 @@
 import { Header, Icon, Segment, type SemanticICONS } from 'semantic-ui-react';
 
 type Props = {
-  readonly caption: string;
+  readonly caption: React.ReactNode;
   readonly icon?: SemanticICONS;
   readonly suppressPrefix?: boolean;
 };

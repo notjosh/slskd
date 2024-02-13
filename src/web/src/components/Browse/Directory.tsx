@@ -1,8 +1,13 @@
+import { type ApiSoulseekFile } from '../../lib/generated/types';
 import * as transfers from '../../lib/transfers';
 import { formatBytes } from '../../lib/util';
 import FileList from '../Shared/FileList';
 import { Component } from 'react';
 import { Button, Card, Icon, Label } from 'semantic-ui-react';
+
+export type ApiFileWithSelected = ApiSoulseekFile & {
+  selected: boolean;
+};
 
 const initialState = {
   downloadError: '',
@@ -10,10 +15,7 @@ const initialState = {
 };
 
 type Props = {
-  readonly files: Array<{
-    filename: string;
-    size: number;
-  }>;
+  readonly files: ApiSoulseekFile[];
   readonly locked: boolean;
   readonly marginTop?: number;
   readonly name: string;
@@ -24,11 +26,7 @@ type Props = {
 type State = {
   downloadError: string;
   downloadRequest: string | undefined;
-  files: Array<{
-    filename: string;
-    selected: boolean;
-    size: number;
-  }>;
+  files: ApiFileWithSelected[];
 };
 
 class Directory extends Component<Props, State> {
@@ -49,19 +47,23 @@ class Directory extends Component<Props, State> {
     }
   }
 
-  protected handleFileSelectionChange = (file, state: boolean) => {
+  protected handleFileSelectionChange = (
+    file: ApiFileWithSelected,
+    state: boolean,
+  ) => {
     file.selected = state;
     this.setState((previousState) => ({
+      ...previousState,
       downloadError: '',
       downloadRequest: undefined,
-      tree: previousState.tree,
     }));
   };
 
-  protected download = (username: string, files) => {
+  protected download = (username: string, files: ApiFileWithSelected[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.setState({ downloadRequest: 'inProgress' }, async () => {
       try {
-        const requests = (files || []).map(({ filename, size }) => ({
+        const requests = files.map(({ filename, size }) => ({
           filename,
           size,
         }));
@@ -93,7 +95,7 @@ class Directory extends Component<Props, State> {
         raised
       >
         <Card.Content>
-          <div style={{ marginTop: marginTop || 0 }}>
+          <div style={{ marginTop: marginTop ?? 0 }}>
             <FileList
               directoryName={name}
               disabled={downloadRequest === 'inProgress'}

@@ -1,14 +1,15 @@
+import { type ApiSlskdSearchSearch } from '../../../lib/generated/types';
 import ErrorSegment from '../../Shared/ErrorSegment';
 import Switch from '../../Shared/Switch';
-import SearchListRow, { type SearchModel } from './SearchListRow';
+import SearchListRow from './SearchListRow';
 import { Card, Icon, Loader, Table } from 'semantic-ui-react';
 
 type Props = {
   readonly connecting: boolean;
   readonly error: string | undefined;
-  readonly onRemove: (search: SearchModel) => Promise<void>;
-  readonly onStop: (search: SearchModel) => Promise<void>;
-  readonly searches: Record<string, SearchModel>;
+  readonly onRemove: (search: ApiSlskdSearchSearch) => Promise<void>;
+  readonly onStop: (search: ApiSlskdSearchSearch) => Promise<void>;
+  readonly searches: Record<string, ApiSlskdSearchSearch>;
 };
 
 const SearchList: React.FC<Props> = ({

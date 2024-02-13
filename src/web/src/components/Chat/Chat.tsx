@@ -1,9 +1,10 @@
 import './Chat.css';
 import { activeChatKey } from '../../config';
 import * as chat from '../../lib/chat';
+import { type ApiSlskdMessagingConversation } from '../../lib/generated/types';
 import PlaceholderSegment from '../Shared/PlaceholderSegment';
 import ChatMenu from './ChatMenu';
-import React, { Component, createRef } from 'react';
+import { Component, createRef } from 'react';
 import {
   Card,
   Dimmer,
@@ -32,18 +33,7 @@ type Props = {
 
 type State = {
   active: string;
-  conversations: Record<
-    string,
-    {
-      hasUnAcknowledgedMessages: boolean;
-      messages: Array<{
-        direction: 'In' | 'Out';
-        message: string;
-        timestamp: number;
-        username: string;
-      }>;
-    }
-  >;
+  conversations: Record<string, ApiSlskdMessagingConversation>;
   interval: number | undefined;
   loading: boolean;
 };
@@ -59,8 +49,10 @@ class Chat extends Component<Props, State> {
     this.setState(
       {
         active: sessionStorage.getItem(activeChatKey) ?? '',
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         interval: window.setInterval(this.fetchConversations, 5_000),
       },
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async () => {
         await this.fetchConversations();
         this.selectConversation(
@@ -75,7 +67,7 @@ class Chat extends Component<Props, State> {
     this.setState({ interval: undefined });
   }
 
-  protected listRef = createRef<typeof List>();
+  protected listRef = createRef<typeof HTMLElement>();
 
   protected messageRef = undefined;
 
@@ -86,21 +78,24 @@ class Chat extends Component<Props, State> {
 
   protected fetchConversations = async () => {
     // fetch all of the active conversations (but no messages)
-    let conversations = await chat.getAll();
+    const conversations = await chat.getAll();
+
+    let conversationsObject: Record<string, ApiSlskdMessagingConversation> = {};
 
     // turn into a map, keyed by username
     // if there are no active conversations, set to an empty map
-    if (conversations.length === 0) {
-      conversations = {};
-    } else {
-      conversations = conversations.reduce((map, current) => {
-        map[current.username] = current;
-        return map;
-      }, {});
+    if (conversations.length > 0) {
+      conversationsObject = conversations.reduce<typeof conversationsObject>(
+        (map, current) => {
+          map[current.username] = current;
+          return map;
+        },
+        {},
+      );
     }
 
     const { active } = this.state;
-    const activeConversation = conversations[active];
+    const activeConversation = conversationsObject[active];
 
     // check to see if the active chat is still active
     // this will happen whenever a chat is closed/removed
@@ -112,13 +107,13 @@ class Chat extends Component<Props, State> {
         await this.acknowledgeMessages(active);
       }
 
-      conversations = {
-        ...conversations,
+      conversationsObject = {
+        ...conversationsObject,
         [active]: await chat.get({ username: active }),
       };
     }
 
-    this.setState({ conversations }, () => {
+    this.setState({ conversations: conversationsObject }, () => {
       // if a chat isn't active or the active chat is closed,
       // select the first conversation, if there is one
       if (!this.state.conversations[this.state.active]) {
@@ -150,7 +145,7 @@ class Chat extends Component<Props, State> {
 
     // force a refresh to append the message
     // we could probably do this in the browser but we can be lazy
-    this.fetchConversations();
+    void this.fetchConversations();
   };
 
   protected validInput = () =>
@@ -179,6 +174,7 @@ class Chat extends Component<Props, State> {
         active: username,
         loading: true,
       },
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async () => {
         const { active, conversations } = this.state;
 
@@ -329,7 +325,7 @@ class Chat extends Component<Props, State> {
                             type="text"
                           />
                         }
-                        onKeyUp={async (event) =>
+                        onKeyUp={async (event: KeyboardEvent) =>
                           event.key === 'Enter' ? await this.sendReply() : ''
                         }
                         ref={(input) => (this.messageRef = input?.inputRef)}

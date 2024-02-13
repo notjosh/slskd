@@ -1,18 +1,13 @@
 import { browse } from '../../../lib/shares';
 import { CodeEditor, LoaderSegment, Switch } from '../../Shared';
+import { type ShareWithHost } from '.';
 import orderBy from 'lodash/orderBy';
 import { useEffect, useState } from 'react';
 import { Button, Icon, Modal } from 'semantic-ui-react';
 
 type Props = {
   onClose: () => void;
-  share:
-    | false
-    | {
-        id: string;
-        localPath: string;
-        remotePath: string;
-      };
+  share: false | ShareWithHost;
   theme?: React.ComponentProps<typeof CodeEditor>['theme'];
 };
 
@@ -24,15 +19,19 @@ const ContentsModal: React.FC<Props> = ({ onClose, share, theme }) => {
 
   useEffect(() => {
     const fetch = async () => {
+      if (id == null || localPath == null || remotePath == null) {
+        return;
+      }
+
       setLoading(true);
 
       const result = await browse({ id });
 
       const directories = result.map((directory) => {
-        const lines = [directory.name.replace(remotePath, localPath)];
+        const lines = [directory.name?.replace(remotePath, localPath)];
 
         for (const file of orderBy(directory.files, 'filename')) {
-          lines.push('\t' + file.filename.replace(remotePath, ''));
+          lines.push('\t' + file.filename?.replace(remotePath, ''));
         }
 
         lines.push('');
@@ -45,7 +44,7 @@ const ContentsModal: React.FC<Props> = ({ onClose, share, theme }) => {
     };
 
     if (id) {
-      fetch();
+      void fetch();
     } else {
       setLoading(true);
       setContents(undefined);
@@ -71,8 +70,8 @@ const ContentsModal: React.FC<Props> = ({ onClose, share, theme }) => {
             basicSetup={false}
             editable={false}
             style={{ minHeight: 500 }}
-            theme={theme}
-            value={contents ?? ''}
+            {...(contents ? { value: contents } : {})}
+            {...(theme ? { theme } : {})}
           />
         </Switch>
       </Modal.Content>

@@ -1,14 +1,28 @@
 import './Transfers.css';
+import {
+  type ApiSlskdServerState,
+  type ApiSlskdTransfersAPIUserResponse,
+  type ApiSlskdTransfersTransfer,
+  ApiSoulseekTransferDirection,
+} from '../../lib/generated/types';
 import * as transfersLibrary from '../../lib/transfers';
 import { LoaderSegment, PlaceholderSegment } from '../Shared';
 import TransferGroup from './TransferGroup';
 import TransfersHeader from './TransfersHeader';
-import React, { useEffect, useMemo, useState } from 'react';
+import { isAxiosError } from 'axios';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 
-const Transfers = ({ direction, server }) => {
+type Props = {
+  direction: ApiSoulseekTransferDirection;
+  server: ApiSlskdServerState;
+};
+
+const Transfers: React.FC<Props> = ({ direction, server }) => {
   const [connecting, setConnecting] = useState(true);
-  const [transfers, setTransfers] = useState([]);
+  const [transfers, setTransfers] = useState<
+    ApiSlskdTransfersAPIUserResponse[]
+  >([]);
 
   const [retrying, setRetrying] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -20,7 +34,15 @@ const Transfers = ({ direction, server }) => {
       setTransfers(response);
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      toast.error(
+        (isAxiosError(error) ? error?.response?.data : undefined) ??
+          error?.message ??
+          error,
+      );
     }
   };
 
@@ -32,7 +54,8 @@ const Transfers = ({ direction, server }) => {
       setConnecting(false);
     };
 
-    init();
+    void init();
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     const interval = window.setInterval(fetch, 1_000);
 
     return () => {
@@ -50,7 +73,13 @@ const Transfers = ({ direction, server }) => {
     setConnecting(true);
   }, [direction]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const retry = async ({ file, suppressStateChange = false }) => {
+  const retry = async ({
+    file,
+    suppressStateChange = false,
+  }: {
+    file: ApiSlskdTransfersTransfer;
+    suppressStateChange: boolean;
+  }) => {
     const { filename, size, username } = file;
 
     try {
@@ -62,22 +91,36 @@ const Transfers = ({ direction, server }) => {
       if (!suppressStateChange) setRetrying(false);
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      toast.error(
+        (isAxiosError(error) ? error?.response?.data : undefined) ??
+          error?.message ??
+          error,
+      );
       if (!suppressStateChange) setRetrying(false);
     }
   };
 
-  const retryAll = async (transfersToRetry) => {
+  const retryAll = async (transfersToRetry: ApiSlskdTransfersTransfer[]) => {
     setRetrying(true);
     await Promise.all(
-      transfersToRetry.map((file) =>
-        retry({ file, suppressStateChange: true }),
+      transfersToRetry.map(
+        async (file) => await retry({ file, suppressStateChange: true }),
       ),
     );
     setRetrying(false);
   };
 
-  const cancel = async ({ file, suppressStateChange = false }) => {
+  const cancel = async ({
+    file,
+    suppressStateChange = false,
+  }: {
+    file: ApiSlskdTransfersTransfer;
+    suppressStateChange: boolean;
+  }) => {
     const { id, username } = file;
 
     try {
@@ -86,22 +129,36 @@ const Transfers = ({ direction, server }) => {
       if (!suppressStateChange) setCancelling(false);
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      toast.error(
+        (isAxiosError(error) ? error?.response?.data : undefined) ??
+          error?.message ??
+          error,
+      );
       if (!suppressStateChange) setCancelling(false);
     }
   };
 
-  const cancelAll = async (transfersToCancel) => {
+  const cancelAll = async (transfersToCancel: ApiSlskdTransfersTransfer[]) => {
     setCancelling(true);
     await Promise.all(
-      transfersToCancel.map((file) =>
-        cancel({ file, suppressStateChange: true }),
+      transfersToCancel.map(
+        async (file) => await cancel({ file, suppressStateChange: true }),
       ),
     );
     setCancelling(false);
   };
 
-  const remove = async ({ file, suppressStateChange = false }) => {
+  const remove = async ({
+    file,
+    suppressStateChange = false,
+  }: {
+    file: ApiSlskdTransfersTransfer;
+    suppressStateChange: boolean;
+  }) => {
     const { id, username } = file;
 
     try {
@@ -110,16 +167,24 @@ const Transfers = ({ direction, server }) => {
       if (!suppressStateChange) setRemoving(false);
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      toast.error(
+        (isAxiosError(error) ? error?.response?.data : undefined) ??
+          error?.message ??
+          error,
+      );
       if (!suppressStateChange) setRemoving(false);
     }
   };
 
-  const removeAll = async (transfersToRemove) => {
+  const removeAll = async (transfersToRemove: ApiSlskdTransfersTransfer[]) => {
     setRemoving(true);
     await Promise.all(
-      transfersToRemove.map((file) =>
-        remove({ file, suppressStateChange: true }),
+      transfersToRemove.map(
+        async (file) => await remove({ file, suppressStateChange: true }),
       ),
     );
     setRemoving(false);
@@ -145,7 +210,11 @@ const Transfers = ({ direction, server }) => {
       {transfers.length === 0 ? (
         <PlaceholderSegment
           caption={`No ${direction}s to display`}
-          icon={direction}
+          icon={
+            direction === ApiSoulseekTransferDirection.Download
+              ? 'download'
+              : 'upload'
+          }
         />
       ) : (
         transfers.map((user) => (

@@ -4,7 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button, Icon, Modal } from 'semantic-ui-react';
 
-const DebugModal = ({ onClose, open, theme }) => {
+type Props = {
+  readonly onClose: () => void;
+  readonly open: boolean;
+  readonly theme: React.ComponentProps<typeof CodeEditor>['theme'];
+};
+
+const DebugModal: React.FC<Props> = ({ onClose, open, theme }) => {
   const [loading, setLoading] = useState(true);
   const [debugView, setDebugView] = useState<string>();
 
@@ -46,8 +52,8 @@ const DebugModal = ({ onClose, open, theme }) => {
             basicSetup={false}
             editable={false}
             style={{ minHeight: 500 }}
-            theme={theme}
-            value={debugView}
+            {...(theme ? { theme } : {})}
+            {...(debugView ? { value: debugView } : {})}
           />
         </Switch>
       </Modal.Content>

@@ -2,7 +2,6 @@ import api from './api';
 import {
   type ApiBrowseDetailData,
   type ApiBrowseStatusDetailData,
-  type ApiDirectoryContentsRequest,
   type ApiDirectoryCreateData,
   type ApiEndpointDetailData,
   type ApiInfoDetailData,
@@ -45,7 +44,7 @@ export const getDirectoryContents = async ({
   username,
   directory,
 }: {
-  directory: ApiDirectoryContentsRequest['directory'];
+  directory: string;
   username: string;
 }) => {
   return (

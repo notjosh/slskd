@@ -1,4 +1,5 @@
 import './Rooms.css';
+import { type ApiSlskdMessagingAPIRoomInfoResponse } from '../../lib/generated/types';
 import * as rooms from '../../lib/rooms';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -12,14 +13,6 @@ import {
   Table,
 } from 'semantic-ui-react';
 
-export type RoomModel = {
-  readonly isModerated: boolean;
-  readonly isOwned: boolean;
-  readonly isPrivate: boolean;
-  readonly name: string;
-  readonly userCount: number;
-};
-
 type Props = {
   readonly joinRoom: (room: string) => Promise<void>;
 } & React.ComponentProps<typeof Modal>;
@@ -29,10 +22,14 @@ const RoomJoinModal: React.FC<Props> = ({
   ...modalOptions
 }) => {
   const [open, setOpen] = useState(false);
-  const [available, setAvailable] = useState<RoomModel[]>([]);
+  const [available, setAvailable] = useState<
+    ApiSlskdMessagingAPIRoomInfoResponse[]
+  >([]);
   const [selected, setSelected] = useState<string>();
   const [sortBy, setSortBy] =
-    useState<keyof Pick<RoomModel, 'name' | 'userCount'>>('name');
+    useState<
+      keyof Pick<ApiSlskdMessagingAPIRoomInfoResponse, 'name' | 'userCount'>
+    >('name');
   const [sortOrder, setSortOrder] = useState('desc');
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -46,7 +43,7 @@ const RoomJoinModal: React.FC<Props> = ({
     };
 
     if (open) {
-      getAvailableRooms();
+      void getAvailableRooms();
     }
   }, [open]);
 
@@ -101,7 +98,8 @@ const RoomJoinModal: React.FC<Props> = ({
     close();
   };
 
-  const isSelected = (room: RoomModel) => selected === room.name;
+  const isSelected = (room: ApiSlskdMessagingAPIRoomInfoResponse) =>
+    selected === room.name;
 
   return (
     <Modal
@@ -144,10 +142,14 @@ const RoomJoinModal: React.FC<Props> = ({
                     Name
                     <Icon
                       link={sortBy === 'name'}
-                      name={
-                        sortBy === 'name' &&
-                        (sortOrder === 'asc' ? 'chevron up' : 'chevron down')
-                      }
+                      {...(sortBy === 'name'
+                        ? {
+                            name:
+                              sortOrder === 'asc'
+                                ? 'chevron up'
+                                : 'chevron down',
+                          }
+                        : {})}
                       onClick={() =>
                         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
                       }
@@ -157,10 +159,14 @@ const RoomJoinModal: React.FC<Props> = ({
                     Users
                     <Icon
                       link={sortBy === 'userCount'}
-                      name={
-                        sortBy === 'userCount' &&
-                        (sortOrder === 'asc' ? 'chevron up' : 'chevron down')
-                      }
+                      {...(sortBy === 'userCount'
+                        ? {
+                            name:
+                              sortOrder === 'asc'
+                                ? 'chevron up'
+                                : 'chevron down',
+                          }
+                        : {})}
                       onClick={() =>
                         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
                       }

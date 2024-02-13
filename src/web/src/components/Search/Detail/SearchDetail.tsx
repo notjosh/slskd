@@ -1,4 +1,8 @@
 import {
+  type ApiSlskdSearchResponse,
+  type ApiSlskdSearchSearch,
+} from '../../../lib/generated/types';
+import {
   filterResponse,
   getResponses,
   parseFiltersFromString,
@@ -7,7 +11,6 @@ import { sleep } from '../../../lib/util';
 import ErrorSegment from '../../Shared/ErrorSegment';
 import LoaderSegment from '../../Shared/LoaderSegment';
 import Switch from '../../Shared/Switch';
-import { type SearchModel } from '../List/SearchListRow';
 import Response from '../Response';
 import SearchDetailHeader from './SearchDetailHeader';
 import { useEffect, useMemo, useState } from 'react';
@@ -29,11 +32,11 @@ const sortDropdownOptions = [
 type Props = {
   readonly creating: boolean;
   readonly disabled: boolean;
-  readonly onCreate: (search: SearchModel) => void;
-  readonly onRemove: (search: SearchModel) => void;
-  readonly onStop: (search: SearchModel) => void;
+  readonly onCreate: (options: { navigate: boolean; search: string }) => void;
+  readonly onRemove: (search: ApiSlskdSearchSearch) => void;
+  readonly onStop: (search: ApiSlskdSearchSearch) => void;
   readonly removing: boolean;
-  readonly search: SearchModel;
+  readonly search: ApiSlskdSearchSearch;
   readonly stopping: boolean;
 };
 
@@ -53,10 +56,10 @@ const SearchDetail: React.FC<Props> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error>();
 
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<ApiSlskdSearchResponse[]>([]);
 
   // filters and sorting options
-  const [hiddenResults, setHiddenResults] = useState([]);
+  const [hiddenResults, setHiddenResults] = useState<string[]>([]);
   const [resultSort, setResultSort] =
     useState<(typeof sortDropdownOptions)[number]['key']>('uploadSpeed');
   const [hideLocked, setHideLocked] = useState(true);
@@ -80,13 +83,17 @@ const SearchDetail: React.FC<Props> = ({
         setResults(responses);
         setLoading(false);
       } catch (getError) {
+        if (!(getError instanceof Error)) {
+          throw getError;
+        }
+
         setError(getError);
         setLoading(false);
       }
     };
 
     if (isComplete) {
-      get();
+      void get();
     }
   }, [id, isComplete]);
 
@@ -140,9 +147,15 @@ const SearchDetail: React.FC<Props> = ({
     setDisplayCount(5);
   };
 
-  const create = async ({ navigate, search: searchForCreate }) => {
+  const create = async ({
+    navigate,
+    search: searchForCreate,
+  }: {
+    navigate: boolean;
+    search: string;
+  }) => {
     reset();
-    onCreate({ navigate, searchForCreate });
+    onCreate({ navigate, search: searchForCreate });
   };
 
   const remove = async () => {
@@ -202,7 +215,7 @@ const SearchDetail: React.FC<Props> = ({
               onChange={(_event, { value }) => setResultSort(value)}
               options={sortDropdownOptions}
               text={
-                sortDropdownOptions.find((o) => o.value === resultSort).text
+                sortDropdownOptions.find((o) => o.value === resultSort)?.text
               }
             />
             <div className="search-option-toggles">

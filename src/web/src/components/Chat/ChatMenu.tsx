@@ -1,15 +1,11 @@
 import './Chat.css';
+import { type ApiSlskdMessagingConversation } from '../../lib/generated/types';
 import SendMessageModal from './SendMessageModal';
 import { Button, Icon, Label, Menu } from 'semantic-ui-react';
 
 type Props = {
   readonly active: string;
-  readonly conversations: {
-    readonly [name: string]: {
-      readonly hasUnAcknowledgedMessages: boolean;
-      readonly unAcknowledgedMessageCount: number;
-    };
-  };
+  readonly conversations: Record<string, ApiSlskdMessagingConversation>;
   readonly onConversationChange: (conversation: string) => void;
 } & React.ComponentProps<typeof SendMessageModal>;
 

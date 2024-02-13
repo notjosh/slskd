@@ -1,4 +1,4 @@
-import { type SearchState } from '../../lib/searches';
+import { type ApiSoulseekSearchStates } from '../../lib/generated/types';
 import { Icon, Popup } from 'semantic-ui-react';
 
 // as of 4.5.2, states are:
@@ -11,7 +11,7 @@ import { Icon, Popup } from 'semantic-ui-react';
 const getIcon = ({
   state,
   ...props
-}: { state: SearchState } & React.ComponentProps<typeof Icon>) => {
+}: { state: ApiSoulseekSearchStates } & React.ComponentProps<typeof Icon>) => {
   switch (state) {
     case 'None':
     case 'Requested':
@@ -70,7 +70,9 @@ const getIcon = ({
 const SearchStatusIcon = ({
   state,
   ...props
-}: { readonly state: SearchState } & React.ComponentProps<typeof Icon>) => (
+}: { readonly state: ApiSoulseekSearchStates } & React.ComponentProps<
+  typeof Icon
+>) => (
   <Popup
     content={state}
     trigger={getIcon({ state, ...props })}

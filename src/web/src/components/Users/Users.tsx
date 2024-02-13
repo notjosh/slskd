@@ -6,12 +6,14 @@ import User from './User';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon, Input, Item, Loader, Segment } from 'semantic-ui-react';
 
-const Users = () => {
+const Users: React.FC = () => {
   const inputRef = useRef<Input>(null);
   const [user, setUser] = useState<
     Awaited<ReturnType<typeof users.getInfo>>['data'] &
       Awaited<ReturnType<typeof users.getStatus>>['data'] &
-      Awaited<ReturnType<typeof users.getEndpoint>>['data']
+      Awaited<ReturnType<typeof users.getEndpoint>>['data'] & {
+        username: string;
+      }
   >();
   const [usernameInput, setUsernameInput] = useState<string>();
   const [selectedUsername, setSelectedUsername] = useState<string>();
@@ -74,7 +76,12 @@ const Users = () => {
         ]);
 
         localStorage.setItem(activeUserInfoKey, selectedUsername);
-        setUser({ ...info.data, ...status.data, ...endpoint.data });
+        setUser({
+          ...info.data,
+          ...status.data,
+          ...endpoint.data,
+          username: selectedUsername,
+        });
         setStatus({ error: undefined, fetching: false });
       } catch (fetchError) {
         if (!(fetchError instanceof Error)) {
@@ -85,7 +92,7 @@ const Users = () => {
       }
     };
 
-    fetchUser();
+    void fetchUser();
   }, [selectedUsername]);
 
   return (

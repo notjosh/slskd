@@ -1,29 +1,18 @@
 import './Rooms.css';
+import { type ApiSlskdMessagingAPIUserDataResponse } from '../../lib/generated/types';
 import { useMemo } from 'react';
 import { Flag, Icon, List, Popup } from 'semantic-ui-react';
 
-enum UserStatus {
-  Offline = 'Offline',
-  Online = 'Online',
-}
-
-type UserModel = {
-  readonly countryCode: string | undefined;
-  readonly self: boolean;
-  readonly status: UserStatus;
-  readonly username: string;
-};
-
-const getDetails = (user: UserModel) => {
+const getDetails = (user: ApiSlskdMessagingAPIUserDataResponse) => {
   return user.countryCode ?? '?';
 };
 
 type Props = {
-  readonly users: UserModel[];
+  readonly users: ApiSlskdMessagingAPIUserDataResponse[];
 };
 
 const RoomUserList: React.FC<Props> = ({ users }) => {
-  const getFlag = (user: UserModel) => {
+  const getFlag = (user: ApiSlskdMessagingAPIUserDataResponse) => {
     if (user.countryCode == null)
       return (
         <Icon
@@ -38,7 +27,10 @@ const RoomUserList: React.FC<Props> = ({ users }) => {
   const sortedUsers = useMemo(() => {
     const filtered = [...users]
       .sort((a, b) => a.username.localeCompare(b.username))
-      .reduce(
+      .reduce<{
+        offline: ApiSlskdMessagingAPIUserDataResponse[];
+        online: ApiSlskdMessagingAPIUserDataResponse[];
+      }>(
         (accumulator, user) => {
           (user.status === 'Online'
             ? accumulator.online
@@ -46,7 +38,10 @@ const RoomUserList: React.FC<Props> = ({ users }) => {
           ).push(user);
           return accumulator;
         },
-        { offline: [] as UserModel[], online: [] as UserModel[] },
+        {
+          offline: [],
+          online: [],
+        },
       );
 
     return [...filtered.online, ...filtered.offline];

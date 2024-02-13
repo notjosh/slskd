@@ -12,8 +12,7 @@ export const getAll = async () => {
   return (await api.get<ApiSharesListData>('/shares')).data;
 };
 
-export const get = async ({ id }: { id?: string } = {}) => {
-  if (!id) throw new Error('unable to get share: id is missing');
+export const get = async ({ id }: { id: string }) => {
   return (
     await api.get<ApiSharesDetailData>(`/shares/${encodeURIComponent(id)}`)
   ).data;
@@ -23,8 +22,8 @@ export const browseAll = async () => {
   return (await api.get<ApiContentsListData>('/shares/contents')).data;
 };
 
-export const browse = async ({ id }: { id?: string } = {}) => {
-  if (!id) throw new Error('unable to get share contents: id is missing');
+export const browse = async ({ id }: { id: string }) => {
+  // TODO: `ApiContentsDetailData` returns some nullables that should probably be non-nullable. might need to wrap this?
   return (
     await api.get<ApiContentsDetailData>(
       `/shares/${encodeURIComponent(id)}/contents`,

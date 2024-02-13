@@ -1,13 +1,11 @@
-import { type SearchState } from '../../../lib/searches';
+import { type ApiSlskdSearchSearch } from '../../../lib/generated/types';
 import { Icon } from 'semantic-ui-react';
 
 type Props = {
   readonly loading: boolean;
   readonly onRemove: () => void;
   readonly onStop: () => void;
-  readonly search: {
-    readonly state: SearchState;
-  };
+  readonly search: ApiSlskdSearchSearch;
 } & React.ComponentProps<typeof Icon>;
 
 const SearchActionIcon: React.FC<Props> = ({

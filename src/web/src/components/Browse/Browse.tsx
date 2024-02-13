@@ -1,16 +1,17 @@
 /* eslint-disable promise/prefer-await-to-then */
 import './Browse.css';
+import { type ApiSoulseekDirectory } from '../../lib/generated/types';
 import * as users from '../../lib/users';
 import PlaceholderSegment from '../Shared/PlaceholderSegment';
 import Directory from './Directory';
 import DirectoryTree from './DirectoryTree';
 import * as lzString from 'lz-string';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { Card, Icon, Input, Loader, Segment } from 'semantic-ui-react';
 
 const initialState = {
   browseError: undefined,
-  browseState: 'idle',
+  browseState: 'idle' as const,
   browseStatus: 0,
   info: {
     directories: 0,
@@ -19,16 +20,40 @@ const initialState = {
     lockedFiles: 0,
   },
   interval: undefined,
-  selectedDirectory: {},
+  selectedDirectory: undefined,
   selectedFiles: [],
   separator: '\\',
   tree: [],
   username: '',
 };
 
+export type BrowseDirectory = ApiSoulseekDirectory & {
+  children: BrowseDirectory[];
+  locked: boolean;
+};
+
 type Props = {};
 
-type State = typeof initialState;
+type State = {
+  browseError: Error | undefined;
+  browseState: 'idle' | 'pending' | 'complete' | 'error';
+  browseStatus: number;
+  info: {
+    directories: number;
+    files: number;
+    lockedDirectories: number;
+    lockedFiles: number;
+  };
+  interval: number | undefined;
+  selectedDirectory: BrowseDirectory | undefined;
+  selectedFiles: Array<{
+    filename: string;
+    size: number;
+  }>;
+  separator: string;
+  tree: BrowseDirectory[];
+  username: string;
+};
 
 class Browse extends Component<Props, State> {
   public constructor(props: Props) {
@@ -65,18 +90,18 @@ class Browse extends Component<Props, State> {
         users
           .browse({ username })
           .then((response) => {
-            let { directories } = response;
-            const { lockedDirectories } = response;
+            let directories = response.directories ?? [];
+            const lockedDirectories = response.lockedDirectories ?? [];
 
             // we need to know the directory separator. assume it is \ to start
-            let separator;
+            let separator: string;
 
             const directoryCount = directories.length;
             const fileCount = directories.reduce((accumulator, directory) => {
               // examine each directory as we process it to see if it contains \ or /, and set separator accordingly
               if (!separator) {
-                if (directory.name.includes('\\')) separator = '\\';
-                else if (directory.name.includes('/')) separator = '/';
+                if (directory.name?.includes('\\')) separator = '\\';
+                else if (directory.name?.includes('/')) separator = '/';
               }
 
               return accumulator + directory.fileCount;
@@ -89,7 +114,11 @@ class Browse extends Component<Props, State> {
             );
 
             directories = directories.concat(
-              lockedDirectories.map((d) => ({ ...d, locked: true })),
+              lockedDirectories.map((d) => ({
+                ...d,
+                children: [],
+                locked: true,
+              })),
             );
 
             this.setState({
@@ -125,7 +154,8 @@ class Browse extends Component<Props, State> {
     });
   };
 
-  protected keyUp = (event) => (event.key === 'Escape' ? this.clear() : '');
+  protected keyUp = (event: KeyboardEvent) =>
+    event.key === 'Escape' ? this.clear() : '';
 
   protected saveState = () => {
     this.inputtext.inputRef.current.value = this.state.username;
@@ -148,7 +178,7 @@ class Browse extends Component<Props, State> {
     if (window.requestIdleCallback) {
       window.requestIdleCallback(storeToLocalStorage);
     } else {
-      Promise.resolve().then(storeToLocalStorage);
+      void Promise.resolve().then(storeToLocalStorage);
     }
   };
 
@@ -165,7 +195,7 @@ class Browse extends Component<Props, State> {
   protected fetchStatus = () => {
     const { browseState, username } = this.state;
     if (browseState === 'pending') {
-      users.getBrowseStatus({ username }).then((response) =>
+      void users.getBrowseStatus({ username }).then((response) =>
         this.setState({
           browseStatus: response.data,
         }),
@@ -173,8 +203,14 @@ class Browse extends Component<Props, State> {
     }
   };
 
-  protected getDirectoryTree = ({ directories, separator }) => {
-    if (directories.length === 0 || directories[0].name === undefined) {
+  protected getDirectoryTree = ({
+    directories,
+    separator,
+  }: {
+    directories: ApiSoulseekDirectory[];
+    separator: string;
+  }) => {
+    if (directories.length === 0 || directories[0]?.name == null) {
       return [];
     }
 
@@ -182,43 +218,50 @@ class Browse extends Component<Props, State> {
     // - loop through all directories once
     // - do the split once
     // - future look ups are done from the Map
-    const depthMap = new Map();
+    const depthMap = new Map<number, ApiSoulseekDirectory[]>();
     for (const d of directories) {
-      const directoryDepth = d.name.split(separator).length;
+      const directoryDepth = d.name?.split(separator).length ?? 0;
       if (!depthMap.has(directoryDepth)) {
         depthMap.set(directoryDepth, []);
       }
 
-      depthMap.get(directoryDepth).push(d);
+      depthMap.get(directoryDepth)?.push(d);
     }
 
     const depth = Math.min(...Array.from(depthMap.keys()));
 
     return depthMap
       .get(depth)
-      .map((directory) =>
+      ?.map((directory) =>
         this.getChildDirectories(depthMap, directory, separator, depth + 1),
       );
   };
 
-  protected getChildDirectories = (depthMap, root, separator, depth) => {
-    if (!depthMap.has(depth)) {
+  protected getChildDirectories = (
+    depthMap: Map<number, ApiSoulseekDirectory[]>,
+    root: ApiSoulseekDirectory,
+    separator: string,
+    depth: number,
+  ): ApiSoulseekDirectory & { children: ApiSoulseekDirectory[] } => {
+    const rootName = root.name;
+
+    if (!depthMap.has(depth) || rootName == null) {
       return { ...root, children: [] };
     }
 
-    const children = depthMap
-      .get(depth)
-      .filter((d) => d.name.startsWith(root.name));
+    const children =
+      depthMap.get(depth)?.filter((d) => d.name?.startsWith(rootName)) ?? [];
 
     return {
       ...root,
-      children: children.map((c) =>
-        this.getChildDirectories(depthMap, c, separator, depth + 1),
-      ),
+      children:
+        children?.map((c) =>
+          this.getChildDirectories(depthMap, c, separator, depth + 1),
+        ) ?? [],
     };
   };
 
-  protected selectDirectory = (directory) => {
+  protected selectDirectory = (directory: BrowseDirectory) => {
     this.setState({ selectedDirectory: { ...directory, children: [] } }, () =>
       this.saveState(),
     );
@@ -280,7 +323,9 @@ class Browse extends Component<Props, State> {
               />
             }
             loading={pending}
-            onKeyUp={(event) => (event.key === 'Enter' ? this.browse() : '')}
+            onKeyUp={(event: React.KeyboardEvent<Input>) =>
+              event.key === 'Enter' ? this.browse() : ''
+            }
             placeholder="Username"
             ref={(input) => (this.inputtext = input)}
             size="big"

@@ -1,11 +1,17 @@
 import * as search from './searches';
 
+const DefaultFile = {
+  filename: '/path/to/foo.mp3',
+  length: 123,
+  size: 123_456,
+};
+
 describe('filterResponse', () => {
   it('removes VBR files if "iscbr" is specified', () => {
     const response = {
       files: [
-        { bitRate: 123, isVariableBitRate: true },
-        { bitRate: 320, isVariableBitRate: false },
+        { ...DefaultFile, bitRate: 123, isVariableBitRate: true },
+        { ...DefaultFile, bitRate: 320, isVariableBitRate: false },
       ],
     };
 
@@ -19,8 +25,8 @@ describe('filterResponse', () => {
   it('removes CBR files if "isvbr" is specified', () => {
     const response = {
       files: [
-        { bitRate: 123, isVariableBitRate: true },
-        { bitRate: 320, isVariableBitRate: false },
+        { ...DefaultFile, bitRate: 123, isVariableBitRate: true },
+        { ...DefaultFile, bitRate: 320, isVariableBitRate: false },
       ],
     };
 
@@ -33,7 +39,10 @@ describe('filterResponse', () => {
 
   it('removes all files if "iscbr" and "isvbr" are both specified', () => {
     const response = {
-      files: [{ isVariableBitrate: true }, { isVariableBitrate: false }],
+      files: [
+        { ...DefaultFile, isVariableBitrate: true },
+        { ...DefaultFile, isVariableBitrate: false },
+      ],
     };
 
     const filters = { isCBR: true, isVBR: true };
@@ -46,8 +55,8 @@ describe('filterResponse', () => {
   it('removes lossy files if "islossless" is specified', () => {
     const response = {
       files: [
-        { bitDepth: 16, sampleRate: 41_000 },
-        { bitRate: 320, isVariableBitRate: false },
+        { ...DefaultFile, bitDepth: 16, sampleRate: 41_000 },
+        { ...DefaultFile, bitRate: 320, isVariableBitRate: false },
       ],
     };
 
@@ -61,8 +70,8 @@ describe('filterResponse', () => {
   it('removes lossless files if "islossy" is specified', () => {
     const response = {
       files: [
-        { bitDepth: 16, sampleRate: 41_000 },
-        { bitRate: 320, isVariableBitRate: false },
+        { ...DefaultFile, bitDepth: 16, sampleRate: 41_000 },
+        { ...DefaultFile, bitRate: 320, isVariableBitRate: false },
       ],
     };
 
@@ -75,7 +84,10 @@ describe('filterResponse', () => {
 
   it('removes files with bitRate less than minBitRate', () => {
     const response = {
-      files: [{ bitRate: 100 }, { bitRate: 99 }],
+      files: [
+        { ...DefaultFile, bitRate: 100 },
+        { ...DefaultFile, bitRate: 99 },
+      ],
     };
 
     const filters = { minBitRate: 100 };
@@ -87,7 +99,10 @@ describe('filterResponse', () => {
 
   it('removes files with size less than minFileSize', () => {
     const response = {
-      files: [{ size: 100 }, { size: 99 }],
+      files: [
+        { ...DefaultFile, size: 100 },
+        { ...DefaultFile, size: 99 },
+      ],
     };
 
     const filters = { minFileSize: 100 };
@@ -99,7 +114,10 @@ describe('filterResponse', () => {
 
   it('removes files with length less than minLength', () => {
     const response = {
-      files: [{ length: 100 }, { length: 99 }],
+      files: [
+        { ...DefaultFile, length: 100 },
+        { ...DefaultFile, length: 99 },
+      ],
     };
 
     const filters = { minLength: 100 };
@@ -112,12 +130,12 @@ describe('filterResponse', () => {
   describe('term filtering', () => {
     const response = {
       files: [
-        { filename: '/path/to/foo.mp3' },
-        { filename: '/path/to/bar.mp3' },
-        { filename: '/path/to/baz.mp3' },
-        { filename: '/path/to/qux.mp3' },
-        { filename: '/path/to/info.nfo' },
-        { filename: '/path/to/folder.jpg' },
+        { ...DefaultFile, filename: '/path/to/foo.mp3' },
+        { ...DefaultFile, filename: '/path/to/bar.mp3' },
+        { ...DefaultFile, filename: '/path/to/baz.mp3' },
+        { ...DefaultFile, filename: '/path/to/qux.mp3' },
+        { ...DefaultFile, filename: '/path/to/info.nfo' },
+        { ...DefaultFile, filename: '/path/to/folder.jpg' },
       ],
     };
 
@@ -134,9 +152,9 @@ describe('filterResponse', () => {
 
       expect(search.filterResponse({ filters, response })).toMatchObject({
         files: [
-          { filename: '/path/to/foo.mp3' },
-          { filename: '/path/to/baz.mp3' },
-          { filename: '/path/to/info.nfo' },
+          { ...DefaultFile, filename: '/path/to/foo.mp3' },
+          { ...DefaultFile, filename: '/path/to/baz.mp3' },
+          { ...DefaultFile, filename: '/path/to/info.nfo' },
         ],
       });
     });

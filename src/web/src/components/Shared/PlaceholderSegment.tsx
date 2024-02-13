@@ -4,7 +4,7 @@ type Props = {
   readonly caption: string;
   readonly icon: SemanticICONS;
   readonly size?: 'small';
-};
+} & React.ComponentProps<typeof Segment>;
 
 const PlaceholderSegment: React.FC<Props> = ({
   caption,

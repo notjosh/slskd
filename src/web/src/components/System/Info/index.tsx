@@ -1,4 +1,5 @@
 import { getVersion, restart, shutdown } from '../../../lib/application';
+import { type ApiSlskdState } from '../../../lib/generated/types';
 import {
   CodeEditor,
   LoaderSegment,
@@ -13,10 +14,10 @@ const Info = ({
   state,
   theme,
 }: {
-  readonly state: unknown;
-  readonly theme: unknown;
+  readonly state: ApiSlskdState;
+  readonly theme: React.ComponentProps<typeof CodeEditor>['theme'];
 }) => {
-  const [contents, setContents] = useState();
+  const [contents, setContents] = useState<string>();
 
   useEffect(() => {
     setTimeout(() => {
@@ -123,8 +124,8 @@ const Info = ({
         <CodeEditor
           basicSetup={false}
           editable={false}
-          theme={theme}
-          value={contents}
+          {...(contents ? { value: contents } : {})}
+          {...(theme ? { theme } : {})}
         />
       </Switch>
     </>

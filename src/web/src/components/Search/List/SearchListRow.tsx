@@ -1,26 +1,14 @@
-import { type SearchState } from '../../../lib/searches';
+import { type ApiSlskdSearchSearch } from '../../../lib/generated/types';
 import SearchStatusIcon from '../SearchStatusIcon';
 import SearchActionIcon from './SearchActionIcon';
 import { useState } from 'react';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { Icon, Table } from 'semantic-ui-react';
 
-export type SearchModel = {
-  endedAt: string;
-  fileCount: number;
-  id: string;
-  isComplete: boolean;
-  lockedFileCount: number;
-  responseCount: number;
-  searchText: string;
-  startedAt: string;
-  state: SearchState;
-};
-
 type Props = {
-  readonly onRemove: (search: SearchModel) => Promise<void>;
-  readonly onStop: (search: SearchModel) => Promise<void>;
-  readonly search: SearchModel;
+  readonly onRemove: (search: ApiSlskdSearchSearch) => Promise<void>;
+  readonly onStop: (search: ApiSlskdSearchSearch) => Promise<void>;
+  readonly search: ApiSlskdSearchSearch;
 };
 
 const SearchListRow: React.FC<Props> = ({ onRemove, onStop, search }) => {

@@ -5,49 +5,36 @@ import {
   type ApiDownloadsDeleteData,
   type ApiDownloadsListData,
   type ApiDownloadsPositionDetailData,
-  type ApiQueueDownloadRequest,
-  type ApiTransferStates,
+  type ApiSlskdTransfersAPIQueueDownloadRequest,
+  type ApiSoulseekTransferDirection,
+  type ApiSoulseekTransferStates,
   type ApiUploadsAllCompletedDeleteData,
   type ApiUploadsDeleteData,
   type ApiUploadsListData,
 } from './generated/types';
 
-export enum TransferDirection {
-  Download = 'download',
-  Upload = 'upload',
-}
-
 export const getAll = async ({
   direction,
 }: {
-  direction: TransferDirection;
-}) => {
-  const response = (
+  direction: ApiSoulseekTransferDirection;
+}) =>
+  (
     await api.get<ApiDownloadsListData | ApiUploadsListData>(
-      `/transfers/${encodeURIComponent(direction)}s`,
+      `/transfers/${encodeURIComponent(direction.toLowerCase())}s`,
     )
   ).data;
-
-  if (!Array.isArray(response)) {
-    console.warn('got non-array response from transfers API', response);
-    return undefined;
-  }
-
-  return response;
-};
 
 export const download = async ({
   username,
   files = [],
 }: {
-  files: ApiQueueDownloadRequest[];
+  files: ApiSlskdTransfersAPIQueueDownloadRequest[];
   username: string;
-}) => {
-  return await api.post<ApiDownloadsCreateData>(
+}) =>
+  await api.post<ApiDownloadsCreateData>(
     `/transfers/downloads/${encodeURIComponent(username)}`,
     files,
   );
-};
 
 export const cancel = async ({
   direction,
@@ -55,25 +42,23 @@ export const cancel = async ({
   id,
   remove = false,
 }: {
-  direction: TransferDirection;
+  direction: ApiSoulseekTransferDirection;
   id: string;
   remove?: boolean;
   username: string;
-}) => {
-  return await api.delete<ApiDownloadsDeleteData | ApiUploadsDeleteData>(
-    `/transfers/${direction}s/${encodeURIComponent(username)}/${encodeURIComponent(id)}?remove=${remove}`,
+}) =>
+  await api.delete<ApiDownloadsDeleteData | ApiUploadsDeleteData>(
+    `/transfers/${direction.toLowerCase()}s/${encodeURIComponent(username)}/${encodeURIComponent(id)}?remove=${remove}`,
   );
-};
 
 export const clearCompleted = async ({
   direction,
 }: {
-  direction: TransferDirection;
-}) => {
-  return await api.delete<
+  direction: ApiSoulseekTransferDirection;
+}) =>
+  await api.delete<
     ApiDownloadsAllCompletedDeleteData | ApiUploadsAllCompletedDeleteData
-  >(`/transfers/${direction}s/all/completed`);
-};
+  >(`/transfers/${direction.toLowerCase()}s/all/completed`);
 
 // 'Requested'
 // 'Queued, Remotely'
@@ -94,16 +79,15 @@ export const getPlaceInQueue = async ({
 }: {
   id: string;
   username: string;
-}) => {
-  return await api.get<ApiDownloadsPositionDetailData>(
+}) =>
+  await api.get<ApiDownloadsPositionDetailData>(
     `/transfers/downloads/${encodeURIComponent(username)}/${encodeURIComponent(id)}/position`,
   );
-};
 
-export const isStateRetryable = (state: ApiTransferStates) =>
+export const isStateRetryable = (state: ApiSoulseekTransferStates) =>
   state.includes('Completed') && state !== 'Completed, Succeeded';
 
-export const isStateCancellable = (state: ApiTransferStates) =>
+export const isStateCancellable = (state: ApiSoulseekTransferStates) =>
   [
     'InProgress',
     'Requested',
@@ -113,5 +97,5 @@ export const isStateCancellable = (state: ApiTransferStates) =>
     'Initializing',
   ].find((s) => s === state);
 
-export const isStateRemovable = (state: ApiTransferStates) =>
+export const isStateRemovable = (state: ApiSoulseekTransferStates) =>
   state.includes('Completed');

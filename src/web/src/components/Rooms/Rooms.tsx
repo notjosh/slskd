@@ -1,9 +1,10 @@
 import { activeRoomKey } from '../../config';
+import { type ApiSlskdMessagingAPIRoomResponse } from '../../lib/generated/types';
 import * as rooms from '../../lib/rooms';
 import PlaceholderSegment from '../Shared/PlaceholderSegment';
 import RoomMenu from './RoomMenu';
 import RoomUserList from './RoomUserList';
-import React, { Component, createRef } from 'react';
+import { Component, createRef } from 'react';
 import {
   Card,
   Dimmer,
@@ -29,9 +30,7 @@ const initialState = {
   },
 };
 
-type Props = {
-  readonly username: string;
-};
+type Props = {};
 
 type State = {
   active: string;
@@ -41,20 +40,7 @@ type State = {
   };
   joined: string[];
   loading: boolean;
-  room: {
-    messages: Array<{
-      message: string;
-      self: boolean;
-      timestamp: number;
-      username: string;
-    }>;
-    users: Array<{
-      countryCode: string;
-      self: boolean;
-      status: string;
-      username: string;
-    }>;
-  };
+  room: Pick<ApiSlskdMessagingAPIRoomResponse, 'messages' | 'users'>;
 };
 
 class Rooms extends Component<Props, State> {
@@ -67,15 +53,18 @@ class Rooms extends Component<Props, State> {
   public override componentDidMount() {
     this.setState(
       {
-        active: sessionStorage.getItem(activeRoomKey) || '',
+        active: sessionStorage.getItem(activeRoomKey) ?? '',
         intervals: {
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
           messages: window.setInterval(this.fetchActiveRoom, 1_000),
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
           rooms: window.setInterval(this.fetchJoinedRooms, 500),
         },
       },
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async () => {
         await this.fetchJoinedRooms();
-        this.selectRoom(this.state.active || this.getFirstRoom());
+        await this.selectRoom(this.state.active || this.getFirstRoom());
       },
     );
   }
@@ -95,7 +84,8 @@ class Rooms extends Component<Props, State> {
   protected messageRef = undefined;
 
   protected getFirstRoom = () => {
-    return this.state.joined.length > 0 ? this.state.joined[0] : '';
+    const joined = this.state.joined[0];
+    return joined ?? '';
   };
 
   protected fetchJoinedRooms = async () => {
@@ -104,9 +94,10 @@ class Rooms extends Component<Props, State> {
       {
         joined,
       },
-      () => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async () => {
         if (!this.state.joined.includes(this.state.active)) {
-          this.selectRoom(this.getFirstRoom());
+          await this.selectRoom(this.getFirstRoom());
         }
       },
     );
@@ -128,13 +119,14 @@ class Rooms extends Component<Props, State> {
     });
   };
 
-  protected selectRoom = async (roomName) => {
+  protected selectRoom = async (roomName: string) => {
     this.setState(
       {
         active: roomName,
         loading: true,
         room: initialState.room,
       },
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async () => {
         const { active } = this.state;
 
@@ -143,7 +135,7 @@ class Rooms extends Component<Props, State> {
         await this.fetchActiveRoom();
         this.setState({ loading: false }, () => {
           try {
-            this.listRef.current.lastChild.scrollIntoView();
+            this.listRef.current?.lastChild.scrollIntoView();
           } catch {
             // no-op
           }
@@ -152,16 +144,16 @@ class Rooms extends Component<Props, State> {
     );
   };
 
-  protected joinRoom = async (roomName) => {
+  protected joinRoom = async (roomName: string) => {
     await rooms.join({ roomName });
     await this.fetchJoinedRooms();
-    this.selectRoom(roomName);
+    await this.selectRoom(roomName);
   };
 
-  protected leaveRoom = async (roomName) => {
+  protected leaveRoom = async (roomName: string) => {
     await rooms.leave({ roomName });
     await this.fetchJoinedRooms();
-    this.selectRoom(this.getFirstRoom());
+    await this.selectRoom(this.getFirstRoom());
   };
 
   protected validInput = () =>
@@ -172,7 +164,7 @@ class Rooms extends Component<Props, State> {
     this.messageRef.current.focus();
   };
 
-  protected formatTimestamp = (timestamp) => {
+  protected formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     const dtfUS = new Intl.DateTimeFormat('en', {
       day: 'numeric',
@@ -197,7 +189,7 @@ class Rooms extends Component<Props, State> {
   };
 
   public override render() {
-    const { active = [], joined = [], loading, room } = this.state;
+    const { active, joined, loading, room } = this.state;
 
     return (
       <div className="rooms">
@@ -299,7 +291,7 @@ class Rooms extends Component<Props, State> {
                               type="text"
                             />
                           }
-                          onKeyUp={async (event) =>
+                          onKeyUp={async (event: KeyboardEvent) =>
                             event.key === 'Enter'
                               ? await this.sendMessage()
                               : ''

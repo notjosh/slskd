@@ -1,6 +1,14 @@
-import { type TransferState } from '../../lib/transfers';
-import { formatBytes, formatBytesAsUnit, getFileName } from '../../lib/util';
-import { type FileModel } from './TransferGroup';
+import {
+  type ApiSlskdTransfersTransfer,
+  type ApiSoulseekTransferDirection,
+  type ApiSoulseekTransferStates,
+} from '../../lib/generated/types';
+import {
+  type ByteUnits,
+  formatBytes,
+  formatBytesAsUnit,
+  getFileName,
+} from '../../lib/util';
 import { Component } from 'react';
 import {
   Button,
@@ -9,10 +17,13 @@ import {
   Icon,
   List,
   Progress,
+  type SemanticCOLORS,
   Table,
 } from 'semantic-ui-react';
 
-const getColor = (state: TransferState) => {
+const getColor = (
+  state: ApiSoulseekTransferStates,
+): { color?: SemanticCOLORS } => {
   switch (state) {
     case 'InProgress':
       return { color: 'blue' };
@@ -30,21 +41,46 @@ const getColor = (state: TransferState) => {
   }
 };
 
-const isRetryableState = (state: TransferState) =>
+const isRetryableState = (state: ApiSoulseekTransferStates) =>
   getColor(state).color === 'red';
-const isQueuedState = (state: TransferState) => state.includes('Queued');
+const isQueuedState = (state: ApiSoulseekTransferStates) =>
+  state.includes('Queued');
 
-const formatBytesTransferred = ({ size, transferred }) => {
+const formatBytesTransferred = ({
+  bytesTransferred,
+  size,
+}: ApiSlskdTransfersTransfer) => {
   const [s, sExtension] = formatBytes(size, 1).split(' ');
-  const t = formatBytesAsUnit(transferred, sExtension, 1);
+
+  if (s == null || sExtension == null) {
+    return `${bytesTransferred}/${size} B`;
+  }
+
+  const t = formatBytesAsUnit(
+    bytesTransferred,
+    sExtension as (typeof ByteUnits)[number],
+    1,
+  );
 
   return `${t}/${s} ${sExtension}`;
 };
 
+type TransferListItem = ApiSlskdTransfersTransfer & {
+  readonly selected: boolean;
+};
+
 type Props = {
+  readonly direction: ApiSoulseekTransferDirection;
   readonly directoryName: string;
-  readonly files: unknown;
-  readonly onSelectionChange: unknown;
+  readonly files: TransferListItem[];
+  readonly onPlaceInQueueRequested: (file: TransferListItem) => void;
+  readonly onRetryRequested: (file: TransferListItem) => void;
+  readonly onSelectionChange: (
+    directoryName: string,
+    file: TransferListItem,
+    selected: boolean,
+  ) => void;
+  readonly username: string;
 };
 
 type State = {
@@ -60,23 +96,22 @@ class TransferList extends Component<Props, State> {
     };
   }
 
-  protected handleClick = (file: FileModel) => {
+  protected handleClick = (file: TransferListItem) => {
     const { direction, state } = file;
 
     if (direction === 'Download') {
       if (isRetryableState(state)) {
-        return this.props.onRetryRequested(file);
+        this.props.onRetryRequested(file);
+        return;
       }
 
       if (isQueuedState(state)) {
-        return this.props.onPlaceInQueueRequested(file);
+        this.props.onPlaceInQueueRequested(file);
       }
     }
-
-    return undefined;
   };
 
-  toggleFolded = () => {
+  protected toggleFolded = () => {
     this.setState((previousState) => ({ isFolded: !previousState.isFolded }));
   };
 
@@ -112,7 +147,7 @@ class TransferList extends Component<Props, State> {
                             onSelectionChange(
                               directoryName,
                               file,
-                              data.checked,
+                              data.checked ?? false,
                             ),
                           )
                         }
@@ -143,7 +178,11 @@ class TransferList extends Component<Props, State> {
                             checked={f.selected}
                             fitted
                             onChange={(event, data) =>
-                              onSelectionChange(directoryName, f, data.checked)
+                              onSelectionChange(
+                                directoryName,
+                                f,
+                                data.checked ?? false,
+                              )
                             }
                           />
                         </Table.Cell>
@@ -153,7 +192,7 @@ class TransferList extends Component<Props, State> {
                         <Table.Cell className="transferlist-progress">
                           {f.state === 'InProgress' ? (
                             <Progress
-                              color={getColor(f.state).color}
+                              {...getColor(f.state)}
                               percent={Math.round(f.percentComplete)}
                               progress
                               style={{ margin: 0 }}
@@ -185,10 +224,7 @@ class TransferList extends Component<Props, State> {
                           )}
                         </Table.Cell>
                         <Table.Cell className="transferlist-size">
-                          {formatBytesTransferred({
-                            size: f.size,
-                            transferred: f.bytesTransferred,
-                          })}
+                          {formatBytesTransferred(f)}
                         </Table.Cell>
                       </Table.Row>
                     ))}

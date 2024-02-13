@@ -1,5 +1,8 @@
 import '../System.css';
-import { createLogsHubConnection } from '../../../lib/hubFactory';
+import {
+  createLogsHubConnection,
+  type HubModelLog,
+} from '../../../lib/hubFactory';
 import { LoaderSegment } from '../../Shared';
 import { Component } from 'react';
 import { Table } from 'semantic-ui-react';
@@ -21,11 +24,7 @@ const maxLogs = 500;
 type Props = {};
 type State = {
   connected: unknown;
-  logs: Array<{
-    level: keyof typeof levels;
-    message: string;
-    timestamp: string;
-  }>;
+  logs: HubModelLog[];
 };
 
 class Logs extends Component<Props, State> {

@@ -1,3 +1,4 @@
+import { type ApiSlskdSearchSearch } from '../../../lib/generated/types';
 import SearchStatusIcon from '../SearchStatusIcon';
 import { useMediaQuery } from 'react-responsive';
 import { Button, Header, Icon, Segment } from 'semantic-ui-react';
@@ -58,7 +59,7 @@ const StopOrDeleteButton: React.FC<StopOrDeleteButtonProps> = ({
 }) => (
   <Button
     disabled={working}
-    floated={isTinyScreen ? 'right' : undefined}
+    {...(isTinyScreen ? { floated: 'right' } : {})}
     icon={isSmallScreen && !isTinyScreen}
     loading={removing || stopping}
     negative
@@ -70,22 +71,16 @@ const StopOrDeleteButton: React.FC<StopOrDeleteButtonProps> = ({
   </Button>
 );
 
-type SearchModel = {
-  readonly isComplete: boolean;
-  readonly searchText: string;
-  readonly state: string;
-};
-
 type Props = {
   readonly creating: boolean;
   readonly disabled: boolean;
   readonly loaded: boolean;
   readonly loading: boolean;
   readonly onCreate: (options: { navigate: boolean; search: string }) => void;
-  readonly onRemove: (search: SearchModel) => void;
-  readonly onStop: (search: SearchModel) => void;
+  readonly onRemove: (search: ApiSlskdSearchSearch) => void;
+  readonly onStop: (search: ApiSlskdSearchSearch) => void;
   readonly removing: boolean;
-  readonly search: SearchModel;
+  readonly search: ApiSlskdSearchSearch;
   readonly stopping: boolean;
 };
 

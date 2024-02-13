@@ -33,18 +33,37 @@ export const formatBytesAsUnit = (
   return Number.parseFloat((bytes / k ** UnitSizes[unit]).toFixed(dm));
 };
 
-export const formatBytes = (bytes: number, decimals = 2) => {
+export const ByteUnits = [
+  'B',
+  'KB',
+  'MB',
+  'GB',
+  'TB',
+  'PB',
+  'EB',
+  'ZB',
+  'YB',
+] as const;
+
+export const formatBytes = (
+  bytes: number,
+  decimals = 2,
+): `${string} ${(typeof ByteUnits)[number]}` => {
   if (bytes === 0) return '0 B';
 
   const k = 1_024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] as const;
 
   const index = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return (
-    Number.parseFloat((bytes / k ** index).toFixed(dm)) + ' ' + sizes[index]
-  );
+  const v = Number.parseFloat((bytes / k ** index).toFixed(dm)).toString(10);
+  const u = ByteUnits[index];
+
+  if (u == null) {
+    return `${v} B` as const;
+  }
+
+  return `${v} ${u}` as const;
 };
 
 export const formatDate = (date: string | number | Date) => {
@@ -52,7 +71,8 @@ export const formatDate = (date: string | number | Date) => {
 };
 
 export const getFileName = (fullPath: string) => {
-  return fullPath.split('\\').pop()?.split('/').pop();
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return fullPath.split('\\').pop()!.split('/').pop()!;
 };
 
 export const getDirectoryName = (fullPath: string) => {

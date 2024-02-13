@@ -1,26 +1,16 @@
+import {
+  type ApiSlskdTransfersAPIUserResponse,
+  type ApiSlskdTransfersTransfer,
+  type ApiSoulseekTransferDirection,
+} from '../../lib/generated/types';
 import * as transfers from '../../lib/transfers';
 import TransferList from './TransferList';
 import { Component } from 'react';
 import { Button, Card, Icon } from 'semantic-ui-react';
 
-export type FileModel = {
-  readonly direction: transfers.TransferDirection;
-  readonly filename: string;
-  readonly id: string;
-  readonly size: number;
-  readonly state: transfers.TransferState;
-  readonly username: string;
-};
-
 type Props = {
-  readonly direction: transfers.TransferDirection;
-  readonly user: {
-    directories: Array<{
-      directory: string;
-      files: FileModel[];
-    }>;
-    username: string;
-  };
+  readonly direction: ApiSoulseekTransferDirection;
+  readonly user: ApiSlskdTransfersAPIUserResponse;
 };
 
 type State = {
@@ -58,7 +48,10 @@ class TransferGroup extends Component<Props, State> {
     this.setState({ selections });
   };
 
-  protected isSelected = (directoryName: string, file: FileModel) =>
+  protected isSelected = (
+    directoryName: string,
+    file: ApiSlskdTransfersTransfer,
+  ) =>
     this.state.selections.has(
       JSON.stringify({ directory: directoryName, filename: file.filename }),
     );
@@ -73,10 +66,10 @@ class TransferGroup extends Component<Props, State> {
           .find((d) => d.directory === s.directory)
           ?.files.find((f) => f.filename === s.filename),
       )
-      .filter((s): s is FileModel => s !== undefined);
+      .filter((s): s is ApiSlskdTransfersTransfer => s !== undefined);
   };
 
-  protected removeFileSelection = (file: FileModel) => {
+  protected removeFileSelection = (file: ApiSlskdTransfersTransfer) => {
     const { selections } = this.state;
 
     const match = Array.from(selections)
@@ -89,16 +82,16 @@ class TransferGroup extends Component<Props, State> {
     }
   };
 
-  protected retryAll = async (selected: FileModel[]) => {
+  protected retryAll = async (selected: ApiSlskdTransfersTransfer[]) => {
     await Promise.all(
       selected.map(async (file) => await this.handleRetry(file)),
     );
   };
 
   protected cancelAll = async (
-    direction: transfers.TransferDirection,
+    direction: ApiSoulseekTransferDirection,
     username: string,
-    selected: FileModel[],
+    selected: ApiSlskdTransfersTransfer[],
   ) => {
     await Promise.all(
       selected.map(
@@ -109,9 +102,9 @@ class TransferGroup extends Component<Props, State> {
   };
 
   protected removeAll = async (
-    direction: transfers.TransferDirection,
+    direction: ApiSoulseekTransferDirection,
     username: string,
-    selected: FileModel[],
+    selected: ApiSlskdTransfersTransfer[],
   ) => {
     await Promise.all(
       selected.map(
@@ -123,7 +116,7 @@ class TransferGroup extends Component<Props, State> {
     );
   };
 
-  protected handleRetry = async (file: FileModel) => {
+  protected handleRetry = async (file: ApiSlskdTransfersTransfer) => {
     const { filename, size, username } = file;
 
     try {
@@ -133,7 +126,9 @@ class TransferGroup extends Component<Props, State> {
     }
   };
 
-  protected handleFetchPlaceInQueue = async (file: FileModel) => {
+  protected handleFetchPlaceInQueue = async (
+    file: ApiSlskdTransfersTransfer,
+  ) => {
     const { id, username } = file;
 
     try {

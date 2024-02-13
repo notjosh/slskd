@@ -8,7 +8,7 @@ type Props = {
   };
 };
 
-const Files: React.FC<Props> = ({ options } = {}) => {
+const Files: React.FC<Props> = ({ options }) => {
   const { remoteFileManagement } = options;
 
   const panes = [

@@ -1,17 +1,11 @@
 import { Switch } from '../../Shared';
+import { type ShareWithHost } from '.';
 import { Link } from 'react-router-dom';
 import { Icon, Table } from 'semantic-ui-react';
 
 type Props = {
-  onClick: (share: unknown) => void;
-  shares: Array<{
-    alias: string;
-    directories: number | null;
-    files: number | null;
-    host: string;
-    localPath: string;
-    remotePath: string;
-  }>;
+  onClick: (share: ShareWithHost) => void;
+  shares: ShareWithHost[];
 };
 
 const ShareTable: React.FC<Props> = ({ onClick, shares }) => {

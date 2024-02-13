@@ -6,17 +6,30 @@ import {
 } from '../../../lib/options';
 import { Div, PlaceholderSegment, Switch } from '../../Shared';
 import CodeEditor from '../../Shared/CodeEditor';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Icon, Message, Modal } from 'semantic-ui-react';
 
-const EditModal = ({ onClose, open, theme }) => {
+type Props = {
+  onClose: () => void;
+  open: boolean;
+  theme: React.ComponentProps<typeof CodeEditor>['theme'];
+};
+
+const EditModal: React.FC<Props> = ({ onClose, open, theme }) => {
   // eslint-disable-next-line react/hook-use-state
-  const [{ error, loading }, setLoading] = useState({
+  const [{ error, loading }, setLoading] = useState<{
+    error: false | string;
+    loading: boolean;
+  }>({
     error: false,
     loading: true,
   });
   // eslint-disable-next-line react/hook-use-state
-  const [{ isDirty, location, yaml }, setYaml] = useState({
+  const [{ isDirty, location, yaml }, setYaml] = useState<{
+    isDirty: boolean;
+    location: string | undefined;
+    yaml: string | undefined;
+  }>({
     isDirty: false,
     location: undefined,
     yaml: undefined,
@@ -36,6 +49,10 @@ const EditModal = ({ onClose, open, theme }) => {
       setYaml({ isDirty: false, location: locationResult, yaml: yamlResult });
       setLoading({ error: false, loading: false });
     } catch (getError) {
+      if (!(getError instanceof Error)) {
+        throw getError;
+      }
+
       setLoading({ error: getError.message, loading: false });
     }
   };
@@ -50,7 +67,11 @@ const EditModal = ({ onClose, open, theme }) => {
     await validate(newYaml);
   };
 
-  const save = async (newYaml: string) => {
+  const save = async (newYaml: string | undefined) => {
+    if (newYaml == null) {
+      return;
+    }
+
     await validate(newYaml);
 
     if (!yamlError) {
@@ -93,8 +114,23 @@ const EditModal = ({ onClose, open, theme }) => {
         scrolling
       >
         <Switch
-          error={error && <PlaceholderSegment icon="close" />}
-          loading={loading && <PlaceholderSegment loading />}
+          error={
+            error !== false && (
+              <PlaceholderSegment
+                caption={error}
+                icon="close"
+              />
+            )
+          }
+          loading={
+            loading && (
+              <PlaceholderSegment
+                caption="Loading..."
+                icon="spinner"
+                loading
+              />
+            )
+          }
         >
           <div
             {...{
@@ -104,12 +140,14 @@ const EditModal = ({ onClose, open, theme }) => {
                   : 'edit-code-container',
             }}
           >
-            <CodeEditor
-              onChange={async (value) => await update(value)}
-              style={{ minHeight: 500 }}
-              theme={theme}
-              value={yaml}
-            />
+            {yaml != null && (
+              <CodeEditor
+                onChange={async (value) => await update(value)}
+                style={{ minHeight: 500 }}
+                theme={theme}
+                value={yaml}
+              />
+            )}
           </div>
         </Switch>
       </Modal.Content>

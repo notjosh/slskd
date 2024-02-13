@@ -1,6 +1,11 @@
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import { urlBase } from '../config';
+import {
+  type ApiSlskdOptions,
+  type ApiSlskdState,
+  ApiSoulseekTransferDirection,
+} from '../lib/generated/types';
 import { createApplicationHubConnection } from '../lib/hubFactory';
 import * as relayAPI from '../lib/relay';
 import { connect, disconnect } from '../lib/server';
@@ -16,7 +21,7 @@ import ErrorSegment from './Shared/ErrorSegment';
 import System from './System/System';
 import Transfers from './Transfers/Transfers';
 import Users from './Users/Users';
-import { Component } from 'react';
+import { Component, type ReactElement } from 'react';
 import { Link, Redirect, Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import {
@@ -42,7 +47,21 @@ const initialState = {
   retriesExhausted: false,
 };
 
-type ModeSpecificConnectButtonProps = {};
+type ModeSpecificConnectButtonProps = {
+  controller?: {
+    state: string;
+  };
+  mode: string;
+  pendingReconnect: boolean;
+  server?: {
+    isConnected: boolean;
+  };
+  user?: {
+    privileges?: {
+      isPrivileged: boolean;
+    };
+  };
+};
 
 const ModeSpecificConnectButton: React.FC<ModeSpecificConnectButtonProps> = ({
   controller = {},
@@ -132,7 +151,18 @@ const ModeSpecificConnectButton: React.FC<ModeSpecificConnectButtonProps> = ({
 
 type Props = {};
 
-type State = {};
+type State = {
+  applicationOptions: ApiSlskdOptions;
+  applicationState: ApiSlskdState;
+  error: boolean;
+  initialized: boolean;
+  login: {
+    error: unknown;
+    pending: boolean;
+  };
+  retriesExhausted: boolean;
+  theme: 'dark' | 'light';
+};
 
 class App extends Component<Props, State> {
   public constructor(props: Props) {
@@ -154,10 +184,12 @@ class App extends Component<Props, State> {
         'change',
         (event) => event.matches && this.setState({ theme: 'light' }),
       );
-    this.init();
+
+    void this.init();
   }
 
   protected init = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.setState({ initialized: false }, async () => {
       try {
         const securityEnabled = await session.getSecurityEnabled();
@@ -212,6 +244,7 @@ class App extends Component<Props, State> {
       (previousState) => ({
         login: { ...previousState.login, error: undefined, pending: true },
       }),
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async () => {
         try {
           await session.login({ password, rememberMe, username });
@@ -219,6 +252,7 @@ class App extends Component<Props, State> {
             (previousState) => ({
               login: { ...previousState.login, error: false, pending: false },
             }),
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             async () => await this.init(),
           );
         } catch (error) {
@@ -235,15 +269,15 @@ class App extends Component<Props, State> {
     this.setState({ login: { ...initialState.login } });
   };
 
-  protected withTokenCheck = (component) => {
-    session.check(); // async, runs in the background
+  protected withTokenCheck = (component: ReactElement) => {
+    void session.check(); // async, runs in the background
     return { ...component };
   };
 
   public override render() {
     const {
-      applicationOptions = {},
-      applicationState = {},
+      applicationOptions,
+      applicationState,
       error,
       initialized,
       login,
@@ -255,11 +289,11 @@ class App extends Component<Props, State> {
     const {
       pendingReconnect,
       pendingRestart,
-      relay = {},
+      relay,
       server,
-      shares = {},
+      shares,
       user,
-      version = {},
+      version,
     } = applicationState;
     const { current, isUpdateAvailable, latest } = version;
     const { scanPending: pendingShareRescan } = shares;
@@ -511,6 +545,7 @@ class App extends Component<Props, State> {
                           {...props}
                           options={applicationOptions}
                           state={applicationState}
+                          theme={theme}
                         />,
                       )
                     }
@@ -543,9 +578,7 @@ class App extends Component<Props, State> {
                   />
                   <Route
                     path={`${urlBase}/users`}
-                    render={(props) =>
-                      this.withTokenCheck(<Users {...props} />)
-                    }
+                    render={() => this.withTokenCheck(<Users />)}
                   />
                   <Route
                     path={`${urlBase}/chat`}
@@ -571,7 +604,8 @@ class App extends Component<Props, State> {
                         <div className="view">
                           <Transfers
                             {...props}
-                            direction="upload"
+                            direction={ApiSoulseekTransferDirection.Upload}
+                            server={applicationState.server}
                           />
                         </div>,
                       )
@@ -584,7 +618,7 @@ class App extends Component<Props, State> {
                         <div className="view">
                           <Transfers
                             {...props}
-                            direction="download"
+                            direction={ApiSoulseekTransferDirection.Download}
                             server={applicationState.server}
                           />
                         </div>,

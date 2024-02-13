@@ -9,146 +9,32 @@
  * ---------------------------------------------------------------
  */
 
-export enum ApiAddressFamily {
-  Unspecified = "Unspecified",
-  Unix = "Unix",
-  InterNetwork = "InterNetwork",
-  ImpLink = "ImpLink",
-  Pup = "Pup",
-  Chaos = "Chaos",
-  NS = "NS",
-  Iso = "Iso",
-  Ecma = "Ecma",
-  DataKit = "DataKit",
-  Ccitt = "Ccitt",
-  Sna = "Sna",
-  DecNet = "DecNet",
-  DataLink = "DataLink",
-  Lat = "Lat",
-  HyperChannel = "HyperChannel",
-  AppleTalk = "AppleTalk",
-  NetBios = "NetBios",
-  VoiceView = "VoiceView",
-  FireFox = "FireFox",
-  Banyan = "Banyan",
-  Atm = "Atm",
-  InterNetworkV6 = "InterNetworkV6",
-  Cluster = "Cluster",
-  Ieee12844 = "Ieee12844",
-  Irda = "Irda",
-  NetworkDesigners = "NetworkDesigners",
-  Max = "Max",
-  Packet = "Packet",
-  ControllerAreaNetwork = "ControllerAreaNetwork",
-  Unknown = "Unknown",
-}
-
 export type ApiAgentDeleteData = unknown;
 
 export type ApiAgentUpdateData = unknown;
 
-/** API key options. */
-export interface ApiApiKeyOptions {
-  /** Gets the comma separated list of CIDRs that are authorized to use the key. */
-  cidr?: string | null;
-  /**
-   * Gets the API key value.
-   * @minLength 16
-   * @maxLength 255
-   */
-  key?: string | null;
-  /** Gets the role for the key. */
-  role?: string | null;
-}
-
 export type ApiApplicationDeleteData = unknown;
 
-export type ApiApplicationListData = unknown;
+export type ApiApplicationListData = ApiSlskdState;
 
 export type ApiApplicationUpdateData = unknown;
 
-export type ApiAvailableListData = ApiRoomInfo[];
+export type ApiAvailableListData = ApiSlskdMessagingAPIRoomInfoResponse[];
 
-/** Built in blacklisted group options. */
-export interface ApiBlacklistedOptions {
-  /** Gets the list of group CIDRs. */
-  cidrs?: string[] | null;
-  /** Gets the list of group member usernames. */
-  members?: string[] | null;
-}
+export type ApiBrowseDetailData = ApiSoulseekBrowseResponse;
 
-export type ApiBrowseDetailData = ApiDirectory[];
-
-export type ApiBrowseDetailError = ApiProblemDetails;
+export type ApiBrowseDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
 /** @format double */
 export type ApiBrowseStatusDetailData = number;
 
-export type ApiBrowseStatusDetailError = ApiProblemDetails;
+export type ApiBrowseStatusDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
-/** Connection buffer options. */
-export interface ApiBufferOptions {
-  /**
-   * Gets the connection read buffer size, in bytes.
-   * @format int32
-   * @min 1024
-   * @max 2147483647
-   */
-  read: number;
-  /**
-   * Gets the read/write buffer size for transfers, in bytes.
-   * @format int32
-   * @min 81920
-   * @max 2147483647
-   */
-  transfer: number;
-  /**
-   * Gets the connection write buffer size, in bytes.
-   * @format int32
-   * @min 1024
-   * @max 2147483647
-   */
-  write: number;
-  /**
-   * Gets the size of the queue for double buffered writes.
-   * @format int32
-   * @min 5
-   * @max 5000
-   */
-  writeQueue: number;
-}
+export type ApiContentsDetailData = ApiSoulseekDirectory[];
 
-/** Built in user group options. */
-export interface ApiBuiltInOptions {
-  /** Upload limit options. */
-  limits?: ApiLimitsOptions;
-  /** User group upload options. */
-  upload?: ApiUploadOptions;
-}
+export type ApiContentsDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
-/** Certificate options. */
-export interface ApiCertificateOptions {
-  /** Gets the password for the X509 certificate. */
-  password?: string | null;
-  /** Gets the path to the the X509 certificate .pfx file. */
-  pfx?: string | null;
-}
-
-/** Connection options. */
-export interface ApiConnectionOptions {
-  /** Connection buffer options. */
-  buffer?: ApiBufferOptions;
-  /** Connection proxy options. */
-  proxy?: ApiProxyOptions;
-  /** Connection timeout options. */
-  timeout?: ApiTimeoutOptions;
-}
-
-export type ApiContentsDetailData = ApiDirectory[];
-
-export type ApiContentsDetailError = ApiProblemDetails;
-
-export type ApiContentsListData = ApiDirectory[];
+export type ApiContentsListData = ApiSoulseekDirectory[];
 
 export type ApiControllerDownloadsDetailData = unknown;
 
@@ -156,85 +42,33 @@ export type ApiControllerFilesCreateData = unknown;
 
 export type ApiControllerSharesCreateData = unknown;
 
-export interface ApiConversation {
-  readonly hasUnAcknowledgedMessages: boolean;
-  isActive: boolean;
-  messages: ApiPrivateMessage[];
-  /** @format int32 */
-  unAcknowledgedMessageCount: number;
-  username: string;
-}
-
 export type ApiConversationsCreateData = unknown;
 
-export type ApiConversationsCreateError = ApiProblemDetails;
+export type ApiConversationsCreateError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
 export type ApiConversationsDeleteData = unknown;
 
-export type ApiConversationsDeleteError = ApiProblemDetails;
+export type ApiConversationsDeleteError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
-export type ApiConversationsDetailData = ApiConversation;
+export type ApiConversationsDetailData = ApiSlskdMessagingConversation;
 
-export type ApiConversationsDetailError = ApiProblemDetails;
+export type ApiConversationsDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
-export type ApiConversationsListData = ApiConversation[];
+export type ApiConversationsListData = ApiSlskdMessagingConversation[];
 
 export type ApiConversationsUpdate2Data = unknown;
 
-export type ApiConversationsUpdate2Error = ApiProblemDetails;
+export type ApiConversationsUpdate2Error = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
 export type ApiConversationsUpdateData = unknown;
 
-export type ApiConversationsUpdateError = ApiProblemDetails;
+export type ApiConversationsUpdateError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
 export type ApiDebugListData = string;
 
-export enum ApiDiagnosticLevel {
-  None = "None",
-  Warning = "Warning",
-  Info = "Info",
-  Debug = "Debug",
-}
+export type ApiDirectoryCreateData = ApiSoulseekDirectory;
 
-/** Directory options. */
-export interface ApiDirectoriesOptions {
-  /** Gets the path where downloaded files are saved. */
-  downloads: string;
-  /** Gets the path where incomplete downloads are saved. */
-  incomplete: string;
-}
-
-export interface ApiDirectory {
-  /** @format int32 */
-  readonly fileCount: number;
-  readonly files?: ApiFile[] | null;
-  name?: string | null;
-}
-
-export interface ApiDirectoryContentsRequest {
-  directory: string;
-}
-
-export type ApiDirectoryCreateData = ApiDirectory;
-
-export type ApiDirectoryCreateError = ApiProblemDetails;
-
-/** Distributed network options. */
-export interface ApiDistributedNetworkOptions {
-  /**
-   * Gets the distributed child connection limit.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  childLimit: number;
-  /** Gets a value indicating whether to accept distributed child connections. */
-  disableChildren: boolean;
-  /** Gets a value indicating whether the distributed network should be disabled. */
-  disabled: boolean;
-  /** Gets a value indicating whether distributed network logging should be enabled. */
-  logging: boolean;
-}
+export type ApiDirectoryCreateError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
 export type ApiDownloadsAllCompletedDeleteData = unknown;
 
@@ -244,131 +78,222 @@ export type ApiDownloadsCreateError = string;
 
 export type ApiDownloadsDeleteData = unknown;
 
-export type ApiDownloadsDeleteError = ApiProblemDetails;
+export type ApiDownloadsDeleteError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
-export type ApiDownloadsDetail2Data = unknown;
+export type ApiDownloadsDetail2Data = ApiSlskdTransfersAPIUserResponse;
 
-export type ApiDownloadsDetailData = ApiTransfer;
+export type ApiDownloadsDetailData = ApiSlskdTransfersAPITransfer;
 
-export type ApiDownloadsDetailError = ApiProblemDetails;
+export type ApiDownloadsDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
 export type ApiDownloadsDirectoriesDeleteData = unknown;
 
-export type ApiDownloadsDirectoriesDetailData = ApiFilesystemDirectory;
+export type ApiDownloadsDirectoriesDetailData = ApiSlskdFilesFilesystemDirectory;
 
-export type ApiDownloadsDirectoriesDetailError = ApiProblemDetails;
+export type ApiDownloadsDirectoriesDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
-export type ApiDownloadsDirectoriesListData = ApiFilesystemDirectory;
+export type ApiDownloadsDirectoriesListData = ApiSlskdFilesFilesystemDirectory;
 
-export type ApiDownloadsDirectoriesListError = ApiProblemDetails;
+export type ApiDownloadsDirectoriesListError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
 export type ApiDownloadsFilesDeleteData = unknown;
 
-export type ApiDownloadsListData = unknown;
+export type ApiDownloadsListData = ApiSlskdTransfersAPIUserResponse[];
 
-export type ApiDownloadsPositionDetailData = ApiTransfer;
+export type ApiDownloadsPositionDetailData = ApiSlskdTransfersAPITransfer;
 
-export type ApiDownloadsPositionDetailError = ApiProblemDetails;
+export type ApiDownloadsPositionDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
 export type ApiDumpListData = unknown;
 
 export type ApiEnabledListData = boolean;
 
-export type ApiEndpointDetailData = ApiIPEndPoint;
+export type ApiEndpointDetailData = ApiSystemNetIPEndPoint;
 
-export type ApiEndpointDetailError = ApiProblemDetails;
+export type ApiEndpointDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
-/** Feature options. */
-export interface ApiFeatureOptions {
-  /** Gets a value indicating whether swagger documentation and UI should be enabled. */
-  swagger: boolean;
+export type ApiIncompleteDirectoriesDeleteData = unknown;
+
+export type ApiIncompleteDirectoriesDetailData = ApiSlskdFilesFilesystemDirectory;
+
+export type ApiIncompleteDirectoriesListData = ApiSlskdFilesFilesystemDirectory;
+
+export type ApiIncompleteFilesDeleteData = unknown;
+
+export type ApiInfoDetailData = ApiSlskdUsersInfo;
+
+export type ApiInfoDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiJoinedCreateData = ApiSlskdMessagingAPIRoomResponse;
+
+export type ApiJoinedDeleteData = unknown;
+
+export type ApiJoinedDeleteError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiJoinedDetailData = ApiSlskdMessagingAPIRoomResponse;
+
+export type ApiJoinedDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiJoinedListData = string[];
+
+export type ApiJoinedMembersCreateData = unknown;
+
+export type ApiJoinedMembersCreateError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiJoinedMessagesCreateData = unknown;
+
+export type ApiJoinedMessagesCreateError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiJoinedMessagesDetailData = ApiSlskdMessagingAPIRoomMessageResponse[];
+
+export type ApiJoinedMessagesDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiJoinedTickerCreateData = unknown;
+
+export type ApiJoinedTickerCreateError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiJoinedUsersDetailData = ApiSlskdMessagingAPIUserDataResponse[];
+
+export type ApiJoinedUsersDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiLogsListData = unknown;
+
+export type ApiMessagesDetailData = ApiSlskdMessagingPrivateMessage[];
+
+export type ApiMessagesDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiMetricsListData = unknown;
+
+export interface ApiMicrosoftAspNetCoreMvcProblemDetails {
+  detail?: string | null;
+  instance?: string | null;
+  /** @format int32 */
+  status?: number | null;
+  title?: string | null;
+  type?: string | null;
+  [key: string]: unknown;
 }
 
-export interface ApiFile {
-  /** @format int32 */
-  readonly attributeCount: number;
-  readonly attributes?: ApiFileAttribute[] | null;
-  /** @format int32 */
-  readonly bitDepth?: number | null;
-  /** @format int32 */
-  readonly bitRate?: number | null;
-  /** @format int32 */
-  code: number;
-  extension?: string | null;
-  filename?: string | null;
-  readonly isVariableBitRate?: boolean | null;
-  /** @format int32 */
-  readonly length?: number | null;
-  /** @format int32 */
-  readonly sampleRate?: number | null;
-  /** @format int64 */
-  size: number;
+export type ApiOptionsListData = ApiSlskdOptions;
+
+export type ApiPostApplicationData = unknown;
+
+export type ApiPublicchatCreateData = unknown;
+
+export type ApiPublicchatDeleteData = unknown;
+
+export type ApiResponsesDetailData = ApiSlskdSearchResponse[];
+
+export type ApiSearchesCreateData = ApiSlskdSearchSearch;
+
+export type ApiSearchesDeleteData = unknown;
+
+export type ApiSearchesDeleteError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiSearchesDetailData = ApiSlskdSearchSearch;
+
+export type ApiSearchesListData = ApiSlskdSearchSearch[];
+
+export type ApiSearchesUpdateData = unknown;
+
+export type ApiServerDeleteData = unknown;
+
+export type ApiServerDeleteError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiServerListData = ApiSlskdCoreAPIServerState;
+
+export type ApiServerListError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiServerUpdateData = unknown;
+
+export type ApiServerUpdateError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiSessionCreateData = ApiSlskdCoreAPITokenResponse;
+
+export type ApiSessionCreateError = ApiMicrosoftAspNetCoreMvcProblemDetails | string;
+
+export type ApiSessionListData = unknown;
+
+export type ApiSessionListError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiSharesDeleteData = unknown;
+
+export type ApiSharesDeleteError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiSharesDetailData = ApiSlskdSharesShare;
+
+export type ApiSharesDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export type ApiSharesListData = Record<string, ApiSlskdSharesShare[]>;
+
+export type ApiSharesUpdateData = unknown;
+
+export type ApiSharesUpdateError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export interface ApiSlskdCoreAPILoginRequest {
+  password: string;
+  username: string;
 }
 
-export interface ApiFileAttribute {
-  type: ApiFileAttributeType;
-  /** @format int32 */
-  value: number;
+export interface ApiSlskdCoreAPIServerState {
+  address: string;
+  ipEndPoint: ApiSystemNetIPEndPoint;
+  readonly isConnected: boolean;
+  readonly isLoggedIn: boolean;
+  readonly isTransitioning: boolean;
+  state: ApiSoulseekSoulseekClientStates;
+  username: string;
 }
 
-export enum ApiFileAttributeType {
-  BitRate = "BitRate",
-  Length = "Length",
-  VariableBitRate = "VariableBitRate",
-  SampleRate = "SampleRate",
-  BitDepth = "BitDepth",
-}
-
-export enum ApiFileAttributes {
-  None = "None",
-  ReadOnly = "ReadOnly",
-  Hidden = "Hidden",
-  System = "System",
-  Directory = "Directory",
-  Archive = "Archive",
-  Device = "Device",
-  Normal = "Normal",
-  Temporary = "Temporary",
-  SparseFile = "SparseFile",
-  ReparsePoint = "ReparsePoint",
-  Compressed = "Compressed",
-  Offline = "Offline",
-  NotContentIndexed = "NotContentIndexed",
-  Encrypted = "Encrypted",
-  IntegrityStream = "IntegrityStream",
-  NoScrubData = "NoScrubData",
-}
-
-/** File retention options. */
-export interface ApiFileRetentionOptions {
+export interface ApiSlskdCoreAPITokenResponse {
   /**
-   * Gets the time to retain completed files, in minutes.
-   * @format int32
-   * @min 30
-   * @max 2147483647
+   * Gets the time at which the Access Token expires.
+   * @format int64
    */
-  complete?: number | null;
+  readonly expires: number;
   /**
-   * Gets the time to retain incomplete files, in minutes.
-   * @format int32
-   * @min 30
-   * @max 2147483647
+   * Gets the time at which the Access Token was issued.
+   * @format int64
    */
-  incomplete?: number | null;
+  readonly issued: number;
+  /** Gets the value of the Name claim from the Access Token. */
+  readonly name: string;
+  /**
+   * Gets the value of the Not Before claim from the Access Token.
+   * @format int64
+   */
+  readonly notBefore: number;
+  /** Gets the Access Token string. */
+  readonly token: string;
+  /** Gets the Token type. */
+  readonly tokenType: string;
+}
+
+export interface ApiSlskdDistributedNetworkState {
+  /** @format int32 */
+  branchLevel: number;
+  branchRoot: string;
+  canAcceptChildren: boolean;
+  /** @format int32 */
+  childLimit: number;
+  children: string[];
+  hasParent: boolean;
+  isBranchRoot: boolean;
+  parent: string;
 }
 
 /** A file directory on the host filesystem. */
-export interface ApiFilesystemDirectory {
-  attributes: ApiFileAttributes;
+export interface ApiSlskdFilesFilesystemDirectory {
+  attributes: ApiSystemIOFileAttributes;
   /**
    * The timestamp at which the directory was created.
    * @format date-time
    */
   createdAt: string;
   /** The directories within the directory. */
-  directories: ApiFilesystemDirectory[];
+  directories: ApiSlskdFilesFilesystemDirectory[];
   /** The files within the directory. */
-  files: ApiFilesystemFile[];
+  files: ApiSlskdFilesFilesystemFile[];
   /** The fully qualified name of the directory. */
   fullName: string;
   /**
@@ -381,8 +306,8 @@ export interface ApiFilesystemDirectory {
 }
 
 /** A file on the host filesystem. */
-export interface ApiFilesystemFile {
-  attributes: ApiFileAttributes;
+export interface ApiSlskdFilesFilesystemFile {
+  attributes: ApiSystemIOFileAttributes;
   /**
    * The timestamp at which the file was created.
    * @format date-time
@@ -404,14 +329,198 @@ export interface ApiFilesystemFile {
   name: string;
 }
 
+export interface ApiSlskdMessagingAPIRoomInfoResponse {
+  /** Gets a value indicating whether the room is moderated by the currently logged in user. */
+  isModerated: boolean;
+  /** Gets a value indicating whether the room is owned by the currently logged in user. */
+  isOwned: boolean;
+  /** Gets a value indicating whether the room is private. */
+  isPrivate: boolean;
+  /** Gets the room name. */
+  name: string;
+  /**
+   * Gets the number of users in the room.
+   * @format int32
+   */
+  userCount: number;
+}
+
+export interface ApiSlskdMessagingAPIRoomMessageResponse {
+  /** The message. */
+  message: string;
+  /** The room to which the message pertains. */
+  roomName: string;
+  /** A value indicating whether this user data belongs to the currently logged in user. */
+  self?: boolean | null;
+  /**
+   * The timestamp of the message.
+   * @format date-time
+   */
+  timestamp: string;
+  /** The username of the user who sent the message. */
+  username: string;
+}
+
+export interface ApiSlskdMessagingAPIRoomResponse {
+  /** A value indicating whether the room is private. */
+  isPrivate: boolean;
+  /** The list of messages. */
+  messages: ApiSlskdMessagingAPIRoomMessageResponse[];
+  /** The room name. */
+  name: string;
+  /**
+   * The number of operators in the room, if private.
+   * @format int32
+   */
+  operatorCount?: number | null;
+  /** The operators in the room, if private. */
+  operators: string[];
+  /** The owner of the room, if private. */
+  owner: string;
+  /** The list of users in the room. */
+  users: ApiSlskdMessagingAPIUserDataResponse[];
+}
+
+export interface ApiSlskdMessagingAPIUserDataResponse {
+  /**
+   * The average upload speed of the user.
+   * @format int32
+   */
+  averageSpeed: number;
+  /** The user's country code, if provided. */
+  countryCode: string;
+  /**
+   * The number of directories shared by the user.
+   * @format int32
+   */
+  directoryCount: number;
+  /**
+   * The number of files shared by the user.
+   * @format int32
+   */
+  fileCount: number;
+  /** A value indicating whether this user data belongs to the currently logged in user. */
+  self?: boolean | null;
+  /**
+   * The number of the user's free download slots, if provided.
+   * @format int32
+   */
+  slotsFree?: number | null;
+  status: ApiSoulseekUserPresence;
+  /**
+   * The number of uploads tracked by the server for the user.
+   * @format int64
+   */
+  uploadCount: number;
+  /** The username of the user. */
+  username: string;
+}
+
+export interface ApiSlskdMessagingConversation {
+  readonly hasUnAcknowledgedMessages: boolean;
+  isActive: boolean;
+  messages: ApiSlskdMessagingPrivateMessage[];
+  /** @format int32 */
+  unAcknowledgedMessageCount: number;
+  username: string;
+}
+
+export enum ApiSlskdMessagingMessageDirection {
+  Out = "Out",
+  In = "In",
+}
+
+/** A private message. */
+export interface ApiSlskdMessagingPrivateMessage {
+  direction: ApiSlskdMessagingMessageDirection;
+  /**
+   * The unique message id, used to acknowledge receipt.
+   * @format int32
+   */
+  id: number;
+  /** A value indicating whether the message has been acknowledged. */
+  isAcknowledged: boolean;
+  /** The message. */
+  message: string;
+  /**
+   * The UTC timestamp of the message.
+   * @format date-time
+   */
+  timestamp: string;
+  /** The username of the remote user. */
+  username: string;
+}
+
+/** Application options. */
+export interface ApiSlskdOptions {
+  /** Gets a value indicating whether the application should run in debug mode. */
+  debug: boolean;
+  /** Directory options. */
+  directories: ApiSlskdOptionsDirectoriesOptions;
+  /** Feature options. */
+  feature: ApiSlskdOptionsFeatureOptions;
+  /** Filter options. */
+  filters: ApiSlskdOptionsFiltersOptions;
+  /** Optional flags. */
+  flags: ApiSlskdOptionsFlagsOptions;
+  /** Global options. */
+  global: ApiSlskdOptionsGlobalOptions;
+  /** User groups. */
+  groups: ApiSlskdOptionsGroupsOptions;
+  /** Gets the unique name for this instance. */
+  instanceName: string;
+  /** Options for external integrations. */
+  integration: ApiSlskdOptionsIntegrationOptions;
+  /** Logger options. */
+  logger: ApiSlskdOptionsLoggerOptions;
+  /** Metrics options. */
+  metrics: ApiSlskdOptionsMetricsOptions;
+  /** Relay options. */
+  relay: ApiSlskdOptionsRelayOptions;
+  /** Gets a value indicating whether remote configuration of options is allowed. */
+  remoteConfiguration: boolean;
+  /** Gets a value indicating whether remote file management is allowed. */
+  remoteFileManagement: boolean;
+  /** Retention options. */
+  retention: ApiSlskdOptionsRetentionOptions;
+  /** Gets a list of rooms to automatically join upon connection. */
+  rooms: string[];
+  /** Share options. */
+  shares: ApiSlskdOptionsSharesOptions;
+  /** Soulseek client options. */
+  soulseek: ApiSlskdOptionsSoulseekOptions;
+  /** Web server options. */
+  web: ApiSlskdOptionsWebOptions;
+}
+
+/** Directory options. */
+export interface ApiSlskdOptionsDirectoriesOptions {
+  /** Gets the path where downloaded files are saved. */
+  downloads: string;
+  /** Gets the path where incomplete downloads are saved. */
+  incomplete: string;
+}
+
+/** Feature options. */
+export interface ApiSlskdOptionsFeatureOptions {
+  /** Gets a value indicating whether swagger documentation and UI should be enabled. */
+  swagger: boolean;
+}
+
 /** Filter options. */
-export interface ApiFiltersOptions {
+export interface ApiSlskdOptionsFiltersOptions {
   /** Search filter options. */
-  search: ApiSearchOptions;
+  search: ApiSlskdOptionsFiltersOptionsSearchOptions;
+}
+
+/** Search filter options. */
+export interface ApiSlskdOptionsFiltersOptionsSearchOptions {
+  /** Gets the list of search request filters. */
+  request?: string[] | null;
 }
 
 /** Optional flags. */
-export interface ApiFlagsOptions {
+export interface ApiSlskdOptionsFlagsOptions {
   /** Gets a value indicating whether user-defined regular expressions are case sensitive. */
   caseSensitiveRegEx: boolean;
   /** Gets a value indicating whether the application should run in experimental mode. */
@@ -436,8 +545,188 @@ export interface ApiFlagsOptions {
   volatile: boolean;
 }
 
+/** Global options. */
+export interface ApiSlskdOptionsGlobalOptions {
+  /** Gets global download options. */
+  download: ApiSlskdOptionsGlobalOptionsGlobalDownloadOptions;
+  /** Global upload options. */
+  upload: ApiSlskdOptionsGlobalOptionsGlobalUploadOptions;
+}
+
+/** Gets global download options. */
+export interface ApiSlskdOptionsGlobalOptionsGlobalDownloadOptions {
+  /**
+   * Gets the limit for the total number of download slots.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  slots: number;
+  /**
+   * Gets the total download speed limit.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  speedLimit: number;
+}
+
+/** Global upload options. */
+export interface ApiSlskdOptionsGlobalOptionsGlobalUploadOptions {
+  /**
+   * Gets the limit for the total number of upload slots.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  slots: number;
+  /**
+   * Gets the total upload speed limit.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  speedLimit: number;
+}
+
+/** User groups. */
+export interface ApiSlskdOptionsGroupsOptions {
+  /** Built in blacklisted group options. */
+  blacklisted: ApiSlskdOptionsGroupsOptionsBlacklistedOptions;
+  /** Built in user group options. */
+  default: ApiSlskdOptionsGroupsOptionsBuiltInOptions;
+  /** Built in leecher group options. */
+  leechers: ApiSlskdOptionsGroupsOptionsLeecherOptions;
+  /** Gets user defined groups and options. */
+  userDefined: Record<string, ApiSlskdOptionsGroupsOptionsUserDefinedOptions>;
+}
+
+/** Built in blacklisted group options. */
+export interface ApiSlskdOptionsGroupsOptionsBlacklistedOptions {
+  /** Gets the list of group CIDRs. */
+  cidrs?: string[] | null;
+  /** Gets the list of group member usernames. */
+  members?: string[] | null;
+}
+
+/** Built in user group options. */
+export interface ApiSlskdOptionsGroupsOptionsBuiltInOptions {
+  /** Upload limit options. */
+  limits?: ApiSlskdOptionsGroupsOptionsLimitsOptions;
+  /** User group upload options. */
+  upload?: ApiSlskdOptionsGroupsOptionsUploadOptions;
+}
+
+/** Built in leecher group options. */
+export interface ApiSlskdOptionsGroupsOptionsLeecherOptions {
+  /** Upload limit options. */
+  limits?: ApiSlskdOptionsGroupsOptionsLimitsOptions;
+  /** Leecher threshold options. */
+  thresholds?: ApiSlskdOptionsGroupsOptionsThresholdOptions;
+  /** User group upload options. */
+  upload?: ApiSlskdOptionsGroupsOptionsUploadOptions;
+}
+
+/** Extended limit options. */
+export interface ApiSlskdOptionsGroupsOptionsLimitsExtendedOptions {
+  /**
+   * Gets the limit for number of failures.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  failures?: number | null;
+  /**
+   * Gets the limit for number of files.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  files?: number | null;
+  /**
+   * Gets the limit for number of megabytes.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  megabytes?: number | null;
+}
+
+/** Upload limit options. */
+export interface ApiSlskdOptionsGroupsOptionsLimitsOptions {
+  /** Extended limit options. */
+  daily?: ApiSlskdOptionsGroupsOptionsLimitsExtendedOptions;
+  /** Extended limit options. */
+  queued?: ApiSlskdOptionsGroupsOptionsLimitsExtendedOptions;
+  /** Extended limit options. */
+  weekly?: ApiSlskdOptionsGroupsOptionsLimitsExtendedOptions;
+}
+
+/** Leecher threshold options. */
+export interface ApiSlskdOptionsGroupsOptionsThresholdOptions {
+  /**
+   * Gets the minimum number of shared directories required to avoid being classified as a leecher.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  directories: number;
+  /**
+   * Gets the minimum number of shared files required to avoid being classified as a leecher.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  files: number;
+}
+
+/** User group upload options. */
+export interface ApiSlskdOptionsGroupsOptionsUploadOptions {
+  /**
+   * Gets the priority of the group.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  priority: number;
+  /**
+   * Gets the limit for the total number of upload slots for the group.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  slots: number;
+  /**
+   * Gets the total upload speed limit for the group.
+   * @format int32
+   * @min 1
+   * @max 2147483647
+   */
+  speedLimit: number;
+  /** Gets the queue strategy for the group. */
+  strategy?: string | null;
+}
+
+/** User defined user group options. */
+export interface ApiSlskdOptionsGroupsOptionsUserDefinedOptions {
+  /** Upload limit options. */
+  limits?: ApiSlskdOptionsGroupsOptionsLimitsOptions;
+  /** Gets the list of group member usernames. */
+  members?: string[] | null;
+  /** User group upload options. */
+  upload?: ApiSlskdOptionsGroupsOptionsUploadOptions;
+}
+
+/** Options for external integrations. */
+export interface ApiSlskdOptionsIntegrationOptions {
+  /** FTP options. */
+  ftp: ApiSlskdOptionsIntegrationOptionsFtpOptions;
+  /** Pushbullet options. */
+  pushbullet: ApiSlskdOptionsIntegrationOptionsPushbulletOptions;
+}
+
 /** FTP options. */
-export interface ApiFtpOptions {
+export interface ApiSlskdOptionsIntegrationOptionsFtpOptions {
   /** Gets the FTP address. */
   address?: string | null;
   /**
@@ -477,255 +766,55 @@ export interface ApiFtpOptions {
   username?: string | null;
 }
 
-/** Gets global download options. */
-export interface ApiGlobalDownloadOptions {
+/** Pushbullet options. */
+export interface ApiSlskdOptionsIntegrationOptionsPushbulletOptions {
+  /** Gets the Pushbullet API access token. */
+  accessToken?: string | null;
   /**
-   * Gets the limit for the total number of download slots.
+   * Gets the cooldown time for Pushbullet notifications, in milliseconds.
    * @format int32
-   * @min 1
-   * @max 2147483647
    */
-  slots: number;
+  cooldownTime: number;
+  /** Gets a value indicating whether the Pushbullet integration is enabled. */
+  enabled: boolean;
+  /** Gets the prefix for Pushbullet notification titles. */
+  notificationPrefix?: string | null;
+  /** Gets a value indicating whether a Pushbullet notification should be sent when a private message is received. */
+  notifyOnPrivateMessage: boolean;
   /**
-   * Gets the total download speed limit.
+   * Gets a value indicating whether a Pushbullet notification should be sent when the currently logged
+   * in user's username is mentioned in a room.
+   */
+  notifyOnRoomMention: boolean;
+  /**
+   * Gets the number of times failing Pushbullet notifications will be retried.
    * @format int32
-   * @min 1
-   * @max 2147483647
+   * @min 0
+   * @max 5
    */
-  speedLimit: number;
-}
-
-/** Global options. */
-export interface ApiGlobalOptions {
-  /** Gets global download options. */
-  download: ApiGlobalDownloadOptions;
-  /** Global upload options. */
-  upload: ApiGlobalUploadOptions;
-}
-
-/** Global upload options. */
-export interface ApiGlobalUploadOptions {
-  /**
-   * Gets the limit for the total number of upload slots.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  slots: number;
-  /**
-   * Gets the total upload speed limit.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  speedLimit: number;
-}
-
-/** User groups. */
-export interface ApiGroupsOptions {
-  /** Built in blacklisted group options. */
-  blacklisted: ApiBlacklistedOptions;
-  /** Built in user group options. */
-  default: ApiBuiltInOptions;
-  /** Built in leecher group options. */
-  leechers: ApiLeecherOptions;
-  /** Gets user defined groups and options. */
-  userDefined: Record<string, ApiUserDefinedOptions>;
-}
-
-/** HTTPS options. */
-export interface ApiHttpsOptions {
-  /** Certificate options. */
-  certificate?: ApiCertificateOptions;
-  /** Gets a value indicating whether HTTPS should be disabled. */
-  disabled: boolean;
-  /** Gets a value indicating whether HTTP requests should be redirected to HTTPS. */
-  force: boolean;
-  /**
-   * Gets the HTTPS listen port.
-   * @format int32
-   * @min 1
-   * @max 65535
-   */
-  port: number;
-}
-
-export interface ApiIPAddress {
-  readonly isIPv4MappedToIPv6: boolean;
-  readonly isIPv6LinkLocal: boolean;
-  readonly isIPv6Multicast: boolean;
-  readonly isIPv6SiteLocal: boolean;
-  readonly isIPv6Teredo: boolean;
-  readonly isIPv6UniqueLocal: boolean;
-  /**
-   * @deprecated
-   * @format int64
-   */
-  address: number;
-  addressFamily: ApiAddressFamily;
-  /** @format int64 */
-  scopeId: number;
-}
-
-export interface ApiIPEndPoint {
-  address: ApiIPAddress;
-  addressFamily: ApiAddressFamily;
-  /** @format int32 */
-  port: number;
-}
-
-export type ApiIncompleteDirectoriesDeleteData = unknown;
-
-export type ApiIncompleteDirectoriesDetailData = ApiFilesystemDirectory;
-
-export type ApiIncompleteDirectoriesListData = ApiFilesystemDirectory;
-
-export type ApiIncompleteFilesDeleteData = unknown;
-
-export interface ApiInfo {
-  description: string;
-  hasFreeUploadSlot: boolean;
-  hasPicture: boolean;
-  /** @format byte */
-  picture: string;
-  /** @format int32 */
-  queueLength: number;
-  /** @format int32 */
-  uploadSlots: number;
-}
-
-export type ApiInfoDetailData = ApiInfo;
-
-export type ApiInfoDetailError = ApiProblemDetails;
-
-/** Options for external integrations. */
-export interface ApiIntegrationOptions {
-  /** FTP options. */
-  ftp: ApiFtpOptions;
-  /** Pushbullet options. */
-  pushbullet: ApiPushbulletOptions;
-}
-
-export type ApiJoinedCreateData = ApiRoom;
-
-export type ApiJoinedDeleteData = unknown;
-
-export type ApiJoinedDeleteError = ApiProblemDetails;
-
-export type ApiJoinedDetailData = ApiRoom;
-
-export type ApiJoinedDetailError = ApiProblemDetails;
-
-export type ApiJoinedListData = Record<string, Record<string, ApiRoom>>;
-
-export type ApiJoinedMembersCreateData = unknown;
-
-export type ApiJoinedMembersCreateError = ApiProblemDetails;
-
-export type ApiJoinedMessagesCreateData = unknown;
-
-export type ApiJoinedMessagesCreateError = ApiProblemDetails;
-
-export type ApiJoinedMessagesDetailData = ApiRoomMessage[];
-
-export type ApiJoinedMessagesDetailError = ApiProblemDetails;
-
-export type ApiJoinedTickerCreateData = unknown;
-
-export type ApiJoinedTickerCreateError = ApiProblemDetails;
-
-export type ApiJoinedUsersDetailData = ApiUserData[];
-
-export type ApiJoinedUsersDetailError = ApiProblemDetails;
-
-/** JWT options. */
-export interface ApiJwtOptions {
-  /**
-   * Gets the key with which to sign JWTs.
-   * @minLength 16
-   * @maxLength 255
-   */
-  key?: string | null;
-  /**
-   * Gets the TTL for JWTs, in milliseconds.
-   * @format int32
-   * @min 3600
-   * @max 2147483647
-   */
-  ttl: number;
-}
-
-/** Built in leecher group options. */
-export interface ApiLeecherOptions {
-  /** Upload limit options. */
-  limits?: ApiLimitsOptions;
-  /** Leecher threshold options. */
-  thresholds?: ApiThresholdOptions;
-  /** User group upload options. */
-  upload?: ApiUploadOptions;
-}
-
-/** Extended limit options. */
-export interface ApiLimitsExtendedOptions {
-  /**
-   * Gets the limit for number of failures.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  failures?: number | null;
-  /**
-   * Gets the limit for number of files.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  files?: number | null;
-  /**
-   * Gets the limit for number of megabytes.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  megabytes?: number | null;
-}
-
-/** Upload limit options. */
-export interface ApiLimitsOptions {
-  /** Extended limit options. */
-  daily?: ApiLimitsExtendedOptions;
-  /** Extended limit options. */
-  queued?: ApiLimitsExtendedOptions;
-  /** Extended limit options. */
-  weekly?: ApiLimitsExtendedOptions;
+  retryAttempts: number;
 }
 
 /** Logger options. */
-export interface ApiLoggerOptions {
+export interface ApiSlskdOptionsLoggerOptions {
   /** Gets a value indicating whether to write logs to disk. */
   disk: boolean;
   /** Gets the URL to a Grafana Loki instance to which to log. */
   loki: string;
 }
 
-export interface ApiLoginRequest {
-  password: string;
-  username: string;
+/** Metrics options. */
+export interface ApiSlskdOptionsMetricsOptions {
+  /** Metrics endpoint authentication options. */
+  authentication: ApiSlskdOptionsMetricsOptionsMetricsAuthenticationOptions;
+  /** Gets a value indicating whether the metrics endpoint should be enabled. */
+  enabled: boolean;
+  /** Gets the url for the metrics endpoint. */
+  url: string;
 }
-
-export type ApiLogsListData = unknown;
-
-export enum ApiMessageDirection {
-  Out = "Out",
-  In = "In",
-}
-
-export type ApiMessagesDetailData = ApiPrivateMessage[];
-
-export type ApiMessagesDetailError = ApiProblemDetails;
 
 /** Metrics endpoint authentication options. */
-export interface ApiMetricsAuthenticationOptions {
+export interface ApiSlskdOptionsMetricsOptionsMetricsAuthenticationOptions {
   /** Gets a value indicating whether authentication should be disabled. */
   disabled: boolean;
   /**
@@ -742,97 +831,234 @@ export interface ApiMetricsAuthenticationOptions {
   username?: string | null;
 }
 
-export type ApiMetricsListData = unknown;
-
-/** Metrics options. */
-export interface ApiMetricsOptions {
-  /** Metrics endpoint authentication options. */
-  authentication: ApiMetricsAuthenticationOptions;
-  /** Gets a value indicating whether the metrics endpoint should be enabled. */
+/** Relay options. */
+export interface ApiSlskdOptionsRelayOptions {
+  /** Gets the agent configuration. */
+  agents: Record<string, ApiSlskdOptionsRelayOptionsRelayAgentConfigurationOptions>;
+  /** Relay controller configuration options. */
+  controller: ApiSlskdOptionsRelayOptionsRelayControllerConfigurationOptions;
+  /** Gets a value indicating whether the relay is enabled. */
   enabled: boolean;
-  /** Gets the url for the metrics endpoint. */
-  url: string;
+  /** Gets the relay mode. */
+  mode: string;
 }
 
-/** Application options. */
-export interface ApiOptions {
-  /** Gets a value indicating whether the application should run in debug mode. */
-  debug: boolean;
-  /** Directory options. */
-  directories: ApiDirectoriesOptions;
-  /** Feature options. */
-  feature: ApiFeatureOptions;
-  /** Filter options. */
-  filters: ApiFiltersOptions;
-  /** Optional flags. */
-  flags: ApiFlagsOptions;
-  /** Global options. */
-  global: ApiGlobalOptions;
-  /** User groups. */
-  groups: ApiGroupsOptions;
-  /** Gets the unique name for this instance. */
-  instanceName: string;
-  /** Options for external integrations. */
-  integration: ApiIntegrationOptions;
-  /** Logger options. */
-  logger: ApiLoggerOptions;
-  /** Metrics options. */
-  metrics: ApiMetricsOptions;
-  /** Relay options. */
-  relay: ApiRelayOptions;
-  /** Gets a value indicating whether remote configuration of options is allowed. */
-  remoteConfiguration: boolean;
-  /** Gets a value indicating whether remote file management is allowed. */
-  remoteFileManagement: boolean;
-  /** Retention options. */
-  retention: ApiRetentionOptions;
-  /** Gets a list of rooms to automatically join upon connection. */
-  rooms: string[];
-  /** Share options. */
-  shares: ApiSharesOptions;
-  /** Soulseek client options. */
-  soulseek: ApiSoulseekOptions;
-  /** Web server options. */
-  web: ApiWebOptions;
-}
-
-export type ApiOptionsListData = ApiOptions;
-
-export type ApiPostApplicationData = unknown;
-
-/** A private message. */
-export interface ApiPrivateMessage {
-  direction: ApiMessageDirection;
+/** Relay agent configuration options. */
+export interface ApiSlskdOptionsRelayOptionsRelayAgentConfigurationOptions {
+  /** Gets the comma separated list of CIDRs that are authorized to connect as this agent. */
+  cidr?: string | null;
   /**
-   * The unique message id, used to acknowledge receipt.
+   * Gets the agent instance name.
+   * @minLength 1
+   * @maxLength 255
+   */
+  instanceName?: string | null;
+  /**
+   * Gets the agent secret.
+   * @minLength 16
+   * @maxLength 255
+   */
+  secret?: string | null;
+}
+
+/** Relay controller configuration options. */
+export interface ApiSlskdOptionsRelayOptionsRelayControllerConfigurationOptions {
+  /**
+   * Gets the controller address.
+   * @format uri
+   */
+  address?: string | null;
+  /**
+   * Gets the controller API key.
+   * @minLength 16
+   * @maxLength 255
+   */
+  apiKey?: string | null;
+  /** Gets a value indicating whether to receive completed downloads from the controller. */
+  downloads: boolean;
+  /** Gets a value indicating whether controller certificate errors should be ignored. */
+  ignoreCertificateErrors: boolean;
+  /**
+   * Gets the controller secret.
+   * @minLength 16
+   * @maxLength 255
+   */
+  secret?: string | null;
+}
+
+/** Retention options. */
+export interface ApiSlskdOptionsRetentionOptions {
+  /** File retention options. */
+  files: ApiSlskdOptionsRetentionOptionsFileRetentionOptions;
+  /**
+   * Gets the time to retain logs, in days.
    * @format int32
+   * @min 1
+   * @max 2147483647
    */
-  id: number;
-  /** A value indicating whether the message has been acknowledged. */
-  isAcknowledged: boolean;
-  /** The message. */
-  message: string;
+  logs: number;
+  /** Transfer retention options. */
+  transfers: ApiSlskdOptionsRetentionOptionsTransferRetentionOptions;
+}
+
+/** File retention options. */
+export interface ApiSlskdOptionsRetentionOptionsFileRetentionOptions {
   /**
-   * The UTC timestamp of the message.
-   * @format date-time
+   * Gets the time to retain completed files, in minutes.
+   * @format int32
+   * @min 30
+   * @max 2147483647
    */
-  timestamp: string;
-  /** The username of the remote user. */
+  complete?: number | null;
+  /**
+   * Gets the time to retain incomplete files, in minutes.
+   * @format int32
+   * @min 30
+   * @max 2147483647
+   */
+  incomplete?: number | null;
+}
+
+/** Transfer retention options. */
+export interface ApiSlskdOptionsRetentionOptionsTransferRetentionOptions {
+  /** Transfer retention options. */
+  download?: ApiSlskdOptionsRetentionOptionsTransferRetentionOptionsTransferTypeRetentionOptions;
+  /** Transfer retention options. */
+  upload?: ApiSlskdOptionsRetentionOptionsTransferRetentionOptionsTransferTypeRetentionOptions;
+}
+
+/** Transfer retention options. */
+export interface ApiSlskdOptionsRetentionOptionsTransferRetentionOptionsTransferTypeRetentionOptions {
+  /**
+   * Gets the time to retain cancelled transfers, in minutes.
+   * @format int32
+   * @min 5
+   * @max 2147483647
+   */
+  cancelled?: number | null;
+  /**
+   * Gets the time to retain errored transfers, in minutes.
+   * @format int32
+   * @min 5
+   * @max 2147483647
+   */
+  errored?: number | null;
+  /**
+   * Gets the time to retain successful transfers, in minutes.
+   * @format int32
+   * @min 5
+   * @max 2147483647
+   */
+  succeeded?: number | null;
+}
+
+/** Share options. */
+export interface ApiSlskdOptionsSharesOptions {
+  /** Share caching options. */
+  cache: ApiSlskdOptionsSharesOptionsShareCacheOptions;
+  /** Gets the list of paths to shared files. */
+  directories: string[];
+  /** Gets the list of shared file filters. */
+  filters: string[];
+}
+
+/** Share caching options. */
+export interface ApiSlskdOptionsSharesOptionsShareCacheOptions {
+  /**
+   * Gets the time to retain the cache (the interval on which to re-scan automatically), in minutes.
+   * @format int32
+   * @min 60
+   * @max 2147483647
+   */
+  retention?: number | null;
+  /** Gets the type of storage to use for the share cache. */
+  storageMode?: string | null;
+  /**
+   * Gets the number of workers to use while scanning shares.
+   * @format int32
+   * @min 1
+   * @max 128
+   */
+  workers: number;
+}
+
+/** Soulseek client options. */
+export interface ApiSlskdOptionsSoulseekOptions {
+  /** Gets the address of the Soulseek server. */
+  address: string;
+  /** Connection options. */
+  connection: ApiSlskdOptionsSoulseekOptionsConnectionOptions;
+  /** Gets the description of the Soulseek user. */
+  description: string;
+  diagnosticLevel: ApiSoulseekDiagnosticsDiagnosticLevel;
+  /** Distributed network options. */
+  distributedNetwork: ApiSlskdOptionsSoulseekOptionsDistributedNetworkOptions;
+  /** Gets the local IP address on which to listen for incoming connections. */
+  listenIpAddress: string;
+  /**
+   * Gets the port on which to listen for incoming connections.
+   * @format int32
+   * @min 1024
+   * @max 65535
+   */
+  listenPort: number;
+  /** Gets the password for the Soulseek network. */
+  password: string;
+  /**
+   * Gets the port of the Soulseek server.
+   * @format int32
+   * @min 1024
+   * @max 65535
+   */
+  port: number;
+  /** Gets the username for the Soulseek network. */
   username: string;
 }
 
-export interface ApiProblemDetails {
-  detail?: string | null;
-  instance?: string | null;
-  /** @format int32 */
-  status?: number | null;
-  title?: string | null;
-  type?: string | null;
-  [key: string]: unknown;
+/** Connection options. */
+export interface ApiSlskdOptionsSoulseekOptionsConnectionOptions {
+  /** Connection buffer options. */
+  buffer?: ApiSlskdOptionsSoulseekOptionsConnectionOptionsBufferOptions;
+  /** Connection proxy options. */
+  proxy?: ApiSlskdOptionsSoulseekOptionsConnectionOptionsProxyOptions;
+  /** Connection timeout options. */
+  timeout?: ApiSlskdOptionsSoulseekOptionsConnectionOptionsTimeoutOptions;
+}
+
+/** Connection buffer options. */
+export interface ApiSlskdOptionsSoulseekOptionsConnectionOptionsBufferOptions {
+  /**
+   * Gets the connection read buffer size, in bytes.
+   * @format int32
+   * @min 1024
+   * @max 2147483647
+   */
+  read: number;
+  /**
+   * Gets the read/write buffer size for transfers, in bytes.
+   * @format int32
+   * @min 81920
+   * @max 2147483647
+   */
+  transfer: number;
+  /**
+   * Gets the connection write buffer size, in bytes.
+   * @format int32
+   * @min 1024
+   * @max 2147483647
+   */
+  write: number;
+  /**
+   * Gets the size of the queue for double buffered writes.
+   * @format int32
+   * @min 5
+   * @max 5000
+   */
+  writeQueue: number;
 }
 
 /** Connection proxy options. */
-export interface ApiProxyOptions {
+export interface ApiSlskdOptionsSoulseekOptionsConnectionOptionsProxyOptions {
   /**
    * Gets the proxy address.
    * @minLength 1
@@ -862,172 +1088,182 @@ export interface ApiProxyOptions {
   username?: string | null;
 }
 
-export type ApiPublicchatCreateData = unknown;
-
-export type ApiPublicchatDeleteData = unknown;
-
-/** Pushbullet options. */
-export interface ApiPushbulletOptions {
-  /** Gets the Pushbullet API access token. */
-  accessToken?: string | null;
+/** Connection timeout options. */
+export interface ApiSlskdOptionsSoulseekOptionsConnectionOptionsTimeoutOptions {
   /**
-   * Gets the cooldown time for Pushbullet notifications, in milliseconds.
+   * Gets the connection timeout value, in milliseconds.
    * @format int32
+   * @min 1000
+   * @max 2147483647
    */
-  cooldownTime: number;
-  /** Gets a value indicating whether the Pushbullet integration is enabled. */
-  enabled: boolean;
-  /** Gets the prefix for Pushbullet notification titles. */
-  notificationPrefix?: string | null;
-  /** Gets a value indicating whether a Pushbullet notification should be sent when a private message is received. */
-  notifyOnPrivateMessage: boolean;
+  connect: number;
   /**
-   * Gets a value indicating whether a Pushbullet notification should be sent when the currently logged
-   * in user's username is mentioned in a room.
-   */
-  notifyOnRoomMention: boolean;
-  /**
-   * Gets the number of times failing Pushbullet notifications will be retried.
+   * Gets the connection inactivity timeout, in milliseconds.
    * @format int32
-   * @min 0
-   * @max 5
+   * @min 1000
+   * @max 2147483647
    */
-  retryAttempts: number;
+  inactivity: number;
 }
 
-export interface ApiQueueDownloadRequest {
-  /** Gets or sets the filename to download. */
-  filename: string;
+/** Distributed network options. */
+export interface ApiSlskdOptionsSoulseekOptionsDistributedNetworkOptions {
   /**
-   * Gets or sets the size of the file.
-   * @format int64
-   */
-  size: number;
-}
-
-/** Relay agent configuration options. */
-export interface ApiRelayAgentConfigurationOptions {
-  /** Gets the comma separated list of CIDRs that are authorized to connect as this agent. */
-  cidr?: string | null;
-  /**
-   * Gets the agent instance name.
-   * @minLength 1
-   * @maxLength 255
-   */
-  instanceName?: string | null;
-  /**
-   * Gets the agent secret.
-   * @minLength 16
-   * @maxLength 255
-   */
-  secret?: string | null;
-}
-
-/** Relay controller configuration options. */
-export interface ApiRelayControllerConfigurationOptions {
-  /**
-   * Gets the controller address.
-   * @format uri
-   */
-  address?: string | null;
-  /**
-   * Gets the controller API key.
-   * @minLength 16
-   * @maxLength 255
-   */
-  apiKey?: string | null;
-  /** Gets a value indicating whether to receive completed downloads from the controller. */
-  downloads: boolean;
-  /** Gets a value indicating whether controller certificate errors should be ignored. */
-  ignoreCertificateErrors: boolean;
-  /**
-   * Gets the controller secret.
-   * @minLength 16
-   * @maxLength 255
-   */
-  secret?: string | null;
-}
-
-/** Relay options. */
-export interface ApiRelayOptions {
-  /** Gets the agent configuration. */
-  agents: Record<string, ApiRelayAgentConfigurationOptions>;
-  /** Relay controller configuration options. */
-  controller: ApiRelayControllerConfigurationOptions;
-  /** Gets a value indicating whether the relay is enabled. */
-  enabled: boolean;
-  /** Gets the relay mode. */
-  mode: string;
-}
-
-export type ApiResponsesDetailData = unknown;
-
-/** Retention options. */
-export interface ApiRetentionOptions {
-  /** File retention options. */
-  files: ApiFileRetentionOptions;
-  /**
-   * Gets the time to retain logs, in days.
+   * Gets the distributed child connection limit.
    * @format int32
    * @min 1
    * @max 2147483647
    */
-  logs: number;
-  /** Transfer retention options. */
-  transfers: ApiTransferRetentionOptions;
+  childLimit: number;
+  /** Gets a value indicating whether to accept distributed child connections. */
+  disableChildren: boolean;
+  /** Gets a value indicating whether the distributed network should be disabled. */
+  disabled: boolean;
+  /** Gets a value indicating whether distributed network logging should be enabled. */
+  logging: boolean;
 }
 
-export interface ApiRoom {
-  /** A value indicating whether the room is private. */
-  isPrivate: boolean;
-  /** The list of messages. */
-  messages: ApiRoomMessage[];
-  /** The room name. */
-  name: string;
+/** Web server options. */
+export interface ApiSlskdOptionsWebOptions {
+  /** Authentication options. */
+  authentication: ApiSlskdOptionsWebOptionsWebAuthenticationOptions;
   /**
-   * The number of operators in the room, if private.
+   * Gets the path to static web content.
+   * @minLength 1
+   * @maxLength 255
+   */
+  contentPath: string;
+  /** HTTPS options. */
+  https: ApiSlskdOptionsWebOptionsHttpsOptions;
+  /** Gets a value indicating whether HTTP request logging should be enabled. */
+  logging: boolean;
+  /**
+   * Gets the HTTP listen port.
    * @format int32
+   * @min 1
+   * @max 65535
    */
-  operatorCount?: number | null;
-  /** The operators in the room, if private. */
-  operators: string[];
-  /** The owner of the room, if private. */
-  owner: string;
-  /** The list of users in the room. */
-  users: ApiUserData[];
+  port: number;
+  /** Gets the base url for web requests. */
+  urlBase: string;
 }
 
-export interface ApiRoomInfo {
-  name?: string | null;
-  /** @format int32 */
-  userCount: number;
-  readonly users?: string[] | null;
-}
-
-/** A message sent to a room. */
-export interface ApiRoomMessage {
-  direction: ApiMessageDirection;
-  /** The message. */
-  message: string;
-  /** The room to which the message pertains. */
-  roomName: string;
+/** HTTPS options. */
+export interface ApiSlskdOptionsWebOptionsHttpsOptions {
+  /** Certificate options. */
+  certificate?: ApiSlskdOptionsWebOptionsHttpsOptionsCertificateOptions;
+  /** Gets a value indicating whether HTTPS should be disabled. */
+  disabled: boolean;
+  /** Gets a value indicating whether HTTP requests should be redirected to HTTPS. */
+  force: boolean;
   /**
-   * The timestamp of the message.
-   * @format date-time
+   * Gets the HTTPS listen port.
+   * @format int32
+   * @min 1
+   * @max 65535
    */
-  timestamp: string;
-  /** The username of the user who sent the message. */
-  username: string;
+  port: number;
 }
 
-/** Search filter options. */
-export interface ApiSearchOptions {
-  /** Gets the list of search request filters. */
-  request?: string[] | null;
+/** Certificate options. */
+export interface ApiSlskdOptionsWebOptionsHttpsOptionsCertificateOptions {
+  /** Gets the password for the X509 certificate. */
+  password?: string | null;
+  /** Gets the path to the the X509 certificate .pfx file. */
+  pfx?: string | null;
+}
+
+/** Authentication options. */
+export interface ApiSlskdOptionsWebOptionsWebAuthenticationOptions {
+  /** Gets API keys. */
+  apiKeys?: Record<string, ApiSlskdOptionsWebOptionsWebAuthenticationOptionsApiKeyOptions>;
+  /** Gets a value indicating whether authentication should be disabled. */
+  disabled: boolean;
+  /** JWT options. */
+  jwt?: ApiSlskdOptionsWebOptionsWebAuthenticationOptionsJwtOptions;
+  /**
+   * Gets the password for the web UI.
+   * @minLength 1
+   * @maxLength 255
+   */
+  password?: string | null;
+  /**
+   * Gets the username for the web UI.
+   * @minLength 1
+   * @maxLength 255
+   */
+  username?: string | null;
+}
+
+/** API key options. */
+export interface ApiSlskdOptionsWebOptionsWebAuthenticationOptionsApiKeyOptions {
+  /** Gets the comma separated list of CIDRs that are authorized to use the key. */
+  cidr?: string | null;
+  /**
+   * Gets the API key value.
+   * @minLength 16
+   * @maxLength 255
+   */
+  key?: string | null;
+  /** Gets the role for the key. */
+  role?: string | null;
+}
+
+/** JWT options. */
+export interface ApiSlskdOptionsWebOptionsWebAuthenticationOptionsJwtOptions {
+  /**
+   * Gets the key with which to sign JWTs.
+   * @minLength 16
+   * @maxLength 255
+   */
+  key?: string | null;
+  /**
+   * Gets the TTL for JWTs, in milliseconds.
+   * @format int32
+   * @min 3600
+   * @max 2147483647
+   */
+  ttl: number;
+}
+
+/** Tracking information for a Relay agent. */
+export interface ApiSlskdRelayAgent {
+  /** The IP address associated with the active connection. */
+  ipAddress: string;
+  /** The name of the agent. */
+  name: string;
+}
+
+export interface ApiSlskdRelayControllerState {
+  address: string;
+  /** The state of a Relay client. */
+  state: ApiSlskdRelayRelayClientState;
+}
+
+/** The state of a Relay client. */
+export enum ApiSlskdRelayRelayClientState {
+  Disconnected = "Disconnected",
+  Connected = "Connected",
+  Connecting = "Connecting",
+  Reconnecting = "Reconnecting",
+}
+
+/** The mode the Relay is operating under. */
+export enum ApiSlskdRelayRelayMode {
+  Controller = "Controller",
+  Agent = "Agent",
+  Debug = "Debug",
+}
+
+export interface ApiSlskdRelayState {
+  agents: ApiSlskdRelayAgent[];
+  controller: ApiSlskdRelayControllerState;
+  /** The mode the Relay is operating under. */
+  mode: ApiSlskdRelayRelayMode;
 }
 
 /** A search request. */
-export interface ApiSearchRequest {
+export interface ApiSlskdSearchAPISearchRequest {
   /**
    * Gets or sets the maximum number of file results to accept before the search is considered complete. (Default = 10,000).
    * @format int32
@@ -1074,50 +1310,90 @@ export interface ApiSearchRequest {
   token?: number | null;
 }
 
-export type ApiSearchesCreateData = unknown;
+export interface ApiSlskdSearchFile {
+  /** @format int32 */
+  bitDepth?: number | null;
+  /** @format int32 */
+  bitRate?: number | null;
+  /** @format int32 */
+  code: number;
+  extension: string;
+  filename: string;
+  isLocked: boolean;
+  isVariableBitRate?: boolean | null;
+  /** @format int32 */
+  length?: number | null;
+  /** @format int32 */
+  sampleRate?: number | null;
+  /** @format int64 */
+  size: number;
+}
 
-export type ApiSearchesDeleteData = unknown;
-
-export type ApiSearchesDeleteError = ApiProblemDetails;
-
-export type ApiSearchesDetailData = unknown;
-
-export type ApiSearchesListData = unknown;
-
-export type ApiSearchesUpdateData = unknown;
-
-export type ApiServerDeleteData = unknown;
-
-export type ApiServerDeleteError = ApiProblemDetails;
-
-export type ApiServerListData = ApiServerState;
-
-export type ApiServerListError = ApiProblemDetails;
-
-export interface ApiServerState {
-  address: string;
-  ipEndPoint: ApiIPEndPoint;
-  readonly isConnected: boolean;
-  readonly isLoggedIn: boolean;
-  readonly isTransitioning: boolean;
-  state: ApiSoulseekClientStates;
+export interface ApiSlskdSearchResponse {
+  /** @format int32 */
+  fileCount: number;
+  files: ApiSlskdSearchFile[];
+  hasFreeUploadSlot: boolean;
+  /** @format int32 */
+  lockedFileCount: number;
+  lockedFiles: ApiSlskdSearchFile[];
+  /** @format int64 */
+  queueLength: number;
+  /** @format int32 */
+  token: number;
+  /** @format int32 */
+  uploadSpeed: number;
   username: string;
 }
 
-export type ApiServerUpdateData = unknown;
+export interface ApiSlskdSearchSearch {
+  /** @format date-time */
+  endedAt?: string | null;
+  /** @format int32 */
+  fileCount: number;
+  /** @format uuid */
+  id: string;
+  readonly isComplete: boolean;
+  /** @format int32 */
+  lockedFileCount: number;
+  /** @format int32 */
+  responseCount: number;
+  responses: ApiSlskdSearchResponse[];
+  searchText: string;
+  /** @format date-time */
+  startedAt: string;
+  state: ApiSoulseekSearchStates;
+  /** @format int32 */
+  token: number;
+}
 
-export type ApiServerUpdateError = ApiProblemDetails;
+export interface ApiSlskdServerState {
+  address: string;
+  ipEndPoint: ApiSystemNetIPEndPoint;
+  readonly isConnected: boolean;
+  readonly isLoggedIn: boolean;
+  readonly isTransitioning: boolean;
+  state: ApiSoulseekSoulseekClientStates;
+}
 
-export type ApiSessionCreateData = ApiTokenResponse;
-
-export type ApiSessionCreateError = ApiProblemDetails | string;
-
-export type ApiSessionListData = unknown;
-
-export type ApiSessionListError = ApiProblemDetails;
+/** Share state. */
+export interface ApiSlskdShareState {
+  cancelled: boolean;
+  /** @format int32 */
+  directories: number;
+  faulted: boolean;
+  /** @format int32 */
+  files: number;
+  hosts: string[];
+  ready: boolean;
+  scanPending: boolean;
+  /** @format double */
+  scanProgress: number;
+  scanning: boolean;
+}
 
 /** A file share. */
-export interface ApiShare {
+export interface ApiSlskdSharesShare {
   alias: string;
   /** @format int32 */
   directories?: number | null;
@@ -1130,168 +1406,40 @@ export interface ApiShare {
   remotePath: string;
 }
 
-/** Share caching options. */
-export interface ApiShareCacheOptions {
-  /**
-   * Gets the time to retain the cache (the interval on which to re-scan automatically), in minutes.
-   * @format int32
-   * @min 60
-   * @max 2147483647
-   */
-  retention?: number | null;
-  /** Gets the type of storage to use for the share cache. */
-  storageMode?: string | null;
-  /**
-   * Gets the number of workers to use while scanning shares.
-   * @format int32
-   * @min 1
-   * @max 128
-   */
-  workers: number;
+/** Application service state. */
+export interface ApiSlskdState {
+  distributedNetwork: ApiSlskdDistributedNetworkState;
+  pendingReconnect: boolean;
+  pendingRestart: boolean;
+  relay: ApiSlskdRelayState;
+  rooms: string[];
+  server: ApiSlskdServerState;
+  /** Share state. */
+  shares: ApiSlskdShareState;
+  user: ApiSlskdUserState;
+  users: ApiSlskdUsersUser[];
+  version: ApiSlskdVersionState;
 }
 
-export type ApiSharesDeleteData = unknown;
-
-export type ApiSharesDeleteError = ApiProblemDetails;
-
-export type ApiSharesDetailData = ApiShare;
-
-export type ApiSharesDetailError = ApiProblemDetails;
-
-export type ApiSharesListData = Record<string, ApiShare[]>;
-
-/** Share options. */
-export interface ApiSharesOptions {
-  /** Share caching options. */
-  cache: ApiShareCacheOptions;
-  /** Gets the list of paths to shared files. */
-  directories: string[];
-  /** Gets the list of shared file filters. */
-  filters: string[];
+export interface ApiSlskdTransfersAPIDirectoryResponse {
+  directory: string;
+  /** @format int32 */
+  fileCount: number;
+  files: ApiSlskdTransfersTransfer[];
 }
 
-export type ApiSharesUpdateData = unknown;
-
-export type ApiSharesUpdateError = ApiProblemDetails;
-
-export enum ApiSoulseekClientStates {
-  None = "None",
-  Disconnected = "Disconnected",
-  Connected = "Connected",
-  LoggedIn = "LoggedIn",
-  Connecting = "Connecting",
-  LoggingIn = "LoggingIn",
-  Disconnecting = "Disconnecting",
-}
-
-/** Soulseek client options. */
-export interface ApiSoulseekOptions {
-  /** Gets the address of the Soulseek server. */
-  address: string;
-  /** Connection options. */
-  connection: ApiConnectionOptions;
-  /** Gets the description of the Soulseek user. */
-  description: string;
-  diagnosticLevel: ApiDiagnosticLevel;
-  /** Distributed network options. */
-  distributedNetwork: ApiDistributedNetworkOptions;
-  /** Gets the local IP address on which to listen for incoming connections. */
-  listenIpAddress: string;
+export interface ApiSlskdTransfersAPIQueueDownloadRequest {
+  /** Gets or sets the filename to download. */
+  filename: string;
   /**
-   * Gets the port on which to listen for incoming connections.
-   * @format int32
-   * @min 1024
-   * @max 65535
-   */
-  listenPort: number;
-  /** Gets the password for the Soulseek network. */
-  password: string;
-  /**
-   * Gets the port of the Soulseek server.
-   * @format int32
-   * @min 1024
-   * @max 65535
-   */
-  port: number;
-  /** Gets the username for the Soulseek network. */
-  username: string;
-}
-
-export type ApiStartupListData = ApiOptions;
-
-/** User status. */
-export interface ApiStatus {
-  /** Gets a value indicating whether the user is privileged. */
-  isPrivileged: boolean;
-  presence: ApiUserPresence;
-}
-
-export type ApiStatusDetailData = ApiStatus;
-
-export type ApiStatusDetailError = ApiProblemDetails;
-
-/** Leecher threshold options. */
-export interface ApiThresholdOptions {
-  /**
-   * Gets the minimum number of shared directories required to avoid being classified as a leecher.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  directories: number;
-  /**
-   * Gets the minimum number of shared files required to avoid being classified as a leecher.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  files: number;
-}
-
-/** Connection timeout options. */
-export interface ApiTimeoutOptions {
-  /**
-   * Gets the connection timeout value, in milliseconds.
-   * @format int32
-   * @min 1000
-   * @max 2147483647
-   */
-  connect: number;
-  /**
-   * Gets the connection inactivity timeout, in milliseconds.
-   * @format int32
-   * @min 1000
-   * @max 2147483647
-   */
-  inactivity: number;
-}
-
-export interface ApiTokenResponse {
-  /**
-   * Gets the time at which the Access Token expires.
+   * Gets or sets the size of the file.
    * @format int64
    */
-  readonly expires: number;
-  /**
-   * Gets the time at which the Access Token was issued.
-   * @format int64
-   */
-  readonly issued: number;
-  /** Gets the value of the Name claim from the Access Token. */
-  readonly name: string;
-  /**
-   * Gets the value of the Not Before claim from the Access Token.
-   * @format int64
-   */
-  readonly notBefore: number;
-  /** Gets the Access Token string. */
-  readonly token: string;
-  /** Gets the Token type. */
-  readonly tokenType: string;
+  size: number;
 }
 
 /** A single file transfer. */
-export interface ApiTransfer {
+export interface ApiSlskdTransfersAPITransfer {
   /**
    * Gets the current average transfer speed.
    * @format double
@@ -1307,7 +1455,7 @@ export interface ApiTransfer {
    * @format int64
    */
   bytesTransferred: number;
-  direction: ApiTransferDirection;
+  direction: ApiSoulseekTransferDirection;
   /**
    * Gets the current duration of the transfer, if it has been started.
    * @format double
@@ -1324,7 +1472,7 @@ export interface ApiTransfer {
   filename: string;
   /** Gets the transfer id. */
   readonly id: string;
-  ipEndPoint: ApiIPEndPoint;
+  ipEndPoint: ApiSystemNetIPEndPoint;
   /**
    * Gets the current progress in percent.
    * @format double
@@ -1360,7 +1508,7 @@ export interface ApiTransfer {
    * @format date-time
    */
   startTime?: string | null;
-  state: ApiTransferStates;
+  state: ApiSoulseekTransferStates;
   /**
    * Gets the unique token for the transfer.
    * @format int32
@@ -1370,20 +1518,222 @@ export interface ApiTransfer {
   username: string;
 }
 
-export enum ApiTransferDirection {
+export interface ApiSlskdTransfersAPIUserResponse {
+  directories: ApiSlskdTransfersAPIDirectoryResponse[];
+  username: string;
+}
+
+export interface ApiSlskdTransfersTransfer {
+  /** @format double */
+  averageSpeed: number;
+  /** @format int64 */
+  readonly bytesRemaining: number;
+  /** @format int64 */
+  bytesTransferred: number;
+  direction: ApiSoulseekTransferDirection;
+  elapsedTime?: ApiSystemTimeSpan;
+  /**
+   * The time at which the transfer ended, or null if the transfer has not yet started or is in progress.
+   * @format date-time
+   */
+  endedAt?: string | null;
+  /** @format date-time */
+  enqueuedAt?: string | null;
+  exception: string;
+  filename: string;
+  /** @format uuid */
+  id: string;
+  /** @format double */
+  readonly percentComplete: number;
+  /** @format int32 */
+  placeInQueue?: number | null;
+  remainingTime?: ApiSystemTimeSpan;
+  /** @format date-time */
+  requestedAt: string;
+  /** @format int64 */
+  size: number;
+  /** @format int64 */
+  startOffset: number;
+  /** @format date-time */
+  startedAt?: string | null;
+  state: ApiSoulseekTransferStates;
+  username: string;
+}
+
+export interface ApiSlskdUserPrivilegeState {
+  isPrivileged: boolean;
+  /** @format int32 */
+  privilegesRemaining: number;
+}
+
+export interface ApiSlskdUserState {
+  privileges: ApiSlskdUserPrivilegeState;
+  statistics: ApiSlskdUserStatisticsState;
+  username: string;
+}
+
+export interface ApiSlskdUserStatisticsState {
+  /** @format int32 */
+  averageSpeed: number;
+  /** @format int32 */
+  directoryCount: number;
+  /** @format int32 */
+  fileCount: number;
+  /** @format int64 */
+  uploadCount: number;
+}
+
+export interface ApiSlskdUsersAPIDirectoryContentsRequest {
+  directory: string;
+}
+
+export interface ApiSlskdUsersInfo {
+  description: string;
+  hasFreeUploadSlot: boolean;
+  hasPicture: boolean;
+  /** @format byte */
+  picture: string;
+  /** @format int32 */
+  queueLength: number;
+  /** @format int32 */
+  uploadSlots: number;
+}
+
+export interface ApiSlskdUsersStatistics {
+  /**
+   * Gets the average upload speed of the user.
+   * @format int32
+   */
+  averageSpeed: number;
+  /**
+   * Gets the number of directories shared by the user.
+   * @format int32
+   */
+  directoryCount: number;
+  /**
+   * Gets the number of files shared by the user.
+   * @format int32
+   */
+  fileCount: number;
+  /**
+   * Gets the number of uploads tracked by the server for this user.
+   * @format int64
+   */
+  uploadCount: number;
+}
+
+/** User status. */
+export interface ApiSlskdUsersStatus {
+  /** Gets a value indicating whether the user is privileged. */
+  isPrivileged: boolean;
+  presence: ApiSoulseekUserPresence;
+}
+
+export interface ApiSlskdUsersUser {
+  /** Gets the user's configured group. */
+  group: string;
+  statistics: ApiSlskdUsersStatistics;
+  /** User status. */
+  status: ApiSlskdUsersStatus;
+  /** Gets the username of the user. */
+  username: string;
+}
+
+export interface ApiSlskdVersionState {
+  current: string;
+  full: string;
+  isCanary: boolean;
+  isDevelopment: boolean;
+  isUpdateAvailable?: boolean | null;
+  latest: string;
+}
+
+export interface ApiSoulseekBrowseResponse {
+  readonly directories?: ApiSoulseekDirectory[] | null;
+  /** @format int32 */
+  readonly directoryCount: number;
+  readonly lockedDirectories?: ApiSoulseekDirectory[] | null;
+  /** @format int32 */
+  readonly lockedDirectoryCount: number;
+}
+
+export enum ApiSoulseekDiagnosticsDiagnosticLevel {
+  None = "None",
+  Warning = "Warning",
+  Info = "Info",
+  Debug = "Debug",
+}
+
+export interface ApiSoulseekDirectory {
+  /** @format int32 */
+  readonly fileCount: number;
+  readonly files?: ApiSoulseekFile[] | null;
+  name?: string | null;
+}
+
+export interface ApiSoulseekFile {
+  /** @format int32 */
+  readonly attributeCount: number;
+  readonly attributes?: ApiSoulseekFileAttribute[] | null;
+  /** @format int32 */
+  readonly bitDepth?: number | null;
+  /** @format int32 */
+  readonly bitRate?: number | null;
+  /** @format int32 */
+  code: number;
+  extension?: string | null;
+  filename?: string | null;
+  readonly isVariableBitRate?: boolean | null;
+  /** @format int32 */
+  readonly length?: number | null;
+  /** @format int32 */
+  readonly sampleRate?: number | null;
+  /** @format int64 */
+  size: number;
+}
+
+export interface ApiSoulseekFileAttribute {
+  type: ApiSoulseekFileAttributeType;
+  /** @format int32 */
+  value: number;
+}
+
+export enum ApiSoulseekFileAttributeType {
+  BitRate = "BitRate",
+  Length = "Length",
+  VariableBitRate = "VariableBitRate",
+  SampleRate = "SampleRate",
+  BitDepth = "BitDepth",
+}
+
+export enum ApiSoulseekSearchStates {
+  None = "None",
+  Requested = "Requested",
+  InProgress = "InProgress",
+  Completed = "Completed",
+  Cancelled = "Cancelled",
+  TimedOut = "TimedOut",
+  ResponseLimitReached = "ResponseLimitReached",
+  FileLimitReached = "FileLimitReached",
+  Errored = "Errored",
+}
+
+export enum ApiSoulseekSoulseekClientStates {
+  None = "None",
+  Disconnected = "Disconnected",
+  Connected = "Connected",
+  LoggedIn = "LoggedIn",
+  Connecting = "Connecting",
+  LoggingIn = "LoggingIn",
+  Disconnecting = "Disconnecting",
+}
+
+export enum ApiSoulseekTransferDirection {
   Download = "Download",
   Upload = "Upload",
 }
 
-/** Transfer retention options. */
-export interface ApiTransferRetentionOptions {
-  /** Transfer retention options. */
-  download?: ApiTransferTypeRetentionOptions;
-  /** Transfer retention options. */
-  upload?: ApiTransferTypeRetentionOptions;
-}
-
-export enum ApiTransferStates {
+export enum ApiSoulseekTransferStates {
   None = "None",
   Requested = "Requested",
   Queued = "Queued",
@@ -1400,157 +1750,149 @@ export enum ApiTransferStates {
   Remotely = "Remotely",
 }
 
-/** Transfer retention options. */
-export interface ApiTransferTypeRetentionOptions {
-  /**
-   * Gets the time to retain cancelled transfers, in minutes.
-   * @format int32
-   * @min 5
-   * @max 2147483647
-   */
-  cancelled?: number | null;
-  /**
-   * Gets the time to retain errored transfers, in minutes.
-   * @format int32
-   * @min 5
-   * @max 2147483647
-   */
-  errored?: number | null;
-  /**
-   * Gets the time to retain successful transfers, in minutes.
-   * @format int32
-   * @min 5
-   * @max 2147483647
-   */
-  succeeded?: number | null;
+export enum ApiSoulseekUserPresence {
+  Offline = "Offline",
+  Away = "Away",
+  Online = "Online",
 }
 
-/** User group upload options. */
-export interface ApiUploadOptions {
+export type ApiStartupListData = ApiSlskdOptions;
+
+export type ApiStatusDetailData = ApiSlskdUsersStatus;
+
+export type ApiStatusDetailError = ApiMicrosoftAspNetCoreMvcProblemDetails;
+
+export enum ApiSystemIOFileAttributes {
+  None = "None",
+  ReadOnly = "ReadOnly",
+  Hidden = "Hidden",
+  System = "System",
+  Directory = "Directory",
+  Archive = "Archive",
+  Device = "Device",
+  Normal = "Normal",
+  Temporary = "Temporary",
+  SparseFile = "SparseFile",
+  ReparsePoint = "ReparsePoint",
+  Compressed = "Compressed",
+  Offline = "Offline",
+  NotContentIndexed = "NotContentIndexed",
+  Encrypted = "Encrypted",
+  IntegrityStream = "IntegrityStream",
+  NoScrubData = "NoScrubData",
+}
+
+export interface ApiSystemNetIPAddress {
+  readonly isIPv4MappedToIPv6: boolean;
+  readonly isIPv6LinkLocal: boolean;
+  readonly isIPv6Multicast: boolean;
+  readonly isIPv6SiteLocal: boolean;
+  readonly isIPv6Teredo: boolean;
+  readonly isIPv6UniqueLocal: boolean;
   /**
-   * Gets the priority of the group.
-   * @format int32
-   * @min 1
-   * @max 2147483647
+   * @deprecated
+   * @format int64
    */
-  priority: number;
-  /**
-   * Gets the limit for the total number of upload slots for the group.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  slots: number;
-  /**
-   * Gets the total upload speed limit for the group.
-   * @format int32
-   * @min 1
-   * @max 2147483647
-   */
-  speedLimit: number;
-  /** Gets the queue strategy for the group. */
-  strategy?: string | null;
+  address: number;
+  addressFamily: ApiSystemNetSocketsAddressFamily;
+  /** @format int64 */
+  scopeId: number;
+}
+
+export interface ApiSystemNetIPEndPoint {
+  address: ApiSystemNetIPAddress;
+  addressFamily: ApiSystemNetSocketsAddressFamily;
+  /** @format int32 */
+  port: number;
+}
+
+export enum ApiSystemNetSocketsAddressFamily {
+  Unspecified = "Unspecified",
+  Unix = "Unix",
+  InterNetwork = "InterNetwork",
+  ImpLink = "ImpLink",
+  Pup = "Pup",
+  Chaos = "Chaos",
+  NS = "NS",
+  Iso = "Iso",
+  Ecma = "Ecma",
+  DataKit = "DataKit",
+  Ccitt = "Ccitt",
+  Sna = "Sna",
+  DecNet = "DecNet",
+  DataLink = "DataLink",
+  Lat = "Lat",
+  HyperChannel = "HyperChannel",
+  AppleTalk = "AppleTalk",
+  NetBios = "NetBios",
+  VoiceView = "VoiceView",
+  FireFox = "FireFox",
+  Banyan = "Banyan",
+  Atm = "Atm",
+  InterNetworkV6 = "InterNetworkV6",
+  Cluster = "Cluster",
+  Ieee12844 = "Ieee12844",
+  Irda = "Irda",
+  NetworkDesigners = "NetworkDesigners",
+  Max = "Max",
+  Packet = "Packet",
+  ControllerAreaNetwork = "ControllerAreaNetwork",
+  Unknown = "Unknown",
+}
+
+export interface ApiSystemTimeSpan {
+  /** @format int32 */
+  readonly days: number;
+  /** @format int32 */
+  readonly hours: number;
+  /** @format int32 */
+  readonly microseconds: number;
+  /** @format int32 */
+  readonly milliseconds: number;
+  /** @format int32 */
+  readonly minutes: number;
+  /** @format int32 */
+  readonly nanoseconds: number;
+  /** @format int32 */
+  readonly seconds: number;
+  /** @format int64 */
+  ticks: number;
+  /** @format double */
+  readonly totalDays: number;
+  /** @format double */
+  readonly totalHours: number;
+  /** @format double */
+  readonly totalMicroseconds: number;
+  /** @format double */
+  readonly totalMilliseconds: number;
+  /** @format double */
+  readonly totalMinutes: number;
+  /** @format double */
+  readonly totalNanoseconds: number;
+  /** @format double */
+  readonly totalSeconds: number;
 }
 
 export type ApiUploadsAllCompletedDeleteData = unknown;
 
 export type ApiUploadsDeleteData = unknown;
 
-export type ApiUploadsDeleteError = ApiProblemDetails;
+export type ApiUploadsDeleteError = ApiMicrosoftAspNetCoreMvcProblemDetails;
 
-export type ApiUploadsDetail2Data = unknown;
+export type ApiUploadsDetail2Data = ApiSlskdTransfersAPIUserResponse;
 
-export type ApiUploadsDetailData = unknown;
+export type ApiUploadsDetailData = ApiSlskdTransfersAPITransfer;
 
-export type ApiUploadsListData = unknown;
+export type ApiUploadsListData = ApiSlskdTransfersAPIUserResponse[];
 
-export interface ApiUserData {
-  /** @format int32 */
-  averageSpeed: number;
-  countryCode?: string | null;
-  /** @format int32 */
-  directoryCount: number;
-  /** @format int32 */
-  fileCount: number;
-  /** @format int32 */
-  slotsFree?: number | null;
-  status: ApiUserPresence;
-  /** @format int64 */
-  uploadCount: number;
-  username?: string | null;
-}
+export type ApiVersionLatestListData = ApiSlskdVersionState;
 
-/** User defined user group options. */
-export interface ApiUserDefinedOptions {
-  /** Upload limit options. */
-  limits?: ApiLimitsOptions;
-  /** Gets the list of group member usernames. */
-  members?: string[] | null;
-  /** User group upload options. */
-  upload?: ApiUploadOptions;
-}
-
-export enum ApiUserPresence {
-  Offline = "Offline",
-  Away = "Away",
-  Online = "Online",
-}
-
-export type ApiVersionLatestListData = unknown;
-
-export type ApiVersionListData = unknown;
-
-/** Authentication options. */
-export interface ApiWebAuthenticationOptions {
-  /** Gets API keys. */
-  apiKeys?: Record<string, ApiApiKeyOptions>;
-  /** Gets a value indicating whether authentication should be disabled. */
-  disabled: boolean;
-  /** JWT options. */
-  jwt?: ApiJwtOptions;
-  /**
-   * Gets the password for the web UI.
-   * @minLength 1
-   * @maxLength 255
-   */
-  password?: string | null;
-  /**
-   * Gets the username for the web UI.
-   * @minLength 1
-   * @maxLength 255
-   */
-  username?: string | null;
-}
-
-/** Web server options. */
-export interface ApiWebOptions {
-  /** Authentication options. */
-  authentication: ApiWebAuthenticationOptions;
-  /**
-   * Gets the path to static web content.
-   * @minLength 1
-   * @maxLength 255
-   */
-  contentPath: string;
-  /** HTTPS options. */
-  https: ApiHttpsOptions;
-  /** Gets a value indicating whether HTTP request logging should be enabled. */
-  logging: boolean;
-  /**
-   * Gets the HTTP listen port.
-   * @format int32
-   * @min 1
-   * @max 65535
-   */
-  port: number;
-  /** Gets the base url for web requests. */
-  urlBase: string;
-}
+export type ApiVersionListData = string;
 
 export type ApiYamlCreateData = unknown;
 
-export type ApiYamlListData = unknown;
+export type ApiYamlListData = string;
 
-export type ApiYamlLocationListData = unknown;
+export type ApiYamlLocationListData = string;
 
 export type ApiYamlValidateCreateData = unknown;

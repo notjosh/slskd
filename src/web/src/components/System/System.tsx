@@ -1,5 +1,9 @@
 import './System.css';
-import { Switch } from '../Shared';
+import {
+  type ApiSlskdOptions,
+  type ApiSlskdState,
+} from '../../lib/generated/types';
+import { type CodeEditor, Switch } from '../Shared';
 import Data from './Data';
 import Files from './Files';
 import Info from './Info';
@@ -10,12 +14,12 @@ import { Redirect, useHistory, useRouteMatch } from 'react-router-dom';
 import { Icon, Menu, Segment, Tab } from 'semantic-ui-react';
 
 type Props = {
-  readonly options: unknown;
-  readonly state: unknown;
-  readonly theme: unknown;
+  readonly options: ApiSlskdOptions;
+  readonly state: ApiSlskdState;
+  theme: React.ComponentProps<typeof CodeEditor>['theme'];
 };
 
-const System: React.FC<Props> = ({ options = {}, state = {}, theme }) => {
+const System: React.FC<Props> = ({ options, state, theme }) => {
   const {
     params: { tab },
     ...route
@@ -81,7 +85,7 @@ const System: React.FC<Props> = ({ options = {}, state = {}, theme }) => {
               )
             }
           >
-            <Icon name="share external" />
+            <Icon name="external share" />
           </Switch>
           Shares
         </Menu.Item>
@@ -90,7 +94,7 @@ const System: React.FC<Props> = ({ options = {}, state = {}, theme }) => {
         <Tab.Pane>
           <Shares
             state={state.shares}
-            theme={theme}
+            {...(theme ? { theme } : {})}
           />
         </Tab.Pane>
       ),
@@ -106,7 +110,7 @@ const System: React.FC<Props> = ({ options = {}, state = {}, theme }) => {
         <Tab.Pane className="full-height">
           <Files
             options={options}
-            theme={theme}
+            {...(theme ? { theme } : {})}
           />
         </Tab.Pane>
       ),
@@ -120,7 +124,7 @@ const System: React.FC<Props> = ({ options = {}, state = {}, theme }) => {
       },
       render: () => (
         <Tab.Pane className="full-height">
-          <Data theme={theme} />
+          <Data />
         </Tab.Pane>
       ),
       route: 'data',
@@ -142,12 +146,30 @@ const System: React.FC<Props> = ({ options = {}, state = {}, theme }) => {
 
   const activeIndex = panes.findIndex((pane) => pane.route === tab);
 
-  const onTabChange = (_event, { activeIndex: newActiveIndex }) => {
-    history.push(panes[newActiveIndex].route);
+  const onTabChange: NonNullable<
+    React.ComponentProps<typeof Tab>['onTabChange']
+  > = (_event, { activeIndex: newActiveIndex }) => {
+    if (typeof newActiveIndex !== 'number') {
+      return;
+    }
+
+    const pane = panes[newActiveIndex];
+
+    if (pane == null) {
+      return;
+    }
+
+    history.push(pane.route);
   };
 
   if (tab === undefined) {
-    return <Redirect to={`${route.url}/${panes[0].route}`} />;
+    const pane = panes[0];
+
+    if (pane == null) {
+      return null;
+    }
+
+    return <Redirect to={`${route.url}/${pane.route}`} />;
   }
 
   return (

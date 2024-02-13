@@ -1,10 +1,9 @@
+import { type ApiSlskdSharesShare } from '../../../lib/generated/types';
 import { Switch } from '../../Shared';
 import { Icon, Table } from 'semantic-ui-react';
 
 type Props = {
-  exclusions: Array<{
-    localPath: string;
-  }>;
+  exclusions: Array<Pick<ApiSlskdSharesShare, 'localPath'>>;
 };
 
 const ExclusionTable: React.FC<Props> = ({ exclusions = [] }) => {

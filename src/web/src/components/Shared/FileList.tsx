@@ -4,29 +4,18 @@ import {
   formatSeconds,
   getFileName,
 } from '../../lib/util';
+import { type ApiFileWithSelected } from '../Browse/Directory';
 import { useState } from 'react';
 import { Checkbox, Header, Icon, List, Table } from 'semantic-ui-react';
-
-// TODO: this is gonna be a common type, so extract it out somewhere sensible
-type File = {
-  bitDepth: number;
-  bitRate: number;
-  filename: string;
-  isVariableBitRate: boolean;
-  length: number;
-  sampleRate: number;
-  selected: boolean;
-  size: number;
-};
 
 type Props = {
   directoryName: unknown;
   disabled: boolean;
-  files: File[];
-  footer: unknown;
-  locked: unknown;
+  files: ApiFileWithSelected[];
+  footer?: React.ReactNode;
+  locked: boolean;
   onClose: () => void;
-  onSelectionChange: (file: File, checked: boolean) => void;
+  onSelectionChange: (file: ApiFileWithSelected, checked: boolean) => void;
 };
 
 const FileList: React.FC<Props> = ({
@@ -78,7 +67,9 @@ const FileList: React.FC<Props> = ({
                       disabled={disabled}
                       fitted
                       onChange={(event, data) =>
-                        files.map((f) => onSelectionChange(f, data.checked))
+                        files.map((f) =>
+                          onSelectionChange(f, data.checked ?? false),
+                        )
                       }
                     />
                   </Table.HeaderCell>
@@ -107,7 +98,7 @@ const FileList: React.FC<Props> = ({
                           disabled={disabled}
                           fitted
                           onChange={(event, data) =>
-                            onSelectionChange(f, data.checked)
+                            onSelectionChange(f, data.checked ?? false)
                           }
                         />
                       </Table.Cell>

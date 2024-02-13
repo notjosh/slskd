@@ -1,9 +1,11 @@
+import { type ApiSlskdSharesShare } from '../../../lib/generated/types';
 import * as sharesLibrary from '../../../lib/shares';
 import { LoaderSegment, ShrinkableButton, Switch } from '../../Shared';
 import ContentsModal from './ContentsModal';
 import ExclusionTable from './ExclusionTable';
 import ShareTable from './ShareTable';
-import React, { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Divider } from 'semantic-ui-react';
 
@@ -58,9 +60,7 @@ type Props = {
   };
 };
 
-type ShareWithHost = Awaited<
-  ReturnType<typeof sharesLibrary.getAll>
->[string][number] & {
+export type ShareWithHost = ApiSlskdSharesShare & {
   host: string;
 };
 
@@ -91,25 +91,38 @@ const Shares: React.FC<Props> = ({ state }) => {
       setShares(flattened);
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      toast.error(
+        (isAxiosError(error) ? error?.response?.data : null) ??
+          error?.message ??
+          error,
+      );
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    getAll();
+    void getAll();
   }, []);
 
   useEffect(() => {
-    getAll(true);
+    void getAll(true);
+
+    let interval: NodeJS.Timeout;
 
     if (!scanning) {
       // the state change out of scanning can fire before
       // shares are updated, which leaves them stale. wait a second
       // and fetch again.
-      setTimeout(async () => await getAll(true), 1_000);
+      interval = setTimeout(async () => await getAll(true), 1_000);
     }
+
+    return () => clearInterval(interval);
   }, [scanPending, scanning]);
 
   const rescan = async () => {
@@ -118,7 +131,16 @@ const Shares: React.FC<Props> = ({ state }) => {
       await sharesLibrary.rescan();
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      toast.error(
+        (isAxiosError(error) ? error?.response?.data : null) ??
+          error?.message ??
+          error,
+      );
     } finally {
       setWorking(false);
     }
@@ -130,8 +152,13 @@ const Shares: React.FC<Props> = ({ state }) => {
       await sharesLibrary.cancel();
     } catch (error) {
       console.error(error);
+
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
       toast.error(
-        error?.response?.data ??
+        (isAxiosError(error) ? error?.response?.data : null) ??
           error?.message ??
           error ??
           'Failed to cancel the scan',

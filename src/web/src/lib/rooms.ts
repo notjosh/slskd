@@ -3,6 +3,7 @@ import {
   type ApiAvailableListData,
   type ApiJoinedCreateData,
   type ApiJoinedDeleteData,
+  type ApiJoinedListData,
   type ApiJoinedMessagesCreateData,
   type ApiJoinedMessagesDetailData,
   type ApiJoinedUsersDetailData,
@@ -12,21 +13,11 @@ export const getAvailable = async () => {
   const response = (await api.get<ApiAvailableListData>('/rooms/available'))
     .data;
 
-  if (!Array.isArray(response)) {
-    console.warn('got non-array response from rooms API', response);
-    return undefined;
-  }
-
   return response;
 };
 
 export const getJoined = async () => {
-  const response = (await api.get<ApiJoinedCreateData>('/rooms/joined')).data;
-
-  if (!Array.isArray(response)) {
-    console.warn('got non-array response from rooms API', response);
-    return undefined;
-  }
+  const response = (await api.get<ApiJoinedListData>('/rooms/joined')).data;
 
   return response;
 };
@@ -38,11 +29,6 @@ export const getMessages = async ({ roomName }: { roomName: string }) => {
     )
   ).data;
 
-  if (!Array.isArray(response)) {
-    console.warn('got non-array response from rooms API', response);
-    return undefined;
-  }
-
   return response;
 };
 
@@ -52,11 +38,6 @@ export const getUsers = async ({ roomName }: { roomName: string }) => {
       `/rooms/joined/${encodeURIComponent(roomName)}/users`,
     )
   ).data;
-
-  if (!Array.isArray(response)) {
-    console.warn('got non-array response from rooms API', response);
-    return undefined;
-  }
 
   return response;
 };

@@ -1,4 +1,8 @@
 import './Search.css';
+import {
+  type ApiSlskdSearchSearch,
+  type ApiSlskdServerState,
+} from '../../lib/generated/types';
 import { createSearchHubConnection } from '../../lib/hubFactory';
 import * as library from '../../lib/searches';
 import ErrorSegment from '../Shared/ErrorSegment';
@@ -6,28 +10,31 @@ import LoaderSegment from '../Shared/LoaderSegment';
 import PlaceholderSegment from '../Shared/PlaceholderSegment';
 import SearchDetail from './Detail/SearchDetail';
 import SearchList from './List/SearchList';
-import React, { useEffect, useRef, useState } from 'react';
+import { isAxiosError } from 'axios';
+import { useEffect, useRef, useState } from 'react';
 import { useHistory, useParams, useRouteMatch } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Button, Icon, Input, Segment } from 'semantic-ui-react';
 import { v4 as uuidv4 } from 'uuid';
 
+type SearchMap = Record<string, ApiSlskdSearchSearch>;
+
 type Props = {
-  readonly server: unknown;
+  readonly server: ApiSlskdServerState;
 };
 
 const Searches: React.FC<Props> = ({ server }) => {
   const [connecting, setConnecting] = useState(true);
   const [error, setError] = useState<string>();
-  const [searches, setSearches] = useState({});
+  const [searches, setSearches] = useState<SearchMap>({});
 
   const [removing, setRemoving] = useState(false);
   const [stopping, setStopping] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  const inputRef = useRef();
+  const inputRef = useRef<Input>();
 
-  const { id: searchId } = useParams();
+  const { id: searchId } = useParams<{ id: string }>();
   const history = useHistory();
   const match = useRouteMatch();
 
@@ -45,7 +52,7 @@ const Searches: React.FC<Props> = ({ server }) => {
     setError(connectionError);
   };
 
-  const onUpdate = (update) => {
+  const onUpdate = (update: Parameters<typeof setSearches>[0]) => {
     setSearches(update);
     onConnected();
   };
@@ -57,7 +64,7 @@ const Searches: React.FC<Props> = ({ server }) => {
 
     searchHub.on('list', (searchesEvent) => {
       onUpdate(
-        searchesEvent.reduce((accumulator, search) => {
+        searchesEvent.reduce<SearchMap>((accumulator, search) => {
           accumulator[search.id] = search;
           return accumulator;
         }, {}),
@@ -71,6 +78,7 @@ const Searches: React.FC<Props> = ({ server }) => {
 
     searchHub.on('delete', (search) => {
       onUpdate((old) => {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete old[search.id];
         return { ...old };
       });
@@ -91,23 +99,30 @@ const Searches: React.FC<Props> = ({ server }) => {
         onConnecting();
         await searchHub.start();
       } catch (connectionError) {
+        if (!(connectionError instanceof Error)) {
+          throw connectionError;
+        }
+
         toast.error(connectionError?.message ?? 'Failed to connect');
         onConnectionError(connectionError?.message ?? 'Failed to connect');
       }
     };
 
-    connect();
+    void connect();
 
     return () => {
-      searchHub.stop();
+      void searchHub.stop();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // create a new search, and optionally navigate to it to display the details
   // we do this if the user clicks the search icon, or repeats an existing search
-  const create = async ({ navigate = false, search } = {}) => {
-    const ref = inputRef?.current?.inputRef?.current;
-    const searchText = search || ref.value;
+  const create = async ({
+    navigate = false,
+    search,
+  }: { navigate?: boolean; search?: string } = {}) => {
+    const ref = inputRef.current?.inputRef?.current;
+    const searchText = search ?? ref.value;
     const id = uuidv4();
 
     try {
@@ -127,43 +142,66 @@ const Searches: React.FC<Props> = ({ server }) => {
         history.push(`${match.url.replace(`/${searchId}`, '')}/${id}`);
       }
     } catch (createError) {
+      if (!(createError instanceof Error)) {
+        throw createError;
+      }
+
       console.error(createError);
       toast.error(
-        createError?.response?.data ?? createError?.message ?? createError,
+        (isAxiosError(createError) ? createError?.response?.data : undefined) ??
+          createError?.message ??
+          createError,
       );
       setCreating(false);
     }
   };
 
   // delete a search
-  const remove = async (search) => {
+  const remove = async (search: { id: string }) => {
     try {
       setRemoving(true);
 
       await library.remove({ id: search.id });
       setSearches((old) => {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete old[search.id];
         return { ...old };
       });
 
       setRemoving(false);
-    } catch (error_) {
-      console.error(error_);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+    } catch (removingError) {
+      if (!(removingError instanceof Error)) {
+        throw removingError;
+      }
+
+      console.error(removingError);
+      toast.error(
+        (isAxiosError(removingError)
+          ? removingError?.response?.data
+          : undefined) ??
+          removingError?.message ??
+          removingError,
+      );
       setRemoving(false);
     }
   };
 
   // stop an in-progress search
-  const stop = async (search) => {
+  const stop = async (search: { id: string }) => {
     try {
       setStopping(true);
       await library.stop({ id: search.id });
       setStopping(false);
     } catch (stoppingError) {
+      if (!(stoppingError instanceof Error)) {
+        throw stoppingError;
+      }
+
       console.error(stoppingError);
       toast.error(
-        stoppingError?.response?.data ??
+        (isAxiosError(stoppingError)
+          ? stoppingError?.response?.data
+          : undefined) ??
           stoppingError?.message ??
           stoppingError,
       );
@@ -176,13 +214,14 @@ const Searches: React.FC<Props> = ({ server }) => {
   }
 
   if (error) {
-    return <ErrorSegment caption={error?.message ?? error} />;
+    return <ErrorSegment caption={error} />;
   }
 
   // if searchId is not null, there's an id in the route.
   // display the details for the search, if there is one
   if (searchId) {
-    if (searches[searchId]) {
+    const search = searches[searchId];
+    if (search != null) {
       return (
         <SearchDetail
           creating={creating}
@@ -191,7 +230,7 @@ const Searches: React.FC<Props> = ({ server }) => {
           onRemove={remove}
           onStop={stop}
           removing={removing}
-          search={searches[searchId]}
+          search={search}
           stopping={stopping}
         />
       );
@@ -222,7 +261,7 @@ const Searches: React.FC<Props> = ({ server }) => {
               <Button
                 disabled={creating || !server.isConnected}
                 icon="plus"
-                onClick={create}
+                onClick={async () => await create()}
               />
               <Button
                 disabled={creating || !server.isConnected}
@@ -245,7 +284,7 @@ const Searches: React.FC<Props> = ({ server }) => {
             />
           }
           loading={creating}
-          onKeyUp={async (keyUpEvent) =>
+          onKeyUp={async (keyUpEvent: KeyboardEvent) =>
             keyUpEvent.key === 'Enter' ? await create() : ''
           }
           placeholder="Search phrase"
@@ -264,7 +303,7 @@ const Searches: React.FC<Props> = ({ server }) => {
           error={error}
           onRemove={remove}
           onStop={stop}
-          searches={searches}
+          searches={searches ?? []}
         />
       )}
     </>

@@ -8,7 +8,7 @@ import CodeMirror, { type ReactCodeMirrorProps } from '@uiw/react-codemirror';
 
 type Props = {
   onChange?: (value: string) => void;
-} & Required<Pick<ReactCodeMirrorProps, 'theme' | 'value'>> &
+} & Pick<ReactCodeMirrorProps, 'theme' | 'value'> &
   Omit<ReactCodeMirrorProps, 'onChange' | 'theme' | 'value'>;
 
 const CodeEditor: React.FC<Props> = ({
@@ -26,8 +26,8 @@ const CodeEditor: React.FC<Props> = ({
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       ]}
       onChange={(newValue) => onChange(newValue)}
-      theme={theme}
-      value={value}
+      {...(value ? { value } : {})}
+      {...(theme ? { theme } : {})}
       {...rest}
     />
   );

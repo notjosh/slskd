@@ -1,23 +1,29 @@
+import {
+  type ApiSlskdSearchFile,
+  type ApiSlskdSearchResponse,
+  type ApiSlskdTransfersAPIQueueDownloadRequest,
+} from '../../lib/generated/types';
 import * as transfers from '../../lib/transfers';
 import { getDirectoryContents } from '../../lib/users';
 import { formatBytes, getDirectoryName } from '../../lib/util';
 import FileList from '../Shared/FileList';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { toast } from 'react-toastify';
 import { Button, Card, Icon, Label } from 'semantic-ui-react';
 
-const buildTree = (response) => {
+const buildTree = (response: ApiSlskdSearchResponse) => {
   let { files = [] } = response;
   const { lockedFiles = [] } = response;
   files = files.concat(lockedFiles.map((file) => ({ ...file, locked: true })));
 
-  return files.reduce((dict, file) => {
+  return files.reduce<Record<string, ApiSlskdSearchFile[]>>((dict, file) => {
     const directory = getDirectoryName(file.filename);
     const selectable = { selected: false, ...file };
+
+    const existing = dict[directory];
     dict[directory] =
-      dict[directory] === undefined
-        ? [selectable]
-        : dict[directory].concat(selectable);
+      existing === undefined ? [selectable] : existing.concat(selectable);
+
     return dict;
   }, {});
 };
@@ -25,15 +31,16 @@ const buildTree = (response) => {
 type Props = {
   readonly disabled: boolean;
   readonly isInitiallyFolded: boolean;
-  readonly response: unknown;
+  readonly onHide: () => void;
+  readonly response: ApiSlskdSearchResponse;
 };
 
 type State = {
   downloadError: string;
-  downloadRequest: unknown;
+  downloadRequest: ApiSlskdTransfersAPIQueueDownloadRequest | undefined;
   fetchingDirectoryContents: boolean;
   isFolded: boolean;
-  tree: unknown;
+  tree: Record<string, ApiSlskdSearchFile[]>;
 };
 
 class Response extends Component<Props, State> {
@@ -62,7 +69,7 @@ class Response extends Component<Props, State> {
     }
   }
 
-  protected handleFileSelectionChange = (file, state) => {
+  protected handleFileSelectionChange = (file: ApiSlskdSearchFile, state) => {
     file.selected = state;
     this.setState((previousState) => ({
       downloadError: '',
@@ -71,7 +78,8 @@ class Response extends Component<Props, State> {
     }));
   };
 
-  protected download = (username: string, files) => {
+  protected download = (username: string, files: ApiSlskdSearchFile[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.setState({ downloadRequest: 'inProgress' }, async () => {
       try {
         const requests = (files || []).map(({ filename, size }) => ({
@@ -105,11 +113,11 @@ class Response extends Component<Props, State> {
       // the api returns file names only, so we need to prepend the directory
       // to make it look like a search result.  we also need to preserve
       // any file selections, so check the old files and assign accordingly
-      const fixedFiles = files.map((file) => ({
+      const fixedFiles = (files ?? []).map((file) => ({
         ...file,
         filename: `${directory}\\${file.filename}`,
         selected:
-          oldFiles.find((f) => f.filename === `${directory}\\${file.filename}`)
+          oldFiles?.find((f) => f.filename === `${directory}\\${file.filename}`)
             ?.selected ?? false,
       }));
 
@@ -140,7 +148,7 @@ class Response extends Component<Props, State> {
     } = this.state;
 
     const selectedFiles = Object.keys(tree)
-      .reduce((list, dict) => list.concat(tree[dict]), [])
+      .reduce<ApiSlskdSearchFile[]>((list, dict) => list.concat(tree[dict]), [])
       .filter((f) => f.selected);
 
     const selectedSize = formatBytes(
