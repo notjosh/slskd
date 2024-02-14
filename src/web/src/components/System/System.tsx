@@ -11,7 +11,7 @@ import Logs from './Logs';
 import Options from './Options';
 import Shares from './Shares';
 import { Redirect, useHistory, useRouteMatch } from 'react-router-dom';
-import { Icon, Menu, Segment, Tab } from 'semantic-ui-react';
+import { Icon, Menu, Segment, Tab, TabPane } from 'semantic-ui-react';
 
 type Props = {
   readonly options: ApiSlskdOptions;
@@ -47,12 +47,12 @@ const System: React.FC<Props> = ({ options, state, theme }) => {
         </Menu.Item>
       ),
       render: () => (
-        <Tab.Pane>
+        <TabPane>
           <Info
             state={state}
             theme={theme}
           />
-        </Tab.Pane>
+        </TabPane>
       ),
       route: 'info',
     },
@@ -63,12 +63,12 @@ const System: React.FC<Props> = ({ options, state, theme }) => {
         key: 'options',
       },
       render: () => (
-        <Tab.Pane className="full-height">
+        <TabPane className="full-height">
           <Options
             options={options}
             theme={theme}
           />
-        </Tab.Pane>
+        </TabPane>
       ),
       route: 'options',
     },
@@ -91,12 +91,12 @@ const System: React.FC<Props> = ({ options, state, theme }) => {
         </Menu.Item>
       ),
       render: () => (
-        <Tab.Pane>
+        <TabPane>
           <Shares
             state={state.shares}
             {...(theme ? { theme } : {})}
           />
-        </Tab.Pane>
+        </TabPane>
       ),
       route: 'shares',
     },
@@ -107,12 +107,12 @@ const System: React.FC<Props> = ({ options, state, theme }) => {
         key: 'files',
       },
       render: () => (
-        <Tab.Pane className="full-height">
+        <TabPane className="full-height">
           <Files
             options={options}
             {...(theme ? { theme } : {})}
           />
-        </Tab.Pane>
+        </TabPane>
       ),
       route: 'files',
     },
@@ -123,9 +123,9 @@ const System: React.FC<Props> = ({ options, state, theme }) => {
         key: 'data',
       },
       render: () => (
-        <Tab.Pane className="full-height">
+        <TabPane className="full-height">
           <Data />
-        </Tab.Pane>
+        </TabPane>
       ),
       route: 'data',
     },
@@ -136,9 +136,9 @@ const System: React.FC<Props> = ({ options, state, theme }) => {
         key: 'logs',
       },
       render: () => (
-        <Tab.Pane>
+        <TabPane>
           <Logs />
-        </Tab.Pane>
+        </TabPane>
       ),
       route: 'logs',
     },

@@ -9,8 +9,8 @@ type FileRowProps = {
   length: number;
   modifiedAt: string;
   name: string;
-  remoteFileManagement: string;
-  root: string;
+  remoteFileManagement: boolean;
+  root: 'downloads' | 'incomplete';
   subdirectory: string[];
 };
 
@@ -77,7 +77,7 @@ type DirectoryRowProps = {
   name: string;
   onClick: () => void;
   remoteFileManagement: boolean;
-  root: string;
+  root: 'downloads' | 'incomplete';
   subdirectory: string[];
 };
 
@@ -144,8 +144,8 @@ const DirectoryRow: React.FC<DirectoryRowProps> = ({
 );
 
 type ExplorerProps = {
-  remoteFileManagement: unknown;
-  root: string;
+  remoteFileManagement: boolean;
+  root: 'downloads' | 'incomplete';
 };
 
 const Explorer: React.FC<ExplorerProps> = ({ remoteFileManagement, root }) => {
@@ -167,7 +167,7 @@ const Explorer: React.FC<ExplorerProps> = ({ remoteFileManagement, root }) => {
   };
 
   useEffect(() => {
-    fetch();
+    void fetch();
   }, [subdirectory]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

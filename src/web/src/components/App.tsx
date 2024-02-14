@@ -36,8 +36,6 @@ import {
 } from 'semantic-ui-react';
 
 const initialState = {
-  applicationOptions: {},
-  applicationState: {},
   error: false,
   initialized: false,
   login: {
@@ -48,7 +46,7 @@ const initialState = {
 };
 
 type ModeSpecificConnectButtonProps = {
-  controller?: {
+  controller: {
     state: string;
   };
   mode: string;
@@ -64,7 +62,7 @@ type ModeSpecificConnectButtonProps = {
 };
 
 const ModeSpecificConnectButton: React.FC<ModeSpecificConnectButtonProps> = ({
-  controller = {},
+  controller,
   mode,
   pendingReconnect,
   server,
@@ -73,7 +71,7 @@ const ModeSpecificConnectButton: React.FC<ModeSpecificConnectButtonProps> = ({
   if (mode === 'Agent') {
     const isConnected = controller?.state === 'Connected';
     const isTransitioning = ['Connecting', 'Reconnecting'].includes(
-      controller?.state,
+      controller.state,
     );
 
     return (
@@ -152,16 +150,16 @@ const ModeSpecificConnectButton: React.FC<ModeSpecificConnectButtonProps> = ({
 type Props = {};
 
 type State = {
-  applicationOptions: ApiSlskdOptions;
-  applicationState: ApiSlskdState;
+  applicationOptions?: ApiSlskdOptions;
+  applicationState?: ApiSlskdState;
   error: boolean;
   initialized: boolean;
   login: {
-    error: unknown;
+    error: Error | undefined;
     pending: boolean;
   };
   retriesExhausted: boolean;
-  theme: 'dark' | 'light';
+  theme?: 'dark' | 'light';
 };
 
 class App extends Component<Props, State> {
@@ -230,6 +228,7 @@ class App extends Component<Props, State> {
         console.error(error);
         this.setState({ error: true, retriesExhausted: true });
       } finally {
+        console.log('init done');
         this.setState({ initialized: true });
       }
     });
@@ -250,14 +249,23 @@ class App extends Component<Props, State> {
           await session.login({ password, rememberMe, username });
           this.setState(
             (previousState) => ({
-              login: { ...previousState.login, error: false, pending: false },
+              login: {
+                ...previousState.login,
+                error: undefined,
+                pending: false,
+              },
             }),
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             async () => await this.init(),
           );
         } catch (error) {
           this.setState((previousState) => ({
-            login: { ...previousState.login, error, pending: false },
+            login: {
+              ...previousState.login,
+              error:
+                error instanceof Error ? error : new Error('Unknown error'),
+              pending: false,
+            },
           }));
         }
       },
@@ -274,6 +282,7 @@ class App extends Component<Props, State> {
     return { ...component };
   };
 
+  // eslint-disable-next-line complexity
   public override render() {
     const {
       applicationOptions,
@@ -286,21 +295,8 @@ class App extends Component<Props, State> {
         ? 'dark'
         : 'light',
     } = this.state;
-    const {
-      pendingReconnect,
-      pendingRestart,
-      relay,
-      server,
-      shares,
-      user,
-      version,
-    } = applicationState;
-    const { current, isUpdateAvailable, latest } = version;
-    const { scanPending: pendingShareRescan } = shares;
 
-    const { controller, mode } = relay;
-
-    if (!initialized) {
+    if (initialized === false) {
       return (
         <Loader
           active
@@ -331,12 +327,47 @@ class App extends Component<Props, State> {
       return (
         <LoginForm
           error={login.error}
-          initialized={login.initialized}
+          // initialized={login.initialized}
           loading={login.pending}
           onLoginAttempt={this.handleLogin}
         />
       );
     }
+
+    if (applicationOptions == null || applicationState == null) {
+      // post-login, but waiting for hub
+      return (
+        <Loader
+          active
+          size="big"
+        />
+      );
+    }
+
+    const {
+      pendingReconnect,
+      pendingRestart,
+      relay,
+      server,
+      shares,
+      user,
+      version,
+    } = applicationState;
+
+    const { current, isCanary, isUpdateAvailable, latest } = version ?? {
+      current: '',
+      isCanary: false,
+      isUpdateAvailable: false,
+      latest: '',
+    };
+    const { scanPending: pendingShareRescan } = shares ?? {
+      scanPending: false,
+    };
+
+    const { controller, mode } = relay ?? {
+      controller: { state: '' },
+      mode: '',
+    };
 
     const isAgent = mode === 'Agent';
 
@@ -363,7 +394,7 @@ class App extends Component<Props, State> {
             visible
             width="thin"
           >
-            {version.isCanary && (
+            {isCanary && (
               <Menu.Item>
                 <Icon
                   color="yellow"

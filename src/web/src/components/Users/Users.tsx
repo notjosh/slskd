@@ -7,7 +7,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon, Input, Item, Loader, Segment } from 'semantic-ui-react';
 
 const Users: React.FC = () => {
-  const inputRef = useRef<Input>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [user, setUser] = useState<
     Awaited<ReturnType<typeof users.getInfo>>['data'] &
       Awaited<ReturnType<typeof users.getStatus>>['data'] &
@@ -27,11 +27,18 @@ const Users: React.FC = () => {
   });
 
   const setInputText = (text: string) => {
-    inputRef.current?.inputRef.current.value = text;
+    if (inputRef.current == null) {
+      return;
+    }
+
+    inputRef.current.value = text;
   };
 
   const setInputFocus = () => {
-    inputRef.current?.focus();
+    // wait a tick to clear any `disabled` status
+    window.requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
   };
 
   const clear = () => {
@@ -129,7 +136,7 @@ const Users: React.FC = () => {
           }
           loading={fetching}
           onChange={(event) => setUsernameInput(event.target.value)}
-          onKeyUp={(event: React.KeyboardEvent<Input>) =>
+          onKeyUp={(event: React.KeyboardEvent<HTMLInputElement>) =>
             event.key === 'Enter' ? setSelectedUsername(usernameInput) : ''
           }
           placeholder="Username"

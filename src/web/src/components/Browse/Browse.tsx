@@ -6,7 +6,7 @@ import PlaceholderSegment from '../Shared/PlaceholderSegment';
 import Directory from './Directory';
 import DirectoryTree from './DirectoryTree';
 import * as lzString from 'lz-string';
-import { Component } from 'react';
+import { Component, createRef } from 'react';
 import { Card, Icon, Input, Loader, Segment } from 'semantic-ui-react';
 
 const initialState = {
@@ -81,8 +81,15 @@ class Browse extends Component<Props, State> {
     document.removeEventListener('keyup', this.keyUp, false);
   }
 
+  protected inputtext = createRef<HTMLInputElement>();
+
   protected browse = () => {
-    const username = this.inputtext.inputRef.current.value;
+    if (this.inputtext.current == null) {
+      // this should never happen
+      return;
+    }
+
+    const username = this.inputtext.current.value;
 
     this.setState(
       { browseError: undefined, browseState: 'pending', username },
@@ -150,7 +157,7 @@ class Browse extends Component<Props, State> {
   protected clear = () => {
     this.setState(initialState, () => {
       this.saveState();
-      this.inputtext.focus();
+      this.inputtext.current?.focus();
     });
   };
 
@@ -158,9 +165,13 @@ class Browse extends Component<Props, State> {
     event.key === 'Escape' ? this.clear() : '';
 
   protected saveState = () => {
-    this.inputtext.inputRef.current.value = this.state.username;
-    this.inputtext.inputRef.current.disabled =
-      this.state.browseState !== 'idle';
+    if (this.inputtext.current == null) {
+      // should never happen?
+      return;
+    }
+
+    this.inputtext.current.value = this.state.username;
+    this.inputtext.current.disabled = this.state.browseState !== 'idle';
 
     const storeToLocalStorage = () => {
       try {
@@ -207,7 +218,7 @@ class Browse extends Component<Props, State> {
     directories,
     separator,
   }: {
-    directories: ApiSoulseekDirectory[];
+    directories: BrowseDirectory[];
     separator: string;
   }) => {
     if (directories.length === 0 || directories[0]?.name == null) {
@@ -218,7 +229,7 @@ class Browse extends Component<Props, State> {
     // - loop through all directories once
     // - do the split once
     // - future look ups are done from the Map
-    const depthMap = new Map<number, ApiSoulseekDirectory[]>();
+    const depthMap = new Map<number, BrowseDirectory[]>();
     for (const d of directories) {
       const directoryDepth = d.name?.split(separator).length ?? 0;
       if (!depthMap.has(directoryDepth)) {
@@ -238,11 +249,11 @@ class Browse extends Component<Props, State> {
   };
 
   protected getChildDirectories = (
-    depthMap: Map<number, ApiSoulseekDirectory[]>,
-    root: ApiSoulseekDirectory,
+    depthMap: Map<number, BrowseDirectory[]>,
+    root: BrowseDirectory,
     separator: string,
     depth: number,
-  ): ApiSoulseekDirectory & { children: ApiSoulseekDirectory[] } => {
+  ): BrowseDirectory => {
     const rootName = root.name;
 
     if (!depthMap.has(depth) || rootName == null) {
@@ -289,7 +300,7 @@ class Browse extends Component<Props, State> {
 
     const emptyTree = !(tree && tree.length > 0);
 
-    const files = (selectedDirectory.files || []).map((f) => ({
+    const files = (selectedDirectory?.files ?? []).map((f) => ({
       ...f,
       filename: `${name}${separator}${f.filename}`,
     }));
@@ -323,11 +334,11 @@ class Browse extends Component<Props, State> {
               />
             }
             loading={pending}
-            onKeyUp={(event: React.KeyboardEvent<Input>) =>
+            onKeyUp={(event: React.KeyboardEvent<HTMLInputElement>) =>
               event.key === 'Enter' ? this.browse() : ''
             }
             placeholder="Username"
-            ref={(input) => (this.inputtext = input)}
+            ref={this.inputtext}
             size="big"
           />
         </Segment>

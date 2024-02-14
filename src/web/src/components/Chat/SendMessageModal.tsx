@@ -1,8 +1,6 @@
 import './Chat.css';
-import { createRef, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Form, Header, Icon, Input, Modal } from 'semantic-ui-react';
-
-const usernameRef = createRef<Input>();
 
 type Props = {
   readonly initiateConversation: (
@@ -18,6 +16,7 @@ const SendMessageModal: React.FC<Props> = ({
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [message, setMessage] = useState('');
+  const usernameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {

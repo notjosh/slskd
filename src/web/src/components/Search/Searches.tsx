@@ -32,7 +32,7 @@ const Searches: React.FC<Props> = ({ server }) => {
   const [stopping, setStopping] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  const inputRef = useRef<Input>();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { id: searchId } = useParams<{ id: string }>();
   const history = useHistory();
@@ -121,8 +121,8 @@ const Searches: React.FC<Props> = ({ server }) => {
     navigate = false,
     search,
   }: { navigate?: boolean; search?: string } = {}) => {
-    const ref = inputRef.current?.inputRef?.current;
-    const searchText = search ?? ref.value;
+    const ref = inputRef.current;
+    const searchText = search ?? ref?.value ?? '';
     const id = uuidv4();
 
     try {
@@ -130,8 +130,10 @@ const Searches: React.FC<Props> = ({ server }) => {
       await library.create({ id, searchText });
 
       try {
-        ref.value = '';
-        ref.focus();
+        if (ref != null) {
+          ref.value = '';
+          ref.focus();
+        }
       } catch {
         // we are probably repeating an existing search; the input isn't mounted.  no-op.
       }
@@ -241,7 +243,7 @@ const Searches: React.FC<Props> = ({ server }) => {
     history.replace(match.url.replace(`/${searchId}`, ''));
   }
 
-  inputRef?.current?.inputRef?.current.focus();
+  inputRef.current?.focus();
 
   return (
     <>

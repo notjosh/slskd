@@ -1,6 +1,6 @@
 import './Files.css';
 import Explorer from './Explorer';
-import { Tab } from 'semantic-ui-react';
+import { Tab, TabPane } from 'semantic-ui-react';
 
 type Props = {
   options: {
@@ -15,24 +15,24 @@ const Files: React.FC<Props> = ({ options }) => {
     {
       menuItem: 'Downloads',
       render: () => (
-        <Tab.Pane>
+        <TabPane>
           <Explorer
             remoteFileManagement={remoteFileManagement}
             root="downloads"
           />
-        </Tab.Pane>
+        </TabPane>
       ),
       route: 'downloads',
     },
     {
       menuItem: 'Incomplete',
       render: () => (
-        <Tab.Pane>
+        <TabPane>
           <Explorer
             remoteFileManagement={remoteFileManagement}
             root="incomplete"
           />
-        </Tab.Pane>
+        </TabPane>
       ),
       route: 'incomplete',
     },

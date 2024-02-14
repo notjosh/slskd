@@ -19,9 +19,7 @@ const initialState = {
 };
 
 type Props = {
-  error: {
-    message: string;
-  };
+  error: Error | undefined;
   loading: boolean;
   onLoginAttempt: (
     username: string,
@@ -31,7 +29,7 @@ type Props = {
 };
 
 const LoginForm: React.FC<Props> = ({ error, loading, onLoginAttempt }) => {
-  const usernameInput = useRef<Input>(null);
+  const usernameInput = useRef<HTMLInputElement>(null);
   const [state, setState] = useState(initialState);
   const [ready, setReady] = useState(false);
   const logo = useMemo(

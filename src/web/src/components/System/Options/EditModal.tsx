@@ -86,7 +86,7 @@ const EditModal: React.FC<Props> = ({ onClose, open, theme }) => {
 
   useEffect(() => {
     if (open) {
-      get();
+      void get();
     }
   }, [open]);
 
@@ -144,8 +144,8 @@ const EditModal: React.FC<Props> = ({ onClose, open, theme }) => {
               <CodeEditor
                 onChange={async (value) => await update(value)}
                 style={{ minHeight: 500 }}
-                theme={theme}
                 value={yaml}
+                {...(theme ? { theme } : {})}
               />
             )}
           </div>

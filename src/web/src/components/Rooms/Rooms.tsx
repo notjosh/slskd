@@ -12,7 +12,6 @@ import {
   Input,
   List,
   Loader,
-  Ref,
   Segment,
 } from 'semantic-ui-react';
 
@@ -79,9 +78,9 @@ class Rooms extends Component<Props, State> {
     this.setState({ intervals: initialState.intervals });
   }
 
-  protected listRef = createRef();
+  protected listRef = createRef<HTMLDivElement>();
 
-  protected messageRef = undefined;
+  protected messageRef = createRef<HTMLInputElement>();
 
   protected getFirstRoom = () => {
     const joined = this.state.joined[0];
@@ -135,7 +134,12 @@ class Rooms extends Component<Props, State> {
         await this.fetchActiveRoom();
         this.setState({ loading: false }, () => {
           try {
-            this.listRef.current?.lastChild.scrollIntoView();
+            const last = this.listRef.current?.lastChild;
+
+            // ensure it's a div first
+            if (last instanceof HTMLDivElement) {
+              last.scrollIntoView();
+            }
           } catch {
             // no-op
           }
@@ -158,10 +162,10 @@ class Rooms extends Component<Props, State> {
 
   protected validInput = () =>
     (this.state.active || '').length > 0 &&
-    (this.messageRef?.current?.value || '').length > 0;
+    (this.messageRef.current?.value ?? '').length > 0;
 
   protected focusInput = () => {
-    this.messageRef.current.focus();
+    this.messageRef.current?.focus();
   };
 
   protected formatTimestamp = (timestamp: string) => {
@@ -178,11 +182,12 @@ class Rooms extends Component<Props, State> {
 
   protected sendMessage = async () => {
     const { active } = this.state;
-    const message = this.messageRef?.current.value;
 
-    if (!this.validInput()) {
+    if (this.messageRef.current == null || !this.validInput()) {
       return;
     }
+
+    const message = this.messageRef.current.value;
 
     await rooms.sendMessage({ message, roomName: active });
     this.messageRef.current.value = '';
@@ -247,27 +252,25 @@ class Rooms extends Component<Props, State> {
                   <>
                     <Segment.Group>
                       <Segment className="room-history">
-                        <Ref innerRef={this.listRef}>
-                          <List>
-                            {room.messages.map((message) => (
-                              <List.Content
-                                className={`room-message ${message.self ? 'room-message-self' : ''}`}
-                                key={`${message.timestamp}+${message.message}`}
-                              >
-                                <span className="room-message-time">
-                                  {this.formatTimestamp(message.timestamp)}
-                                </span>
-                                <span className="room-message-name">
-                                  {message.username}:{' '}
-                                </span>
-                                <span className="room-message-message">
-                                  {message.message}
-                                </span>
-                              </List.Content>
-                            ))}
-                            <List.Content id="room-history-scroll-anchor" />
-                          </List>
-                        </Ref>
+                        <List ref={this.listRef}>
+                          {room.messages.map((message) => (
+                            <List.Content
+                              className={`room-message ${message.self ? 'room-message-self' : ''}`}
+                              key={`${message.timestamp}+${message.message}`}
+                            >
+                              <span className="room-message-time">
+                                {this.formatTimestamp(message.timestamp)}
+                              </span>
+                              <span className="room-message-name">
+                                {message.username}:{' '}
+                              </span>
+                              <span className="room-message-message">
+                                {message.message}
+                              </span>
+                            </List.Content>
+                          ))}
+                          <List.Content id="room-history-scroll-anchor" />
+                        </List>
                       </Segment>
                       <Segment className="room-input">
                         <Input
@@ -296,7 +299,7 @@ class Rooms extends Component<Props, State> {
                               ? await this.sendMessage()
                               : ''
                           }
-                          ref={(input) => (this.messageRef = input?.inputRef)}
+                          ref={this.messageRef}
                           transparent
                         />
                       </Segment>

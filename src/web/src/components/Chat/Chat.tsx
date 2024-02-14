@@ -12,7 +12,6 @@ import {
   Input,
   List,
   Loader,
-  Ref,
   Segment,
 } from 'semantic-ui-react';
 
@@ -67,9 +66,9 @@ class Chat extends Component<Props, State> {
     this.setState({ interval: undefined });
   }
 
-  protected listRef = createRef<typeof HTMLElement>();
+  protected listRef = createRef<HTMLDivElement>();
 
-  protected messageRef = undefined;
+  protected messageRef = createRef<HTMLInputElement>();
 
   protected getFirstConversation = () => {
     const names = Object.keys(this.state.conversations);
@@ -134,14 +133,17 @@ class Chat extends Component<Props, State> {
 
   protected sendReply = async () => {
     const { active } = this.state;
-    const message = this.messageRef.current.value;
 
-    if (!this.validInput()) {
+    const input = this.messageRef.current;
+
+    if (input == null || !this.validInput()) {
       return;
     }
 
+    const message = input.value;
+
     await this.sendMessage(active, message);
-    this.messageRef.current.value = '';
+    input.value = '';
 
     // force a refresh to append the message
     // we could probably do this in the browser but we can be lazy
@@ -150,10 +152,10 @@ class Chat extends Component<Props, State> {
 
   protected validInput = () =>
     (this.state.active || '').length > 0 &&
-    (this.messageRef?.current?.value || '').length > 0;
+    (this.messageRef.current?.value ?? '').length > 0;
 
   protected focusInput = () => {
-    this.messageRef?.current.focus();
+    this.messageRef.current?.focus();
   };
 
   protected formatTimestamp = (timestamp: string) => {
@@ -193,7 +195,12 @@ class Chat extends Component<Props, State> {
           },
           () => {
             try {
-              this.listRef.current.lastChild.scrollIntoView();
+              const last = this.listRef.current?.lastChild;
+
+              // ensure it's a div first
+              if (last instanceof HTMLDivElement) {
+                last.scrollIntoView();
+              }
             } catch {
               // no-op
             }
@@ -278,30 +285,28 @@ class Chat extends Component<Props, State> {
                 ) : (
                   <Segment.Group>
                     <Segment className="chat-history">
-                      <Ref innerRef={this.listRef}>
-                        <List>
-                          {messages.map((message) => (
-                            <List.Content
-                              className={`chat-message ${message.direction === 'Out' ? 'chat-message-self' : ''}`}
-                              key={`${message.timestamp}+${message.message}`}
-                            >
-                              <span className="chat-message-time">
-                                {this.formatTimestamp(message.timestamp)}
-                              </span>
-                              <span className="chat-message-name">
-                                {message.direction === 'Out'
-                                  ? user.username
-                                  : message.username}
-                                :{' '}
-                              </span>
-                              <span className="chat-message-message">
-                                {message.message}
-                              </span>
-                            </List.Content>
-                          ))}
-                          <List.Content id="chat-history-scroll-anchor" />
-                        </List>
-                      </Ref>
+                      <List ref={this.listRef}>
+                        {messages.map((message) => (
+                          <List.Content
+                            className={`chat-message ${message.direction === 'Out' ? 'chat-message-self' : ''}`}
+                            key={`${message.timestamp}+${message.message}`}
+                          >
+                            <span className="chat-message-time">
+                              {this.formatTimestamp(message.timestamp)}
+                            </span>
+                            <span className="chat-message-name">
+                              {message.direction === 'Out'
+                                ? user.username
+                                : message.username}
+                              :{' '}
+                            </span>
+                            <span className="chat-message-message">
+                              {message.message}
+                            </span>
+                          </List.Content>
+                        ))}
+                        <List.Content id="chat-history-scroll-anchor" />
+                      </List>
                     </Segment>
                     <Segment className="chat-input">
                       <Input
@@ -328,7 +333,7 @@ class Chat extends Component<Props, State> {
                         onKeyUp={async (event: KeyboardEvent) =>
                           event.key === 'Enter' ? await this.sendReply() : ''
                         }
-                        ref={(input) => (this.messageRef = input?.inputRef)}
+                        ref={this.messageRef}
                         transparent
                       />
                     </Segment>

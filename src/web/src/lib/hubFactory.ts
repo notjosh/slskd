@@ -1,6 +1,5 @@
 import { hubBaseUrl } from '../config';
 import {
-  ApiSlskdCoreAPIServerState,
   type ApiSlskdOptions,
   type ApiSlskdSearchSearch,
   type ApiSlskdState,
