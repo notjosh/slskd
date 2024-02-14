@@ -23,7 +23,11 @@ const CodeEditor: React.FC<Props> = ({
     <CodeMirror
       extensions={[
         StreamLanguage.define(yaml),
-        syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+        syntaxHighlighting(
+          // types don't match _strictly_ between `HighlightStyle` and `Highlighter`, so we'll force it here
+          defaultHighlightStyle as Parameters<typeof syntaxHighlighting>[0],
+          { fallback: true },
+        ),
       ]}
       onChange={(newValue) => onChange(newValue)}
       {...(value ? { value } : {})}

@@ -1,6 +1,7 @@
 import { getCurrentDebugView } from '../../../lib/options';
 import { CodeEditor, PlaceholderSegment, Switch } from '../../Shared';
-import React, { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button, Icon, Modal } from 'semantic-ui-react';
 
@@ -20,8 +21,15 @@ const DebugModal: React.FC<Props> = ({ onClose, open, theme }) => {
     try {
       setDebugView(await getCurrentDebugView());
     } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
       console.error(error);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+      toast.error(
+        (isAxiosError(error) ? error.response?.data : undefined) ??
+          error.message,
+      );
     } finally {
       setLoading(false);
     }
@@ -29,7 +37,7 @@ const DebugModal: React.FC<Props> = ({ onClose, open, theme }) => {
 
   useEffect(() => {
     if (open) {
-      get();
+      void get();
     }
   }, [open]);
 
@@ -47,7 +55,17 @@ const DebugModal: React.FC<Props> = ({ onClose, open, theme }) => {
         className="debug-view-content"
         scrolling
       >
-        <Switch loading={loading && <PlaceholderSegment loading />}>
+        <Switch
+          loading={
+            loading && (
+              <PlaceholderSegment
+                caption="Loading..."
+                icon="spinner"
+                loading
+              />
+            )
+          }
+        >
           <CodeEditor
             basicSetup={false}
             editable={false}

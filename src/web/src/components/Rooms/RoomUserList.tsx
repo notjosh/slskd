@@ -1,7 +1,13 @@
 import './Rooms.css';
 import { type ApiSlskdMessagingAPIUserDataResponse } from '../../lib/generated/types';
 import { useMemo } from 'react';
-import { Flag, Icon, List, Popup } from 'semantic-ui-react';
+import {
+  Flag,
+  type FlagNameValues,
+  Icon,
+  List,
+  Popup,
+} from 'semantic-ui-react';
 
 const getDetails = (user: ApiSlskdMessagingAPIUserDataResponse) => {
   return user.countryCode ?? '?';
@@ -21,7 +27,8 @@ const RoomUserList: React.FC<Props> = ({ users }) => {
         />
       );
 
-    return <Flag name={user.countryCode.toLowerCase()} />;
+    // TODO: validate that user.countryCode is a valid flag name
+    return <Flag name={user.countryCode.toLowerCase() as FlagNameValues} />;
   };
 
   const sortedUsers = useMemo(() => {

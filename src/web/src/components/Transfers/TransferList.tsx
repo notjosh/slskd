@@ -142,7 +142,7 @@ class TransferList extends Component<Props, State> {
                       <Checkbox
                         checked={files.filter((f) => !f.selected).length === 0}
                         fitted
-                        onChange={(event, data) =>
+                        onChange={(_event, data) =>
                           files.map((file) =>
                             onSelectionChange(
                               directoryName,
@@ -177,7 +177,7 @@ class TransferList extends Component<Props, State> {
                           <Checkbox
                             checked={f.selected}
                             fitted
-                            onChange={(event, data) =>
+                            onChange={(_event, data) =>
                               onSelectionChange(
                                 directoryName,
                                 f,

@@ -29,7 +29,7 @@ const initialState = {
 
 export type BrowseDirectory = ApiSoulseekDirectory & {
   children: BrowseDirectory[];
-  locked: boolean;
+  isLocked: boolean;
 };
 
 type Props = {};
@@ -97,16 +97,21 @@ class Browse extends Component<Props, State> {
         users
           .browse({ username })
           .then((response) => {
-            let directories = response.directories ?? [];
+            let directories =
+              response.directories?.map((d) => ({
+                ...d,
+                children: [],
+                isLocked: false,
+              })) ?? [];
             const lockedDirectories = response.lockedDirectories ?? [];
 
-            // we need to know the directory separator. assume it is \ to start
-            let separator: string;
+            // we need to know the directory separator. use a placeholder to start.
+            let separator = '-';
 
             const directoryCount = directories.length;
             const fileCount = directories.reduce((accumulator, directory) => {
               // examine each directory as we process it to see if it contains \ or /, and set separator accordingly
-              if (!separator) {
+              if (separator === '-') {
                 if (directory.name?.includes('\\')) separator = '\\';
                 else if (directory.name?.includes('/')) separator = '/';
               }
@@ -124,7 +129,7 @@ class Browse extends Component<Props, State> {
               lockedDirectories.map((d) => ({
                 ...d,
                 children: [],
-                locked: true,
+                isLocked: true,
               })),
             );
 
@@ -136,7 +141,7 @@ class Browse extends Component<Props, State> {
                 lockedFiles: lockedFileCount,
               },
               separator,
-              tree: this.getDirectoryTree({ directories, separator }),
+              tree: this.getDirectoryTree({ directories, separator }) ?? [],
             });
           })
           .then(() =>
@@ -164,6 +169,17 @@ class Browse extends Component<Props, State> {
   protected keyUp = (event: KeyboardEvent) =>
     event.key === 'Escape' ? this.clear() : '';
 
+  protected storeToLocalStorage = () => {
+    try {
+      localStorage.setItem(
+        'soulseek-example-browse-state',
+        lzString.compress(JSON.stringify(this.state)),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   protected saveState = () => {
     if (this.inputtext.current == null) {
       // should never happen?
@@ -173,23 +189,12 @@ class Browse extends Component<Props, State> {
     this.inputtext.current.value = this.state.username;
     this.inputtext.current.disabled = this.state.browseState !== 'idle';
 
-    const storeToLocalStorage = () => {
-      try {
-        localStorage.setItem(
-          'soulseek-example-browse-state',
-          lzString.compress(JSON.stringify(this.state)),
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     // Shifting the compression and safe out of the current render loop to speed up responsiveness
     // requestIdleCallback is not supported in Safari hence we push to next tick using Promise.resolve
     if (window.requestIdleCallback) {
-      window.requestIdleCallback(storeToLocalStorage);
+      window.requestIdleCallback(this.storeToLocalStorage);
     } else {
-      void Promise.resolve().then(storeToLocalStorage);
+      void Promise.resolve().then(this.storeToLocalStorage);
     }
   };
 
@@ -197,7 +202,7 @@ class Browse extends Component<Props, State> {
     this.setState(
       JSON.parse(
         lzString.decompress(
-          localStorage.getItem('soulseek-example-browse-state') || '',
+          localStorage.getItem('soulseek-example-browse-state') ?? '',
         ),
       ) || initialState,
     );
@@ -295,7 +300,7 @@ class Browse extends Component<Props, State> {
       tree,
       username,
     } = this.state;
-    const { locked, name } = selectedDirectory;
+    const { isLocked = false, name = undefined } = selectedDirectory ?? {};
     const pending = browseState === 'pending';
 
     const emptyTree = !(tree && tree.length > 0);
@@ -349,8 +354,7 @@ class Browse extends Component<Props, State> {
             inline="centered"
             size="big"
           >
-            Downloaded {Math.round(browseStatus.percentComplete || 0)}% of
-            Response
+            Downloaded {Math.round(browseStatus ?? 0)}% of Response
           </Loader>
         ) : (
           <div>
@@ -395,7 +399,7 @@ class Browse extends Component<Props, State> {
                 {name && (
                   <Directory
                     files={files}
-                    locked={locked}
+                    locked={isLocked}
                     marginTop={-20}
                     name={name}
                     onClose={this.handleDeselectDirectory}

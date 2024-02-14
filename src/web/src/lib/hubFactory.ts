@@ -14,7 +14,7 @@ import {
 export const createHubConnection = ({ url }: { url: string }) =>
   new HubConnectionBuilder()
     .withUrl(url, {
-      accessTokenFactory: isPassthroughEnabled() ? undefined : getToken,
+      ...(isPassthroughEnabled() ? {} : { accessTokenFactory: getToken }),
       withCredentials: true,
     })
     .withAutomaticReconnect([

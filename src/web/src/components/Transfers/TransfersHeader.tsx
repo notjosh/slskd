@@ -11,15 +11,76 @@ import ShrinkableDropdownButton from '../Shared/ShrinkableDropdownButton';
 import { useMemo, useState } from 'react';
 import { Icon, Segment } from 'semantic-ui-react';
 
+enum ExtendedTransferTypes {
+  All = 'All',
+}
+
+const TransferStatesWithAll = {
+  ...ApiSoulseekTransferStates,
+  ...ExtendedTransferTypes,
+};
+type TransferStatesWithAllType = keyof typeof TransferStatesWithAll;
+
+const RetryOptions = [
+  {
+    key: 'errored',
+    text: 'Errored',
+    value: TransferStatesWithAll.Errored,
+  },
+  {
+    key: 'cancelled',
+    text: 'Cancelled',
+    value: TransferStatesWithAll.Cancelled,
+  },
+  { key: 'all', text: 'All', value: TransferStatesWithAll.All },
+];
+
+const CancelOptions = [
+  { key: 'all', text: 'All', value: TransferStatesWithAll.All },
+  {
+    key: 'queued',
+    text: 'Queued',
+    value: TransferStatesWithAll.Queued,
+  },
+  {
+    key: 'inProgress',
+    text: 'In Progress',
+    value: TransferStatesWithAll.InProgress,
+  },
+];
+
+const RemoveOptions = [
+  {
+    key: 'succeeded',
+    text: 'Succeeded',
+    value: TransferStatesWithAll.Succeeded,
+  },
+  {
+    key: 'errored',
+    text: 'Errored',
+    value: TransferStatesWithAll.Errored,
+  },
+  {
+    key: 'cancelled',
+    text: 'Cancelled',
+    value: TransferStatesWithAll.Cancelled,
+  },
+  {
+    key: 'completed',
+    text: 'Completed',
+    value: TransferStatesWithAll.Completed,
+  },
+];
+
 const getRetryableFiles = ({
   files,
   retryOption,
 }: {
   files: ApiSlskdTransfersTransfer[];
-  retryOption: ApiSoulseekTransferStates;
+  retryOption: TransferStatesWithAllType;
 }) => {
   switch (retryOption) {
-    case 'Errored':
+    case ApiSoulseekTransferStates.Errored:
       return files.filter((file) =>
         [
           'Completed, TimedOut',
@@ -27,9 +88,9 @@ const getRetryableFiles = ({
           'Completed, Rejected',
         ].includes(file.state),
       );
-    case 'Cancelled':
+    case ApiSoulseekTransferStates.Cancelled:
       return files.filter((file) => file.state === 'Completed, Cancelled');
-    case 'All':
+    case TransferStatesWithAll.All:
       return files.filter((file) => isStateRetryable(file.state));
     default:
       return [];
@@ -40,18 +101,20 @@ const getCancellableFiles = ({
   cancelOption,
   files,
 }: {
-  cancelOption: ApiSoulseekTransferStates;
+  cancelOption: TransferStatesWithAllType;
   files: ApiSlskdTransfersTransfer[];
 }) => {
   switch (cancelOption) {
-    case 'All':
+    case TransferStatesWithAll.All:
       return files.filter((file) => isStateCancellable(file.state));
-    case 'Queued':
+    case ApiSoulseekTransferStates.Queued:
       return files.filter((file) =>
         ['Queued, Locally', 'Queued, Remotely'].includes(file.state),
       );
-    case 'In Progress':
-      return files.filter((file) => file.state === 'InProgress');
+    case ApiSoulseekTransferStates.InProgress:
+      return files.filter(
+        (file) => file.state === ApiSoulseekTransferStates.InProgress,
+      );
     default:
       return [];
   }
@@ -62,12 +125,12 @@ const getRemovableFiles = ({
   removeOption,
 }: {
   files: ApiSlskdTransfersTransfer[];
-  removeOption: ApiSoulseekTransferStates;
+  removeOption: TransferStatesWithAllType;
 }) => {
   switch (removeOption) {
-    case 'Succeeded':
+    case ApiSoulseekTransferStates.Succeeded:
       return files.filter((file) => file.state === 'Completed, Succeeded');
-    case 'Errored':
+    case ApiSoulseekTransferStates.Errored:
       return files.filter((file) =>
         [
           'Completed, TimedOut',
@@ -75,9 +138,9 @@ const getRemovableFiles = ({
           'Completed, Rejected',
         ].includes(file.state),
       );
-    case 'Cancelled':
+    case ApiSoulseekTransferStates.Cancelled:
       return files.filter((file) => file.state === 'Completed, Cancelled');
-    case 'Completed':
+    case ApiSoulseekTransferStates.Completed:
       return files.filter((file) => file.state.includes('Completed'));
     default:
       return [];
@@ -107,13 +170,14 @@ const TransfersHeader: React.FC<Props> = ({
   server,
   transfers,
 }) => {
-  const [removeOption, setRemoveOption] = useState<ApiSoulseekTransferStates>(
-    ApiSoulseekTransferStates.Succeeded,
+  const [removeOption, setRemoveOption] = useState<TransferStatesWithAllType>(
+    TransferStatesWithAll.Succeeded,
   );
-  const [cancelOption, setCancelOption] =
-    useState<ApiSoulseekTransferStates>('All');
-  const [retryOption, setRetryOption] = useState<ApiSoulseekTransferStates>(
-    ApiSoulseekTransferStates.Errored,
+  const [cancelOption, setCancelOption] = useState<TransferStatesWithAllType>(
+    TransferStatesWithAll.All,
+  );
+  const [retryOption, setRetryOption] = useState<TransferStatesWithAllType>(
+    TransferStatesWithAll.Errored,
   );
 
   const files = useMemo(() => {
@@ -159,23 +223,13 @@ const TransfersHeader: React.FC<Props> = ({
           icon="redo"
           loading={retrying}
           mediaQuery="(max-width: 715px)"
-          onChange={(_, data) => setRetryOption(data.value)}
+          onChange={(_, data) =>
+            setRetryOption(data.value as TransferStatesWithAllType)
+          }
           onClick={() => onRetryAll(getRetryableFiles({ files, retryOption }))}
-          options={[
-            {
-              key: 'errored',
-              text: 'Errored',
-              value: ApiSoulseekTransferStates.Errored,
-            },
-            {
-              key: 'cancelled',
-              text: 'Cancelled',
-              value: ApiSoulseekTransferStates.Cancelled,
-            },
-            { key: 'all', text: 'All', value: 'All' },
-          ]}
+          options={RetryOptions}
         >
-          {`Retry ${retryOption === 'All' ? retryOption : `All ${retryOption}`}`}
+          {`Retry ${retryOption === TransferStatesWithAll.All ? retryOption : `All ${retryOption}`}`}
         </ShrinkableDropdownButton>
         <Nbsp />
         <ShrinkableDropdownButton
@@ -184,25 +238,15 @@ const TransfersHeader: React.FC<Props> = ({
           icon="x"
           loading={cancelling}
           mediaQuery="(max-width: 715px)"
-          onChange={(_, data) => setCancelOption(data.value)}
+          onChange={(_, data) =>
+            setCancelOption(data.value as TransferStatesWithAllType)
+          }
           onClick={() =>
             onCancelAll(getCancellableFiles({ cancelOption, files }))
           }
-          options={[
-            { key: 'all', text: 'All', value: 'All' },
-            {
-              key: 'queued',
-              text: 'Queued',
-              value: ApiSoulseekTransferStates.Queued,
-            },
-            {
-              key: 'inProgress',
-              text: 'In Progress',
-              value: ApiSoulseekTransferStates.InProgress,
-            },
-          ]}
+          options={CancelOptions}
         >
-          {`Cancel ${cancelOption === 'All' ? cancelOption : `All ${cancelOption}`}`}
+          {`Cancel ${cancelOption === TransferStatesWithAll.All ? cancelOption : `All ${cancelOption}`}`}
         </ShrinkableDropdownButton>
         <Nbsp />
         <ShrinkableDropdownButton
@@ -210,32 +254,13 @@ const TransfersHeader: React.FC<Props> = ({
           icon="trash alternate"
           loading={removing}
           mediaQuery="(max-width: 715px)"
-          onChange={(_, data) => setRemoveOption(data.value)}
+          onChange={(_, data) =>
+            setRemoveOption(data.value as TransferStatesWithAllType)
+          }
           onClick={() =>
             onRemoveAll(getRemovableFiles({ files, removeOption }))
           }
-          options={[
-            {
-              key: 'succeeded',
-              text: 'Succeeded',
-              value: ApiSoulseekTransferStates.Succeeded,
-            },
-            {
-              key: 'errored',
-              text: 'Errored',
-              value: ApiSoulseekTransferStates.Errored,
-            },
-            {
-              key: 'cancelled',
-              text: 'Cancelled',
-              value: ApiSoulseekTransferStates.Cancelled,
-            },
-            {
-              key: 'completed',
-              text: 'Completed',
-              value: ApiSoulseekTransferStates.Completed,
-            },
-          ]}
+          options={RemoveOptions}
         >
           {`Remove All ${removeOption}`}
         </ShrinkableDropdownButton>

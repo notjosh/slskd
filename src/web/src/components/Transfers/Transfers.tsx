@@ -219,14 +219,8 @@ const Transfers: React.FC<Props> = ({ direction, server }) => {
       ) : (
         transfers.map((user) => (
           <TransferGroup
-            cancel={cancel}
-            cancelAll={cancelAll}
             direction={direction}
             key={user.username}
-            remove={remove}
-            removeAll={removeAll}
-            retry={retry}
-            retryAll={retryAll}
             user={user}
           />
         ))

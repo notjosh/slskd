@@ -1,31 +1,36 @@
 import {
   type ApiSlskdSearchFile,
   type ApiSlskdSearchResponse,
-  type ApiSlskdTransfersAPIQueueDownloadRequest,
 } from '../../lib/generated/types';
 import * as transfers from '../../lib/transfers';
 import { getDirectoryContents } from '../../lib/users';
 import { formatBytes, getDirectoryName } from '../../lib/util';
 import FileList from '../Shared/FileList';
+import { isAxiosError } from 'axios';
 import { Component } from 'react';
 import { toast } from 'react-toastify';
 import { Button, Card, Icon, Label } from 'semantic-ui-react';
+
+type SearchFileWithSelected = ApiSlskdSearchFile & { selected: boolean };
 
 const buildTree = (response: ApiSlskdSearchResponse) => {
   let { files = [] } = response;
   const { lockedFiles = [] } = response;
   files = files.concat(lockedFiles.map((file) => ({ ...file, locked: true })));
 
-  return files.reduce<Record<string, ApiSlskdSearchFile[]>>((dict, file) => {
-    const directory = getDirectoryName(file.filename);
-    const selectable = { selected: false, ...file };
+  return files.reduce<Record<string, SearchFileWithSelected[]>>(
+    (dict, file) => {
+      const directory = getDirectoryName(file.filename);
+      const selectable = { selected: false, ...file };
 
-    const existing = dict[directory];
-    dict[directory] =
-      existing === undefined ? [selectable] : existing.concat(selectable);
+      const existing = dict[directory];
+      dict[directory] =
+        existing === undefined ? [selectable] : existing.concat(selectable);
 
-    return dict;
-  }, {});
+      return dict;
+    },
+    {},
+  );
 };
 
 type Props = {
@@ -36,11 +41,17 @@ type Props = {
 };
 
 type State = {
-  downloadError: string;
-  downloadRequest: ApiSlskdTransfersAPIQueueDownloadRequest | undefined;
+  downloadError:
+    | {
+        data: string;
+        status: number;
+        statusText: string;
+      }
+    | undefined;
+  downloadRequest: 'inProgress' | 'complete' | 'error' | undefined;
   fetchingDirectoryContents: boolean;
   isFolded: boolean;
-  tree: Record<string, ApiSlskdSearchFile[]>;
+  tree: Record<string, SearchFileWithSelected[]>;
 };
 
 class Response extends Component<Props, State> {
@@ -48,7 +59,7 @@ class Response extends Component<Props, State> {
     super(props);
 
     this.state = {
-      downloadError: '',
+      downloadError: undefined,
       downloadRequest: undefined,
       fetchingDirectoryContents: false,
       isFolded: this.props.isInitiallyFolded,
@@ -69,10 +80,13 @@ class Response extends Component<Props, State> {
     }
   }
 
-  protected handleFileSelectionChange = (file: ApiSlskdSearchFile, state) => {
+  protected handleFileSelectionChange = (
+    file: Pick<SearchFileWithSelected, 'selected'>,
+    state: boolean,
+  ) => {
     file.selected = state;
     this.setState((previousState) => ({
-      downloadError: '',
+      downloadError: undefined,
       downloadRequest: undefined,
       tree: previousState.tree,
     }));
@@ -90,10 +104,21 @@ class Response extends Component<Props, State> {
 
         this.setState({ downloadRequest: 'complete' });
       } catch (error) {
-        this.setState({
-          downloadError: error.response,
-          downloadRequest: 'error',
-        });
+        if (isAxiosError(error)) {
+          this.setState({
+            downloadError: error.response,
+            downloadRequest: 'error',
+          });
+        } else {
+          this.setState({
+            downloadError: {
+              data: error instanceof Error ? error.message : 'Unknown Error',
+              status: 0,
+              statusText: 'Unknown Error',
+            },
+            downloadRequest: 'error',
+          });
+        }
       }
     });
   };
@@ -110,22 +135,40 @@ class Response extends Component<Props, State> {
         username,
       });
 
+      // API response can technically have a null filename (bug?) so let's handle it
+      if (name == null) {
+        throw new Error('Directory name is null');
+      }
+
       // the api returns file names only, so we need to prepend the directory
       // to make it look like a search result.  we also need to preserve
       // any file selections, so check the old files and assign accordingly
       const fixedFiles = (files ?? []).map((file) => ({
+        isLocked: false,
+
         ...file,
         filename: `${directory}\\${file.filename}`,
         selected:
           oldFiles?.find((f) => f.filename === `${directory}\\${file.filename}`)
             ?.selected ?? false,
+
+        // make TypeScript happy about the difference between `ApiSlskdSearchFile` and `ApiSoulseekFile`
+        // eslint-disable-next-line canonical/sort-keys
+        extension: file.extension ?? '',
       }));
 
       oldTree[name] = fixedFiles;
       this.setState({ tree: { ...oldTree } });
     } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
       console.error(error);
-      toast.error(error?.response?.data ?? error?.message ?? error);
+      toast.error(
+        (isAxiosError(error) ? error?.response?.data : undefined) ??
+          error.message,
+      );
     } finally {
       this.setState({ fetchingDirectoryContents: false });
     }
@@ -148,7 +191,10 @@ class Response extends Component<Props, State> {
     } = this.state;
 
     const selectedFiles = Object.keys(tree)
-      .reduce<ApiSlskdSearchFile[]>((list, dict) => list.concat(tree[dict]), [])
+      .reduce<SearchFileWithSelected[]>(
+        (list, dict) => list.concat(tree[dict] ?? []),
+        [],
+      )
       .filter((f) => f.selected);
 
     const selectedSize = formatBytes(
@@ -190,7 +236,7 @@ class Response extends Component<Props, State> {
             <FileList
               directoryName={directory}
               disabled={downloadRequest === 'inProgress'}
-              files={tree[directory]}
+              files={tree[directory] ?? []}
               footer={
                 <button
                   disabled={fetchingDirectoryContents}
@@ -213,7 +259,7 @@ class Response extends Component<Props, State> {
                 </button>
               }
               key={directory}
-              locked={tree[directory].find((file) => file.locked)}
+              locked={(tree[directory] ?? []).some((file) => file.isLocked)}
               onSelectionChange={this.handleFileSelectionChange}
             />
           ))}
@@ -258,8 +304,10 @@ class Response extends Component<Props, State> {
                     size="large"
                   />
                   <Label>
-                    {downloadError.data +
-                      ` (HTTP ${downloadError.status} ${downloadError.statusText})`}
+                    {downloadError
+                      ? downloadError.data +
+                        ` (HTTP ${downloadError.status} ${downloadError.statusText})`
+                      : 'Unknown Error'}
                   </Label>
                 </span>
               )}

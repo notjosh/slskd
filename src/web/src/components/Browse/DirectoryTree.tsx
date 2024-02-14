@@ -22,10 +22,10 @@ const subtree = (
                 className={
                   'browse-folderlist-icon' +
                   (selected ? ' selected' : '') +
-                  (d.locked ? ' locked' : '')
+                  (d.isLocked ? ' locked' : '')
                 }
                 name={
-                  d.locked === true
+                  d.isLocked === true
                     ? 'lock'
                     : selected
                       ? 'folder open'
@@ -37,7 +37,7 @@ const subtree = (
                   className={
                     'browse-folderlist-header' +
                     (selected ? ' selected' : '') +
-                    (d.locked ? ' locked' : '')
+                    (d.isLocked ? ' locked' : '')
                   }
                   onClick={(event: React.MouseEvent<typeof List.Header>) =>
                     onSelect(event, d)
@@ -62,7 +62,7 @@ type Props = {
     event: React.MouseEvent<typeof List.Header>,
     value: BrowseDirectory,
   ) => void;
-  readonly selectedDirectoryName: string;
+  readonly selectedDirectoryName: string | null | undefined;
   readonly tree: BrowseDirectory[];
 };
 

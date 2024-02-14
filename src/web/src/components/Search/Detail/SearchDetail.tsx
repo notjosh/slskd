@@ -7,7 +7,7 @@ import {
   getResponses,
   parseFiltersFromString,
 } from '../../../lib/searches';
-import { sleep } from '../../../lib/util';
+import { sleep, type Writeable } from '../../../lib/util';
 import ErrorSegment from '../../Shared/ErrorSegment';
 import LoaderSegment from '../../Shared/LoaderSegment';
 import Switch from '../../Shared/Switch';
@@ -212,10 +212,17 @@ const SearchDetail: React.FC<Props> = ({
               floating
               icon="sort"
               labeled
-              onChange={(_event, { value }) => setResultSort(value)}
-              options={sortDropdownOptions}
+              onChange={(_event, { value }) =>
+                setResultSort(
+                  value as (typeof sortDropdownOptions)[number]['key'],
+                )
+              }
+              options={
+                sortDropdownOptions as Writeable<typeof sortDropdownOptions>
+              }
               text={
-                sortDropdownOptions.find((o) => o.value === resultSort)?.text
+                sortDropdownOptions.find((o) => o.value === resultSort)?.text ??
+                '-'
               }
             />
             <div className="search-option-toggles">

@@ -2,6 +2,7 @@ import { type ApiSoulseekFile } from '../../lib/generated/types';
 import * as transfers from '../../lib/transfers';
 import { formatBytes } from '../../lib/util';
 import FileList from '../Shared/FileList';
+import { isAxiosError } from 'axios';
 import { Component } from 'react';
 import { Button, Card, Icon, Label } from 'semantic-ui-react';
 
@@ -10,7 +11,7 @@ export type ApiFileWithSelected = ApiSoulseekFile & {
 };
 
 const initialState = {
-  downloadError: '',
+  downloadError: undefined,
   downloadRequest: undefined,
 };
 
@@ -24,7 +25,13 @@ type Props = {
 };
 
 type State = {
-  downloadError: string;
+  downloadError:
+    | {
+        data: string;
+        status: number;
+        statusText: string;
+      }
+    | undefined;
   downloadRequest: string | undefined;
   files: ApiFileWithSelected[];
 };
@@ -48,13 +55,13 @@ class Directory extends Component<Props, State> {
   }
 
   protected handleFileSelectionChange = (
-    file: ApiFileWithSelected,
+    file: { selected: boolean },
     state: boolean,
   ) => {
     file.selected = state;
     this.setState((previousState) => ({
       ...previousState,
-      downloadError: '',
+      downloadError: undefined,
       downloadRequest: undefined,
     }));
   };
@@ -63,18 +70,38 @@ class Directory extends Component<Props, State> {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.setState({ downloadRequest: 'inProgress' }, async () => {
       try {
-        const requests = files.map(({ filename, size }) => ({
-          filename,
-          size,
-        }));
+        const requests = files
+          .map(({ filename, size }) => ({
+            filename,
+            size,
+          }))
+          // `filename` is nullable in the API (might be a bug?), but let's be sure to keep TypeScript happy
+          .filter(
+            (
+              f,
+            ): f is typeof f & {
+              filename: NonNullable<(typeof f)['filename']>;
+            } => f.filename != null,
+          );
+
         await transfers.download({ files: requests, username });
 
         this.setState({ downloadRequest: 'complete' });
       } catch (error) {
-        this.setState({
-          downloadError: error.response,
-          downloadRequest: 'error',
-        });
+        if (isAxiosError(error)) {
+          this.setState({
+            downloadError: error.response,
+            downloadRequest: 'error',
+          });
+        } else {
+          this.setState({
+            downloadError: {
+              data: 'Unknown error',
+              status: 0,
+              statusText: '',
+            },
+          });
+        }
       }
     });
   };
@@ -144,8 +171,10 @@ class Directory extends Component<Props, State> {
                     size="large"
                   />
                   <Label>
-                    {downloadError.data +
-                      ` (HTTP ${downloadError.status} ${downloadError.statusText})`}
+                    {downloadError
+                      ? downloadError.data +
+                        ` (HTTP ${downloadError.status} ${downloadError.statusText})`
+                      : 'Unknown error'}
                   </Label>
                 </span>
               )}

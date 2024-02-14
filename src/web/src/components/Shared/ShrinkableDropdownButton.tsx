@@ -1,9 +1,10 @@
 import ShrinkableButton, {
   type Props as ShrinkableButtonProps,
 } from './ShrinkableButton';
-import { Button, Dropdown } from 'semantic-ui-react';
+import { Button, Dropdown, type StrictDropdownProps } from 'semantic-ui-react';
 
-type Props = ShrinkableButtonProps;
+type Props = ShrinkableButtonProps &
+  Required<Pick<StrictDropdownProps, 'onChange' | 'options'>>;
 
 const ShrinkableDropdownButton: React.FC<Props> = ({
   children,

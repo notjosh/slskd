@@ -95,14 +95,14 @@ export const formatAttributes = ({
   bitDepth,
   sampleRate,
 }: {
-  bitDepth: number;
-  bitRate: number;
-  isVariableBitRate: boolean;
-  sampleRate: number;
+  bitDepth?: number | null;
+  bitRate?: number | null;
+  isVariableBitRate?: boolean | null;
+  sampleRate?: number | null;
 }) => {
   const isLossless = Boolean(sampleRate) && Boolean(bitDepth);
 
-  if (isLossless) {
+  if (isLossless && bitDepth != null && sampleRate != null) {
     return `${bitDepth}/${sampleRate / 1_000}kHz`;
   }
 
@@ -118,6 +118,8 @@ export const sleep = async (milliseconds: number) => {
     setTimeout(resolve, milliseconds);
   });
 };
+
+export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 /* https://www.npmjs.com/package/js-file-download
  *

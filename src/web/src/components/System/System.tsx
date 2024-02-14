@@ -13,6 +13,10 @@ import Shares from './Shares';
 import { Redirect, useHistory, useRouteMatch } from 'react-router-dom';
 import { Icon, Menu, Segment, Tab, TabPane } from 'semantic-ui-react';
 
+type MatchParameters = {
+  tab?: string;
+};
+
 type Props = {
   readonly options: ApiSlskdOptions;
   readonly state: ApiSlskdState;
@@ -23,7 +27,7 @@ const System: React.FC<Props> = ({ options, state, theme }) => {
   const {
     params: { tab },
     ...route
-  } = useRouteMatch();
+  } = useRouteMatch<MatchParameters>();
   const history = useHistory();
 
   const panes = [

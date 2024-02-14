@@ -6,6 +6,7 @@ import {
 } from '../../../lib/options';
 import { Div, PlaceholderSegment, Switch } from '../../Shared';
 import CodeEditor from '../../Shared/CodeEditor';
+import { isAxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { Button, Icon, Message, Modal } from 'semantic-ui-react';
 
@@ -34,8 +35,8 @@ const EditModal: React.FC<Props> = ({ onClose, open, theme }) => {
     location: undefined,
     yaml: undefined,
   });
-  const [yamlError, setYamlError] = useState();
-  const [updateError, setUpdateError] = useState();
+  const [yamlError, setYamlError] = useState<string>();
+  const [updateError, setUpdateError] = useState<string>();
 
   const get = async () => {
     setLoading({ error: false, loading: true });
@@ -59,7 +60,8 @@ const EditModal: React.FC<Props> = ({ onClose, open, theme }) => {
 
   const validate = async (newYaml: string) => {
     const response = await validateYaml({ yaml: newYaml });
-    setYamlError(response);
+
+    setYamlError(typeof response === 'string' ? response : undefined);
   };
 
   const update = async (newYaml: string) => {
@@ -79,7 +81,15 @@ const EditModal: React.FC<Props> = ({ onClose, open, theme }) => {
         await updateYaml({ yaml: newYaml });
         onClose();
       } catch (nextUpdateError) {
-        setUpdateError(nextUpdateError.response.data);
+        if (!(nextUpdateError instanceof Error)) {
+          throw nextUpdateError;
+        }
+
+        setUpdateError(
+          (isAxiosError(nextUpdateError)
+            ? nextUpdateError.response?.data
+            : undefined) ?? nextUpdateError.message,
+        );
       }
     }
   };

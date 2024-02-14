@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Header, Icon, Modal, Table } from 'semantic-ui-react';
 
 type FileRowProps = {
+  fetch: () => Promise<void>;
   fullName: string;
   length: number;
   modifiedAt: string;
@@ -15,6 +16,7 @@ type FileRowProps = {
 };
 
 const FileRow: React.FC<FileRowProps> = ({
+  fetch,
   fullName,
   length,
   modifiedAt,
@@ -44,7 +46,7 @@ const FileRow: React.FC<FileRowProps> = ({
                   path: `${subdirectory.join('/')}/${fullName}`,
                   root,
                 });
-                fetch();
+                await fetch();
               },
             },
           ]}
@@ -71,9 +73,10 @@ const FileRow: React.FC<FileRowProps> = ({
 );
 
 type DirectoryRowProps = {
-  deletable: boolean;
+  deletable?: boolean;
+  fetch: () => Promise<void>;
   fullName: string;
-  modifiedAt: string;
+  modifiedAt?: string;
   name: string;
   onClick: () => void;
   remoteFileManagement: boolean;
@@ -83,6 +86,7 @@ type DirectoryRowProps = {
 
 const DirectoryRow: React.FC<DirectoryRowProps> = ({
   deletable = true,
+  fetch,
   fullName,
   modifiedAt,
   name,
@@ -115,7 +119,7 @@ const DirectoryRow: React.FC<DirectoryRowProps> = ({
                   path: `${subdirectory.join('/')}/${fullName}`,
                   root,
                 });
-                fetch();
+                await fetch();
               },
             },
           ]}
@@ -237,6 +241,7 @@ const Explorer: React.FC<ExplorerProps> = ({ remoteFileManagement, root }) => {
               {subdirectory.length > 0 && (
                 <DirectoryRow
                   deletable={false}
+                  fetch={fetch}
                   fullName=".."
                   name=".."
                   onClick={upOneSubdirectory}
@@ -247,6 +252,7 @@ const Explorer: React.FC<ExplorerProps> = ({ remoteFileManagement, root }) => {
               )}
               {directory?.directories?.map((d) => (
                 <DirectoryRow
+                  fetch={fetch}
                   key={d.name}
                   onClick={() => select({ path: d.name })}
                   remoteFileManagement={remoteFileManagement}
@@ -257,6 +263,7 @@ const Explorer: React.FC<ExplorerProps> = ({ remoteFileManagement, root }) => {
               ))}
               {directory?.files?.map((f) => (
                 <FileRow
+                  fetch={fetch}
                   key={f.name}
                   remoteFileManagement={remoteFileManagement}
                   root={root}

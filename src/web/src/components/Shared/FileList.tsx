@@ -1,21 +1,36 @@
+import { type ApiSlskdSearchFile } from '../../lib/generated/types';
 import {
   formatAttributes,
   formatBytes,
   formatSeconds,
   getFileName,
 } from '../../lib/util';
-import { type ApiFileWithSelected } from '../Browse/Directory';
 import { useState } from 'react';
 import { Checkbox, Header, Icon, List, Table } from 'semantic-ui-react';
+
+type FileListFile = Pick<
+  ApiSlskdSearchFile,
+  | 'length'
+  | 'size'
+  | 'bitDepth'
+  | 'bitRate'
+  | 'isVariableBitRate'
+  | 'sampleRate'
+> & {
+  // allow optional to workaround ugly issue in `ApiFileWithSelected` type allowing undefined name
+  filename?: string | null | undefined;
+
+  selected: boolean;
+};
 
 type Props = {
   directoryName: unknown;
   disabled: boolean;
-  files: ApiFileWithSelected[];
+  files: FileListFile[];
   footer?: React.ReactNode;
   locked: boolean;
-  onClose: () => void;
-  onSelectionChange: (file: ApiFileWithSelected, checked: boolean) => void;
+  onClose?: () => void;
+  onSelectionChange: (file: FileListFile, checked: boolean) => void;
 };
 
 const FileList: React.FC<Props> = ({
@@ -44,7 +59,7 @@ const FileList: React.FC<Props> = ({
           />
           {directoryName}
 
-          {Boolean(onClose) && (
+          {onClose != null && (
             <Icon
               className="close-button"
               color="red"
@@ -66,7 +81,7 @@ const FileList: React.FC<Props> = ({
                       checked={files.filter((f) => !f.selected).length === 0}
                       disabled={disabled}
                       fitted
-                      onChange={(event, data) =>
+                      onChange={(_event, data) =>
                         files.map((f) =>
                           onSelectionChange(f, data.checked ?? false),
                         )
@@ -89,7 +104,9 @@ const FileList: React.FC<Props> = ({
               </Table.Header>
               <Table.Body>
                 {files
-                  .sort((a, b) => (a.filename > b.filename ? 1 : -1))
+                  .sort((a, b) =>
+                    (a.filename ?? '') > (b.filename ?? '') ? 1 : -1,
+                  )
                   .map((f) => (
                     <Table.Row key={f.filename}>
                       <Table.Cell className="filelist-selector">
@@ -97,14 +114,14 @@ const FileList: React.FC<Props> = ({
                           checked={f.selected}
                           disabled={disabled}
                           fitted
-                          onChange={(event, data) =>
+                          onChange={(_event, data) =>
                             onSelectionChange(f, data.checked ?? false)
                           }
                         />
                       </Table.Cell>
                       <Table.Cell className="filelist-filename">
                         {locked ? <Icon name="lock" /> : ''}
-                        {getFileName(f.filename)}
+                        {getFileName(f.filename ?? '')}
                       </Table.Cell>
                       <Table.Cell className="filelist-size">
                         {formatBytes(f.size)}
@@ -113,7 +130,7 @@ const FileList: React.FC<Props> = ({
                         {formatAttributes(f)}
                       </Table.Cell>
                       <Table.Cell className="filelist-length">
-                        {formatSeconds(f.length)}
+                        {formatSeconds(f.length ?? 0)}
                       </Table.Cell>
                     </Table.Row>
                   ))}
