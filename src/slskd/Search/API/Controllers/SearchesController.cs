@@ -20,6 +20,7 @@ using Microsoft.Extensions.Options;
 namespace slskd.Search.API
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Asp.Versioning;
     using Microsoft.AspNetCore.Authorization;
@@ -61,6 +62,7 @@ namespace slskd.Search.API
         /// <response code="500">The search terminated abnormally.</response>
         [HttpPost("")]
         [Authorize(Policy = AuthPolicy.Any)]
+        [ProducesResponseType(typeof(Search), 200)]
         public async Task<IActionResult> Post([FromBody] SearchRequest request)
         {
             if (Program.IsRelayAgent)
@@ -103,6 +105,7 @@ namespace slskd.Search.API
         /// <response code="404">A matching search was not found.</response>
         [HttpGet("{id}")]
         [Authorize(Policy = AuthPolicy.Any)]
+        [ProducesResponseType(typeof(Search), 200)]
         public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] bool includeResponses = false)
         {
             if (Program.IsRelayAgent)
@@ -129,6 +132,7 @@ namespace slskd.Search.API
         /// <response code="404">A matching search was not found.</response>
         [HttpGet("{id}/responses")]
         [Authorize(Policy = AuthPolicy.Any)]
+        [ProducesResponseType(typeof(IEnumerable<Response>), 200)]
         public async Task<IActionResult> GetResponsesById([FromRoute] Guid id)
         {
             if (Program.IsRelayAgent)
@@ -152,6 +156,7 @@ namespace slskd.Search.API
         /// <returns></returns>
         [HttpGet("")]
         [Authorize(Policy = AuthPolicy.Any)]
+        [ProducesResponseType(typeof(List<Search>), 200)]
         public async Task<IActionResult> GetAll()
         {
             if (Program.IsRelayAgent)

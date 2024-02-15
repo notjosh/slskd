@@ -60,6 +60,7 @@ namespace slskd.Core.API
         /// <returns></returns>
         [HttpGet]
         [Authorize(Policy = AuthPolicy.Any)]
+        [ProducesResponseType(typeof(State), 200)]
         public IActionResult State()
         {
             return Ok(ApplicationStateMonitor.CurrentValue);
@@ -106,6 +107,7 @@ namespace slskd.Core.API
         /// <returns></returns>
         [HttpGet("version")]
         [Authorize(Policy = AuthPolicy.Any)]
+        [ProducesResponseType(typeof(string), 200)]
         public IActionResult GetVersion()
         {
             return Ok(Program.SemanticVersion);
@@ -117,6 +119,7 @@ namespace slskd.Core.API
         /// <returns></returns>
         [HttpGet("version/latest")]
         [Authorize(Policy = AuthPolicy.Any)]
+        [ProducesResponseType(typeof(VersionState), 200)]
         public async Task<IActionResult> CheckVersion([FromQuery] bool forceCheck = false)
         {
             if (forceCheck)

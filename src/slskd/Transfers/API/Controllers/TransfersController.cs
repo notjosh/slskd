@@ -67,7 +67,7 @@ namespace slskd.Transfers.API
         [Authorize(Policy = AuthPolicy.Any)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult CancelDownloadAsync([FromRoute, Required] string username, [FromRoute, Required]string id, [FromQuery]bool remove = false)
+        public IActionResult CancelDownloadAsync([FromRoute, Required] string username, [FromRoute, Required] string id, [FromQuery] bool remove = false)
         {
             if (Program.IsRelayAgent)
             {
@@ -136,7 +136,7 @@ namespace slskd.Transfers.API
         [Authorize(Policy = AuthPolicy.Any)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult CancelUpload([FromRoute, Required] string username, [FromRoute, Required]string id, [FromQuery]bool remove = false)
+        public IActionResult CancelUpload([FromRoute, Required] string username, [FromRoute, Required] string id, [FromQuery] bool remove = false)
         {
             if (Program.IsRelayAgent)
             {
@@ -207,7 +207,7 @@ namespace slskd.Transfers.API
         [ProducesResponseType(201)]
         [ProducesResponseType(typeof(string), 403)]
         [ProducesResponseType(typeof(string), 500)]
-        public async Task<IActionResult> EnqueueAsync([FromRoute, Required]string username, [FromBody]IEnumerable<QueueDownloadRequest> requests)
+        public async Task<IActionResult> EnqueueAsync([FromRoute, Required] string username, [FromBody] IEnumerable<QueueDownloadRequest> requests)
         {
             if (Program.IsRelayAgent)
             {
@@ -232,8 +232,8 @@ namespace slskd.Transfers.API
         /// <response code="200">The request completed successfully.</response>
         [HttpGet("downloads")]
         [Authorize(Policy = AuthPolicy.Any)]
-        [ProducesResponseType(200)]
-        public IActionResult GetDownloadsAsync([FromQuery]bool includeRemoved = false)
+        [ProducesResponseType(typeof(IEnumerable<UserResponse>), 200)]
+        public IActionResult GetDownloadsAsync([FromQuery] bool includeRemoved = false)
         {
             if (Program.IsRelayAgent)
             {
@@ -264,7 +264,7 @@ namespace slskd.Transfers.API
         /// <response code="200">The request completed successfully.</response>
         [HttpGet("downloads/{username}")]
         [Authorize(Policy = AuthPolicy.Any)]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(UserResponse), 200)]
         public IActionResult GetDownloadsAsync([FromRoute, Required] string username)
         {
             if (Program.IsRelayAgent)
@@ -366,7 +366,7 @@ namespace slskd.Transfers.API
         /// <response code="200">The request completed successfully.</response>
         [HttpGet("uploads")]
         [Authorize(Policy = AuthPolicy.Any)]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(IEnumerable<UserResponse>), 200)]
         public IActionResult GetUploads([FromQuery] bool includeRemoved = false)
         {
             if (Program.IsRelayAgent)
@@ -400,7 +400,7 @@ namespace slskd.Transfers.API
         /// <response code="200">The request completed successfully.</response>
         [HttpGet("uploads/{username}")]
         [Authorize(Policy = AuthPolicy.Any)]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(UserResponse), 200)]
         public IActionResult GetUploads([FromRoute, Required] string username)
         {
             if (Program.IsRelayAgent)
@@ -438,7 +438,7 @@ namespace slskd.Transfers.API
         /// <response code="200">The request completed successfully.</response>
         [HttpGet("uploads/{username}/{id}")]
         [Authorize(Policy = AuthPolicy.Any)]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(API.Transfer), 200)]
         public IActionResult GetUploads([FromRoute, Required] string username, [FromRoute, Required] string id)
         {
             if (Program.IsRelayAgent)

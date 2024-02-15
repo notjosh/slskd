@@ -93,7 +93,7 @@ namespace slskd.Users.API
         /// <returns></returns>
         [HttpGet("{username}/browse")]
         [Authorize(Policy = AuthPolicy.Any)]
-        [ProducesResponseType(typeof(IEnumerable<Directory>), 200)]
+        [ProducesResponseType(typeof(BrowseResponse), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Browse([FromRoute, Required] string username)
         {

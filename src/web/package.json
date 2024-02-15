@@ -27,7 +27,7 @@
     "react-router-dom": "^5.0.0",
     "react-toastify": "^9.0.1",
     "semantic-ui-less": "^2.5.0",
-    "semantic-ui-react": "^2.1.0",
+    "semantic-ui-react": "^3.0.0-beta.2",
     "signalr": "^2.4.1",
     "uuid": "^8.3.0",
     "yaml": "^1.10.2"
@@ -35,10 +35,19 @@
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.0",
     "@semantic-ui-react/css-patch": "^1.0.0",
+    "@types/lodash": "^4.14.202",
+    "@types/react": "^16.14.56",
+    "@types/react-dom": "^16.9.24",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.56.0",
     "eslint-config-canonical": "^42.8.1",
     "jsdom": "^24.0.0",
+    "swagger-typescript-api": "^13.0.3",
+    "typescript": "^5.3.3",
     "vite": "^5.1.1",
     "vitest": "^1.2.2"
   },
@@ -46,7 +55,7 @@
   "name": "web",
   "private": true,
   "scripts": {
-    "build": "vite build",
+    "build": "tsc && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "start": "vite",

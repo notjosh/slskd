@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "Node"
+  },
+  "extends": "./tsconfig.json",
+  "include": [
+    "*.ts",
+    "*.js",
+    "*.cjs",
+    "*.mjs",
+    "*.json",
+    "src"
+  ]
+}

@@ -73,6 +73,103 @@ namespace slskd
     using Utility.CommandLine;
     using Utility.EnvironmentVariables;
     using IOFile = System.IO.File;
+    using Swashbuckle.AspNetCore.SwaggerGen;
+
+// strip `/api/vX` from the path prefix, since it lives in the `servers` section by convention
+class StripPrefixDocumentFilter : IDocumentFilter
+{
+    public void Apply(OpenApiDocument document, DocumentFilterContext context)
+    {
+        var Log = Serilog.Log.ForContext(typeof(StripPrefixDocumentFilter));
+
+        var changes = new Dictionary<string, string>();
+
+        foreach (var key in document.Paths.Keys)
+        {
+            if (key.StartsWith("/api/v0"))
+            {
+                var newKey = key.Remove(0, "/api/v0".Length);
+
+                if (document.Paths.ContainsKey(newKey)) {
+                    Log.Information($"Path '{newKey}' already exists, skipping rename.");
+                    continue;
+                }
+
+                changes.Add(key, newKey);
+            }
+        }
+
+        foreach (var change in changes)
+        {
+            var oldKey = change.Key;
+            var newKey = change.Value;
+
+            var value = document.Paths[oldKey];
+
+            document.Paths.Remove(oldKey);
+            document.Paths.Add(newKey, value);
+        }
+    }
+}
+
+// cobbled together from comments on https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2036
+class RequiredNotNullableSchemaFilter : ISchemaFilter
+{
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        if (schema.Properties == null)
+        {
+            return;
+        }
+
+        FixNullableProperties(schema, context);
+
+        var notNullableProperties = schema
+            .Properties
+            // .Where(x => !x.Value.Nullable && !schema.Required.Contains(x.Key))
+            .Where(x => !x.Value.Nullable && x.Value.Default == default && !schema.Required.Contains(x.Key))
+            .ToList();
+
+        foreach (var property in notNullableProperties)
+        {
+            schema.Required.Add(property.Key);
+        }
+    }
+
+    /// <summary>
+    /// Option "SupportNonNullableReferenceTypes" not working with complex types ({ "type": "object" }), 
+    /// so they always have "Nullable = false",
+    /// see method "SchemaGenerator.GenerateSchemaForMember"
+    /// </summary>
+    private static void FixNullableProperties(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        foreach (var property in schema.Properties)
+        {
+            if (property.Value.Reference != null)
+            {
+                var field = context.Type
+                    .GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                    .FirstOrDefault(x =>
+                        string.Equals(x.Name, property.Key, StringComparison.InvariantCultureIgnoreCase));
+
+                if (field != null)
+                {
+                    var fieldType = field switch
+                    {
+                        FieldInfo fieldInfo => fieldInfo.FieldType,
+                        PropertyInfo propertyInfo => propertyInfo.PropertyType,
+                        _ => throw new NotSupportedException(),
+                    };
+
+                    property.Value.Nullable = property.Value.Nullable ||
+                        fieldType.IsValueType
+                            ? Nullable.GetUnderlyingType(fieldType) != null
+                            : !field.IsNonNullableReferenceType();
+                }
+            }
+        }
+    }
+}
 
     /// <summary>
     ///     Bootstraps configuration and handles primitive command-line instructions.
@@ -801,6 +898,10 @@ namespace slskd
                 services.AddSwaggerGen(options =>
                 {
                     options.DescribeAllParametersInCamelCase();
+                    options.SupportNonNullableReferenceTypes();
+                    options.DocumentFilter<StripPrefixDocumentFilter>();
+                    options.SchemaFilter<RequiredNotNullableSchemaFilter>();
+                    options.CustomSchemaIds(type => type.FullName);
                     options.SwaggerDoc(
                         "v0",
                         new OpenApiInfo
@@ -940,7 +1041,17 @@ namespace slskd
 
             if (OptionsAtStartup.Feature.Swagger)
             {
-                app.UseSwagger();
+                app.UseSwagger(c =>
+                {
+                    c.PreSerializeFilters.Add((swagger, httpReq) =>
+                    {
+                        swagger.Servers = new List<OpenApiServer> {
+                            new OpenApiServer {
+                                Url = $"{httpReq.Scheme}://{httpReq.Host.Value}{(urlBase == "/" ? string.Empty : urlBase)}/v0/api"
+                            }
+                        };
+                    });
+                });
                 app.UseSwaggerUI(options => app.Services.GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions.ToList()
                     .ForEach(description => options.SwaggerEndpoint($"{(urlBase == "/" ? string.Empty : urlBase)}/swagger/{description.GroupName}/swagger.json", description.GroupName)));
 
