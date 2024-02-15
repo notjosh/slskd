@@ -1,4 +1,5 @@
 import api from './api';
+import { FlaggedEnum } from './flags';
 import {
   type ApiDownloadsAllCompletedDeleteData,
   type ApiDownloadsCreateData,
@@ -7,7 +8,7 @@ import {
   type ApiDownloadsPositionDetailData,
   type ApiSlskdTransfersAPIQueueDownloadRequest,
   type ApiSoulseekTransferDirection,
-  type ApiSoulseekTransferStates,
+  ApiSoulseekTransferStates,
   type ApiUploadsAllCompletedDeleteData,
   type ApiUploadsDeleteData,
   type ApiUploadsListData,
@@ -84,18 +85,30 @@ export const getPlaceInQueue = async ({
     `/transfers/downloads/${encodeURIComponent(username)}/${encodeURIComponent(id)}/position`,
   );
 
-export const isStateRetryable = (state: ApiSoulseekTransferStates) =>
-  state.includes('Completed') && state !== 'Completed, Succeeded';
+export const isStateRetryable = (state: ApiSoulseekTransferStates) => {
+  const flags = new FlaggedEnum<ApiSoulseekTransferStates>(state);
 
-export const isStateCancellable = (state: ApiSoulseekTransferStates) =>
-  [
-    'InProgress',
-    'Requested',
-    'Queued',
-    'Queued, Remotely',
-    'Queued, Locally',
-    'Initializing',
-  ].find((s) => s === state);
+  return (
+    flags.has(ApiSoulseekTransferStates.Completed) &&
+    !flags.has(ApiSoulseekTransferStates.Succeeded)
+  );
+};
 
-export const isStateRemovable = (state: ApiSoulseekTransferStates) =>
-  state.includes('Completed');
+export const isStateCancellable = (state: ApiSoulseekTransferStates) => {
+  const flags = new FlaggedEnum<ApiSoulseekTransferStates>(state);
+
+  return [
+    ApiSoulseekTransferStates.InProgress,
+    ApiSoulseekTransferStates.Requested,
+    ApiSoulseekTransferStates.Queued,
+    [ApiSoulseekTransferStates.Queued, ApiSoulseekTransferStates.Remotely],
+    [ApiSoulseekTransferStates.Queued, ApiSoulseekTransferStates.Locally],
+    ApiSoulseekTransferStates.Initializing,
+  ].some((s) => flags.isExactly(s));
+};
+
+export const isStateRemovable = (state: ApiSoulseekTransferStates) => {
+  const flags = new FlaggedEnum<ApiSoulseekTransferStates>(state);
+
+  return flags.has(ApiSoulseekTransferStates.Completed);
+};

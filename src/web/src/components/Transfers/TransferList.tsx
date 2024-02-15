@@ -1,7 +1,8 @@
+import { FlaggedEnum } from '../../lib/flags';
 import {
   type ApiSlskdTransfersTransfer,
   type ApiSoulseekTransferDirection,
-  type ApiSoulseekTransferStates,
+  ApiSoulseekTransferStates,
 } from '../../lib/generated/types';
 import {
   type ByteUnits,
@@ -24,17 +25,28 @@ import {
 const getColor = (
   state: ApiSoulseekTransferStates,
 ): { color?: SemanticCOLORS } => {
-  switch (state) {
-    case 'InProgress':
+  const flags = new FlaggedEnum<ApiSoulseekTransferStates>(state);
+
+  switch (true) {
+    case flags.isExactly(ApiSoulseekTransferStates.InProgress):
       return { color: 'blue' };
-    case 'Completed, Succeeded':
+    case flags.isExactly([
+      ApiSoulseekTransferStates.Completed,
+      ApiSoulseekTransferStates.Succeeded,
+    ]):
       return { color: 'green' };
-    case 'Requested':
-    case 'Queued, Locally':
-    case 'Queued, Remotely':
-    case 'Queued':
+    case flags.isExactly(ApiSoulseekTransferStates.Requested):
+    case flags.isExactly([
+      ApiSoulseekTransferStates.Queued,
+      ApiSoulseekTransferStates.Locally,
+    ]):
+    case flags.isExactly([
+      ApiSoulseekTransferStates.Queued,
+      ApiSoulseekTransferStates.Remotely,
+    ]):
+    case flags.isExactly(ApiSoulseekTransferStates.Queued):
       return {};
-    case 'Initializing':
+    case flags.isExactly(ApiSoulseekTransferStates.Initializing):
       return { color: 'teal' };
     default:
       return { color: 'red' };

@@ -1,3 +1,4 @@
+import { FlaggedEnum } from '../../lib/flags';
 import {
   type ApiSlskdServerState,
   type ApiSlskdTransfersAPIUserResponse,
@@ -81,15 +82,33 @@ const getRetryableFiles = ({
 }) => {
   switch (retryOption) {
     case ApiSoulseekTransferStates.Errored:
-      return files.filter((file) =>
-        [
-          'Completed, TimedOut',
-          'Completed, Errored',
-          'Completed, Rejected',
-        ].includes(file.state),
-      );
+      return files.filter((file) => {
+        const flags = new FlaggedEnum<ApiSoulseekTransferStates>(file.state);
+
+        return [
+          [
+            ApiSoulseekTransferStates.Completed,
+            ApiSoulseekTransferStates.TimedOut,
+          ],
+          [
+            ApiSoulseekTransferStates.Completed,
+            ApiSoulseekTransferStates.Errored,
+          ],
+          [
+            ApiSoulseekTransferStates.Completed,
+            ApiSoulseekTransferStates.Rejected,
+          ],
+        ].some((s) => flags.isExactly(s));
+      });
     case ApiSoulseekTransferStates.Cancelled:
-      return files.filter((file) => file.state === 'Completed, Cancelled');
+      return files.filter((file) => {
+        const flags = new FlaggedEnum<ApiSoulseekTransferStates>(file.state);
+
+        return flags.isExactly([
+          ApiSoulseekTransferStates.Completed,
+          ApiSoulseekTransferStates.Cancelled,
+        ]);
+      });
     case TransferStatesWithAll.All:
       return files.filter((file) => isStateRetryable(file.state));
     default:
@@ -108,13 +127,23 @@ const getCancellableFiles = ({
     case TransferStatesWithAll.All:
       return files.filter((file) => isStateCancellable(file.state));
     case ApiSoulseekTransferStates.Queued:
-      return files.filter((file) =>
-        ['Queued, Locally', 'Queued, Remotely'].includes(file.state),
-      );
+      return files.filter((file) => {
+        const flags = new FlaggedEnum<ApiSoulseekTransferStates>(file.state);
+
+        return [
+          [ApiSoulseekTransferStates.Queued, ApiSoulseekTransferStates.Locally],
+          [
+            ApiSoulseekTransferStates.Queued,
+            ApiSoulseekTransferStates.Remotely,
+          ],
+        ].some((s) => flags.isExactly(s));
+      });
     case ApiSoulseekTransferStates.InProgress:
-      return files.filter(
-        (file) => file.state === ApiSoulseekTransferStates.InProgress,
-      );
+      return files.filter((file) => {
+        const flags = new FlaggedEnum<ApiSoulseekTransferStates>(file.state);
+
+        return flags.isExactly(ApiSoulseekTransferStates.InProgress);
+      });
     default:
       return [];
   }
@@ -129,19 +158,48 @@ const getRemovableFiles = ({
 }) => {
   switch (removeOption) {
     case ApiSoulseekTransferStates.Succeeded:
-      return files.filter((file) => file.state === 'Completed, Succeeded');
+      return files.filter((file) => {
+        const flags = new FlaggedEnum<ApiSoulseekTransferStates>(file.state);
+
+        return flags.isExactly([
+          ApiSoulseekTransferStates.Completed,
+          ApiSoulseekTransferStates.Succeeded,
+        ]);
+      });
     case ApiSoulseekTransferStates.Errored:
-      return files.filter((file) =>
-        [
-          'Completed, TimedOut',
-          'Completed, Errored',
-          'Completed, Rejected',
-        ].includes(file.state),
-      );
+      return files.filter((file) => {
+        const flags = new FlaggedEnum<ApiSoulseekTransferStates>(file.state);
+
+        return [
+          [
+            ApiSoulseekTransferStates.Completed,
+            ApiSoulseekTransferStates.TimedOut,
+          ],
+          [
+            ApiSoulseekTransferStates.Completed,
+            ApiSoulseekTransferStates.Errored,
+          ],
+          [
+            ApiSoulseekTransferStates.Completed,
+            ApiSoulseekTransferStates.Rejected,
+          ],
+        ].some((s) => flags.isExactly(s));
+      });
     case ApiSoulseekTransferStates.Cancelled:
-      return files.filter((file) => file.state === 'Completed, Cancelled');
+      return files.filter((file) => {
+        const flags = new FlaggedEnum<ApiSoulseekTransferStates>(file.state);
+
+        return flags.isExactly([
+          ApiSoulseekTransferStates.Completed,
+          ApiSoulseekTransferStates.Cancelled,
+        ]);
+      });
     case ApiSoulseekTransferStates.Completed:
-      return files.filter((file) => file.state.includes('Completed'));
+      return files.filter((file) => {
+        const flags = new FlaggedEnum<ApiSoulseekTransferStates>(file.state);
+
+        return flags.has(ApiSoulseekTransferStates.Completed);
+      });
     default:
       return [];
   }

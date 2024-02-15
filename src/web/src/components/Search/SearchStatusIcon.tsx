@@ -1,4 +1,5 @@
-import { type ApiSoulseekSearchStates } from '../../lib/generated/types';
+import { FlaggedEnum } from '../../lib/flags';
+import { ApiSoulseekSearchStates } from '../../lib/generated/types';
 import { Icon, Popup } from 'semantic-ui-react';
 
 // as of 4.5.2, states are:
@@ -12,16 +13,18 @@ const getIcon = ({
   state,
   ...props
 }: { state: ApiSoulseekSearchStates } & React.ComponentProps<typeof Icon>) => {
-  switch (state) {
-    case 'None':
-    case 'Requested':
+  const flags = new FlaggedEnum<ApiSoulseekSearchStates>(state);
+
+  switch (true) {
+    case flags.isExactly(ApiSoulseekSearchStates.None):
+    case flags.isExactly(ApiSoulseekSearchStates.Requested):
       return (
         <Icon
           name="time"
           {...props}
         />
       );
-    case 'InProgress':
+    case flags.isExactly(ApiSoulseekSearchStates.InProgress):
       return (
         <Icon
           color="green"
@@ -30,9 +33,18 @@ const getIcon = ({
           {...props}
         />
       );
-    case 'Completed, TimedOut':
-    case 'Completed, ResponseLimitReached':
-    case 'Completed, FileLimitReached':
+    case flags.isExactly([
+      ApiSoulseekSearchStates.Completed,
+      ApiSoulseekSearchStates.TimedOut,
+    ]):
+    case flags.isExactly([
+      ApiSoulseekSearchStates.Completed,
+      ApiSoulseekSearchStates.ResponseLimitReached,
+    ]):
+    case flags.isExactly([
+      ApiSoulseekSearchStates.Completed,
+      ApiSoulseekSearchStates.FileLimitReached,
+    ]):
       return (
         <Icon
           color="green"
@@ -40,7 +52,10 @@ const getIcon = ({
           {...props}
         />
       );
-    case 'Completed, Cancelled':
+    case flags.isExactly([
+      ApiSoulseekSearchStates.Completed,
+      ApiSoulseekSearchStates.Cancelled,
+    ]):
       return (
         <Icon
           color="green"
@@ -48,7 +63,10 @@ const getIcon = ({
           {...props}
         />
       );
-    case 'Completed, Errored':
+    case flags.isExactly([
+      ApiSoulseekSearchStates.Completed,
+      ApiSoulseekSearchStates.Errored,
+    ]):
       return (
         <Icon
           color="red"
