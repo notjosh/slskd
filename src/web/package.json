@@ -18,7 +18,7 @@
     "@codemirror/legacy-modes": "^6.0.0",
     "@microsoft/signalr": "^7.0.7",
     "@uiw/react-codemirror": "^4.2.4",
-    "axios": "^0.25.0",
+    "axios": "^1.6.7",
     "lodash": "^4.17.21",
     "lz-string": "^1.4.4",
     "react": "^16.8.6",
@@ -33,31 +33,27 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@craco/craco": "^7.0.0",
-    "@semantic-ui-react/craco-less": "^3.0.0",
+    "@rollup/plugin-alias": "^5.1.0",
     "@semantic-ui-react/css-patch": "^1.0.0",
+    "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.56.0",
     "eslint-config-canonical": "^42.8.1",
-    "react-scripts": "^5.0.0"
+    "jsdom": "^24.0.0",
+    "vite": "^5.1.1",
+    "vitest": "^1.2.2"
   },
   "homepage": ".",
   "name": "web",
-  "overrides": {
-    "@craco/craco": "^7.0.0",
-    "css-select": "^3.1.0",
-    "css-what": "^5.0.1"
-  },
   "private": true,
   "scripts": {
-    "build": "craco build",
-    "eject": "craco eject",
+    "build": "vite build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "postinstall": "semantic-ui-css-patch",
-    "start": "craco start",
-    "test": "craco test",
-    "test-unattended": "craco test --watchAll false --passWithNoTests"
+    "start": "vite",
+    "test": "vitest watch",
+    "test:dev": "vitest watch --changed",
+    "test:unattended": "vitest run --passWithNoTests",
+    "zz__todo__postinstall": "semantic-ui-css-patch"
   },
   "version": "0.1.0"
 }
